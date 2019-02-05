@@ -17,5 +17,5 @@ func main() {
 		"gafaspot",
 	}
 
-	fmt.Println(testOntap.ChangeCreds(vaultToken))
+	fmt.Println(testOntap.ChangeCreds(vaultToken, ""))
 }

@@ -11,7 +11,7 @@ import (
 )
 
 type SecretEngine interface {
-	ChangeCreds(vaultToken string) string
+	ChangeCreds(vaultToken, sshKey string) interface{}
 }
 
 func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (interface{}, error) {

@@ -5,18 +5,18 @@ import (
 )
 
 const (
-	ontapCredsPath = "creds"
+	sshCredsPath = "creds"
 )
 
-type OntapSecretEngine struct {
+type SshSecretEngine struct {
 	VaultAddress string
 	VaultPath    string
 	Role         string
 }
 
-func (ontap OntapSecretEngine) ChangeCreds(vaultToken, _ string) interface{} {
+func (ssh SshSecretEngine) ChangeCreds(vaultToken, sshKey string) interface{} {
 
-	requestPath := joinRequestPath(ontap.VaultAddress, ontap.VaultPath, ontapCredsPath, ontap.Role)
+	requestPath := joinRequestPath(ssh.VaultAddress, ssh.VaultPath, sshCredsPath, ssh.Role)
 
 	log.Println("repuestPath: ", requestPath)
 
