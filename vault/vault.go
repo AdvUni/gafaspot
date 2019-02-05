@@ -29,9 +29,7 @@ func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (*htt
 		return nil, err
 	}
 	defer resp.Body.Close()
-
-	log.Println(resp.Header)
-	log.Println(resp.Body)
+	log.Println(resp)
 
 	return resp, nil
 }
