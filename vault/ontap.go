@@ -3,7 +3,6 @@ package vault
 import (
 	"io/ioutil"
 	"log"
-	"path"
 )
 
 const (
@@ -17,7 +16,10 @@ type OntapSecretEngine struct {
 }
 
 func (ontap OntapSecretEngine) ChangeCreds(vaultToken string) string {
-	requestPath := path.Join(ontap.VaultAddress, ontap.VaultPath, credsPath, ontap.Role)
+
+	requestPath := joinRequestPath(ontap.VaultAddress, ontap.VaultPath, credsPath, ontap.Role)
+
+	log.Println("repuestPath: ", requestPath)
 
 	resp, err := sendVaultRequest("GET", requestPath, vaultToken, nil)
 	if err != nil {

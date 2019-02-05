@@ -4,6 +4,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
+	"path"
 )
 
 type SecretEngine interface {
@@ -32,4 +34,16 @@ func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (*htt
 	log.Println(resp.Body)
 
 	return resp, nil
+}
+
+func joinRequestPath(addressStart string, subpaths ...string) string {
+	url, err := url.Parse(addressStart)
+	if err != nil {
+		log.Println(err)
+	}
+
+	for _, item := range subpaths {
+		url.Path = path.Join(url.Path, item)
+	}
+	return url.String()
 }
