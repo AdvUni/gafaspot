@@ -20,5 +20,9 @@ func (ontap OntapSecretEngine) ChangeCreds(vaultToken string) interface{} {
 
 	log.Println("repuestPath: ", requestPath)
 
-	return sendVaultRequest("GET", requestPath, vaultToken, nil)
+	data, err := sendVaultRequest("GET", requestPath, vaultToken, nil)
+	if err != nil {
+		log.Println(err)
+	}
+	return data
 }
