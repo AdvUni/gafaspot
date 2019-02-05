@@ -1,7 +1,6 @@
 package vault
 
 import (
-	"io/ioutil"
 	"log"
 )
 
@@ -21,15 +20,7 @@ func (ontap OntapSecretEngine) ChangeCreds(vaultToken string) string {
 
 	log.Println("repuestPath: ", requestPath)
 
-	resp, err := sendVaultRequest("GET", requestPath, vaultToken, nil)
-	if err != nil {
-		log.Println(err)
-	}
-	if resp == nil {
-		log.Println("response is nill")
-	}
+	response := sendVaultRequest("GET", requestPath, vaultToken, nil)
 
-	responseData, _ := ioutil.ReadAll(resp.Body)
-	return string(responseData)
-
+	return response
 }

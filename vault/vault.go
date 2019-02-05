@@ -2,6 +2,7 @@ package vault
 
 import (
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -12,12 +13,11 @@ type SecretEngine interface {
 	ChangeCreds(vaultToken string) string
 }
 
-func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (*http.Response, error) {
+func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) string {
 
 	req, err := http.NewRequest(requestType, url, body)
 	if err != nil {
 		log.Println(err)
-		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Vault-Token", vaultToken)
@@ -26,12 +26,16 @@ func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (*htt
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Println(err)
-		return nil, err
 	}
 	defer resp.Body.Close()
 	log.Println(resp)
 
-	return resp, nil
+	responseData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return string(responseData)
 }
 
 func joinRequestPath(addressStart string, subpaths ...string) string {
