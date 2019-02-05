@@ -1,8 +1,8 @@
 package vault
 
 import (
+	"encoding/json"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -13,7 +13,7 @@ type SecretEngine interface {
 	ChangeCreds(vaultToken string) string
 }
 
-func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) string {
+func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) interface{} {
 
 	req, err := http.NewRequest(requestType, url, body)
 	if err != nil {
@@ -30,12 +30,13 @@ func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) strin
 	defer resp.Body.Close()
 	log.Println(resp)
 
-	responseData, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Println(err)
-	}
+	//extract field "data" from json output
+	var result map[string]interface{}
+	// TODO: catch error
+	json.NewDecoder(resp.Body).Decode(&result)
 
-	return string(responseData)
+	//TODO: check ecit code
+	return result["data"]
 }
 
 func joinRequestPath(addressStart string, subpaths ...string) string {

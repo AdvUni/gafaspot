@@ -14,13 +14,11 @@ type OntapSecretEngine struct {
 	Role         string
 }
 
-func (ontap OntapSecretEngine) ChangeCreds(vaultToken string) string {
+func (ontap OntapSecretEngine) ChangeCreds(vaultToken string) interface{} {
 
 	requestPath := joinRequestPath(ontap.VaultAddress, ontap.VaultPath, credsPath, ontap.Role)
 
 	log.Println("repuestPath: ", requestPath)
 
-	response := sendVaultRequest("GET", requestPath, vaultToken, nil)
-
-	return response
+	return sendVaultRequest("GET", requestPath, vaultToken, nil)
 }
