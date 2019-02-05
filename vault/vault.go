@@ -16,6 +16,7 @@ type SecretEngine interface {
 
 func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (interface{}, error) {
 
+	// Build request
 	req, err := http.NewRequest(requestType, url, body)
 	if err != nil {
 		log.Println(err)
@@ -25,6 +26,7 @@ func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (inte
 	req.Header.Set("X-Vault-Token", vaultToken)
 	log.Println(req)
 
+	// Send request
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Println(err)
@@ -33,15 +35,15 @@ func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (inte
 	defer resp.Body.Close()
 	log.Println(resp)
 
-	//extract field "data" from json output
+	// Parse json output to an unstructured map
 	var result map[string]interface{}
-	// TODO: catch error
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		return nil, err
 	}
 
-	//TODO: check ecit code
+	// Check status code.
+	// For a successful request, return the "data" field from json output, otherwise the errors.
 	switch status := resp.Status; status {
 	case "200 OK":
 		return result["data"], nil
