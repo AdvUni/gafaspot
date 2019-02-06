@@ -6,6 +6,7 @@ import (
 
 const (
 	vaultAddress = "http://127.0.0.1:8200/v1"
+	sshKey       = ""
 	vaultToken   = ""
 )
 
@@ -17,5 +18,12 @@ func main() {
 		"",
 	}
 
+	testSSH := vault.SshSecretEngine{
+		vaultAddress,
+		"ontap",
+		"gafaspot",
+	}
+
 	testOntap.StartBooking(vaultToken, "")
+	testSSH.StartBooking(vaultToken, sshKey)
 }
