@@ -1,6 +1,7 @@
 package vault
 
 import (
+	"fmt"
 	"log"
 )
 
@@ -14,7 +15,17 @@ type SshSecretEngine struct {
 	Role         string
 }
 
-func (ssh SshSecretEngine) ChangeCreds(vaultToken, sshKey string) interface{} {
+// TODO: implements methods
+
+func (ssh SshSecretEngine) StartBooking(vaultToken, sshKey string) {
+	fmt.Println(ssh.signKey(vaultToken, sshKey))
+}
+
+func (ssh SshSecretEngine) EndBooking(vaultToken, sshKey string) {
+	fmt.Println("empty method")
+}
+
+func (ssh SshSecretEngine) signKey(vaultToken, sshKey string) interface{} {
 
 	requestPath := joinRequestPath(ssh.VaultAddress, ssh.VaultPath, sshCredsPath, ssh.Role)
 

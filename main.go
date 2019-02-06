@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
 
@@ -15,7 +14,8 @@ func main() {
 		vaultAddress,
 		"ontap",
 		"gafaspot",
+		"",
 	}
 
-	fmt.Println(testOntap.ChangeCreds(vaultToken, ""))
+	testOntap.StartBooking(vaultToken, "")
 }
