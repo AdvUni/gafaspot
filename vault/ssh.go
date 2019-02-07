@@ -11,30 +11,37 @@ const (
 )
 
 type SshSecretEngine struct {
-	VaultAddress string
-	VaultPath    string
-	Role         string
+	signURL      string
+	storeDataURL string
+}
+
+func NewSshSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, middlePath, role string) SshSecretEngine {
+	signURL := joinRequestPath(vaultAddress, operateBasicPath, middlePath, sshSignPath, role)
+	log.Println("sign path: ", signURL)
+	storeDataURL := joinRequestPath(vaultAddress, storeBasicPath, middlePath, role, "signature")
+	log.Println("kv path: ", storeDataURL)
+
+	return SshSecretEngine{
+		signURL,
+		storeDataURL,
+	}
 }
 
 // TODO: implements methods
 
 func (ssh SshSecretEngine) StartBooking(vaultToken, sshKey string) {
-	fmt.Println(ssh.signKey(vaultToken, sshKey))
-	// TODO: Write results into kv secret engine
+	data := fmt.Sprintf("%v", ssh.signKey(vaultToken, sshKey))
+	log.Println(data)
+	WriteSecret(vaultToken, ssh.storeDataURL, data)
 }
 
 func (ssh SshSecretEngine) EndBooking(vaultToken, sshKey string) {
-	// TODO: Delete contents from kv secret engine
-	fmt.Println("empty method")
+	DeleteSecret(vaultToken, ssh.storeDataURL)
 }
 
 func (ssh SshSecretEngine) signKey(vaultToken, sshKey string) interface{} {
 
-	requestPath := joinRequestPath(ssh.VaultAddress, ssh.VaultPath, sshSignPath, ssh.Role)
-
-	log.Println("repuestPath: ", requestPath)
-
-	data, err := sendVaultRequest("POST", requestPath, vaultToken, strings.NewReader(sshKey))
+	data, err := sendVaultRequest("POST", ssh.signURL, vaultToken, strings.NewReader(sshKey))
 	if err != nil {
 		log.Println(err)
 	}

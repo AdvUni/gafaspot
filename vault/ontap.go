@@ -1,8 +1,8 @@
 package vault
 
 import (
-	"fmt"
 	"log"
+	"fmt"
 )
 
 const (
@@ -10,29 +10,36 @@ const (
 )
 
 type OntapSecretEngine struct {
-	VaultAddress string
-	VaultPath    string
-	Role         string
-	VaultKVPath  string
+	changeCredsURL string
+	storeDataURL   string
+}
+
+func NewOntapSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, middlePath, role string) OntapSecretEngine {
+	changeCredsURL := joinRequestPath(vaultAddress, operateBasicPath, middlePath, ontapCredsPath, role)
+	log.Println("creds path: ", changeCredsURL)
+	storeDataURL := joinRequestPath(vaultAddress, storeBasicPath, middlePath, role, "data")
+	log.Println("kv path: ", storeDataURL)
+
+	return OntapSecretEngine{
+		changeCredsURL,
+		storeDataURL,
+	}
 }
 
 func (ontap OntapSecretEngine) StartBooking(vaultToken, _ string) {
-	fmt.Println(ontap.changeCreds(vaultToken))
-	// TODO: Write results into kv secret engine
+	data := fmt.Sprintf("%v", ontap.changeCreds(vaultToken))
+	log.Println(data)
+	WriteSecret(vaultToken, ontap.storeDataURL, data)
 }
 
 func (ontap OntapSecretEngine) EndBooking(vaultToken, _ string) {
-	// TODO: Delete contents from kv secret engine
-	fmt.Println(ontap.changeCreds(vaultToken))
+	DeleteSecret(vaultToken, ontap.storeDataURL)
+	log.Println(ontap.changeCreds(vaultToken))
 }
 
 func (ontap OntapSecretEngine) changeCreds(vaultToken string) interface{} {
 
-	requestPath := joinRequestPath(ontap.VaultAddress, ontap.VaultPath, ontapCredsPath, ontap.Role)
-
-	log.Println("repuestPath: ", requestPath)
-
-	data, err := sendVaultRequest("GET", requestPath, vaultToken, nil)
+	data, err := sendVaultRequest("GET", ontap.changeCredsURL, vaultToken, nil)
 	if err != nil {
 		log.Println(err)
 	}
