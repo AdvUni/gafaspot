@@ -1,8 +1,8 @@
 package vault
 
 import (
-	"log"
 	"fmt"
+	"log"
 )
 
 const (
@@ -27,7 +27,7 @@ func NewOntapSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, middle
 }
 
 func (ontap OntapSecretEngine) StartBooking(vaultToken, _ string) {
-	data := fmt.Sprintf("%v", ontap.changeCreds(vaultToken))
+	data := fmt.Sprintf("{\"data\": \"%v\"}", ontap.changeCreds(vaultToken))
 	log.Println(data)
 	WriteSecret(vaultToken, ontap.storeDataURL, data)
 }

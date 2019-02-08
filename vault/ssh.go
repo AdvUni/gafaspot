@@ -30,7 +30,7 @@ func NewSshSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, middlePa
 // TODO: implements methods
 
 func (ssh SshSecretEngine) StartBooking(vaultToken, sshKey string) {
-	data := fmt.Sprintf("%v", ssh.signKey(vaultToken, sshKey))
+	data := fmt.Sprintf("{\"signature\": \"%v\"}", ssh.signKey(vaultToken, sshKey))
 	log.Println(data)
 	WriteSecret(vaultToken, ssh.storeDataURL, data)
 }
