@@ -1,0 +1,34 @@
+
+# example config
+
+vault-address: http://127.0.0.1:8200/v1
+
+environments:
+
+  demo0:
+  
+    secretEngines:
+    - name: NetApp
+      type: ontap
+      role: gafaspot
+      
+    - name: ActiveDirectory
+      type: ad
+      role: gafaspot
+      
+    description: this is demo environment 0
+    
+  demo1:
+  
+    secretEngines:
+    - name: NetApp
+      type: ontap
+      role: gafaspot
+      
+    - name: someDatabase
+      type: database
+      role: gafaspot
+      
+    - name: otherDatabase
+      type: database
+      role: gafaspot
