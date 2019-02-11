@@ -13,7 +13,14 @@ const (
 func main() {
 
 	environments := initSecretEngines()
-	fmt.Println(environments)
+	//fmt.Println(environments)
+
+	demo0 = environments["demo0"]
+	fmt.Println(demo0)
+
+	for _, secEng := range demo0 {
+		secEng.StartBooking(vaultToken, sshKey)
+	}
 
 	//testOntap := vault.NewOntapSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, "ontap", "gafaspot")
 
