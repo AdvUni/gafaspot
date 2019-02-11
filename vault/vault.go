@@ -10,9 +10,26 @@ import (
 	"path"
 )
 
+const (
+	operateBasicPath = "operate"
+	storeBasicPath   = "store"
+)
+
 type SecretEngine interface {
 	StartBooking(vaultToken, sshKey string)
 	EndBooking(vaultToken, sshKey string)
+}
+
+func NewSecretEngine(engineType, vaultAddress, name, role string) SecretEngine {
+	switch engineType {
+	case "ad", "ontap":
+		return NewOntapSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, name, role)
+	case "ssh":
+		return NewSshSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, name, role)
+	default:
+		log.Println(fmt.Errorf("Unsupported Secret Engine type: %v", engineType))
+		return nil
+	}
 }
 
 func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (interface{}, error) {
