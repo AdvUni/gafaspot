@@ -1,23 +1,24 @@
 package main
 
 import (
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
+	//"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
+	"fmt"
 )
 
 const (
-	vaultAddress     = "http://127.0.0.1:8200/v1"
-	operateBasicPath = "operate"
-	storeBasicPath   = "store"
-	sshKey           = ""
-	vaultToken       = ""
+	sshKey     = ""
+	vaultToken = ""
 )
 
 func main() {
 
-	testOntap := vault.NewOntapSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, "ontap", "gafaspot")
+	environments := initSecretEngines()
+	fmt.Println(environments)
 
-	testSSH := vault.NewSshSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, "ssh", "gafaspot")
+	//testOntap := vault.NewOntapSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, "ontap", "gafaspot")
 
-	testOntap.StartBooking(vaultToken, "")
-	testSSH.StartBooking(vaultToken, sshKey)
+	//testSSH := vault.NewSshSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, "ssh", "gafaspot")
+
+	//testOntap.StartBooking(vaultToken, "")
+	//testSSH.StartBooking(vaultToken, sshKey)
 }

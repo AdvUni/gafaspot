@@ -23,8 +23,10 @@ type SecretEngine interface {
 func NewSecretEngine(engineType, vaultAddress, name, role string) SecretEngine {
 	switch engineType {
 	case "ad", "ontap":
+		log.Println("adding a creds secret engine")
 		return NewOntapSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, name, role)
 	case "ssh":
+		log.Println("adding ssh secret engine")
 		return NewSshSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, name, role)
 	default:
 		log.Println(fmt.Errorf("Unsupported Secret Engine type: %v", engineType))
