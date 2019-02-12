@@ -15,7 +15,7 @@ func main() {
 	environments := initSecretEngines()
 	//fmt.Println(environments)
 
-	demo0 = environments["demo0"]
+	demo0 := environments["demo0"]
 	fmt.Println(demo0)
 
 	for _, secEng := range demo0 {

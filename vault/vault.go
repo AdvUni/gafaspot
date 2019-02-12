@@ -20,14 +20,33 @@ type SecretEngine interface {
 	EndBooking(vaultToken, sshKey string)
 }
 
-func NewSecretEngine(engineType, vaultAddress, name, role string) SecretEngine {
+func NewSecretEngine(engineType, vaultAddress, env, name, role string) SecretEngine {
 	switch engineType {
 	case "ad", "ontap":
 		log.Println("adding a creds secret engine")
-		return NewOntapSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, name, role)
+
+		changeCredsURL := joinRequestPath(vaultAddress, operateBasicPath, env, name, ontapCredsPath, role)
+		log.Println("creds path: ", changeCredsURL)
+		storeDataURL := joinRequestPath(vaultAddress, storeBasicPath, env, name, role, "data")
+		log.Println("kv path: ", storeDataURL)
+
+		return OntapSecretEngine{
+			changeCredsURL,
+			storeDataURL,
+		}
 	case "ssh":
 		log.Println("adding ssh secret engine")
-		return NewSshSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, name, role)
+
+		signURL := joinRequestPath(vaultAddress, operateBasicPath, env, name, sshSignPath, role)
+		log.Println("sign path: ", signURL)
+		storeDataURL := joinRequestPath(vaultAddress, storeBasicPath, env, name, role, "signature")
+		log.Println("kv path: ", storeDataURL)
+
+		return SshSecretEngine{
+			signURL,
+			storeDataURL,
+		}
+
 	default:
 		log.Println(fmt.Errorf("Unsupported Secret Engine type: %v", engineType))
 		return nil

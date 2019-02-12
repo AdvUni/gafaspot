@@ -27,8 +27,6 @@ func readConfig() GafaspotConfig {
 	viper.SetConfigName("gafaspot_config")
 	viper.AddConfigPath(".")
 	viper.SetConfigType("yaml")
-	viper.RegisterAlias("type", "EngineType")
-	viper.RegisterAlias("EngineType", "type")
 
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -53,7 +51,7 @@ func initSecretEngines() map[string][]vault.SecretEngine {
 		var secretEngines []vault.SecretEngine
 		for _, engine := range envConf.SecretEngines {
 			fmt.Printf("name: %v, type: %v, role: %v\n", engine.Name, engine.EngineType, engine.Role)
-			secretEngine := vault.NewSecretEngine(engine.EngineType, config.VaultAddress, engine.Name, engine.Role)
+			secretEngine := vault.NewSecretEngine(engine.EngineType, config.VaultAddress, envName, engine.Name, engine.Role)
 			fmt.Println(secretEngine)
 			if secretEngine != nil {
 				secretEngines = append(secretEngines, secretEngine)

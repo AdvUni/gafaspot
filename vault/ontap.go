@@ -14,18 +14,6 @@ type OntapSecretEngine struct {
 	storeDataURL   string
 }
 
-func NewOntapSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, middlePath, role string) OntapSecretEngine {
-	changeCredsURL := joinRequestPath(vaultAddress, operateBasicPath, middlePath, ontapCredsPath, role)
-	log.Println("creds path: ", changeCredsURL)
-	storeDataURL := joinRequestPath(vaultAddress, storeBasicPath, middlePath, role, "data")
-	log.Println("kv path: ", storeDataURL)
-
-	return OntapSecretEngine{
-		changeCredsURL,
-		storeDataURL,
-	}
-}
-
 func (ontap OntapSecretEngine) StartBooking(vaultToken, _ string) {
 	data := fmt.Sprintf("{\"data\": \"%v\"}", ontap.changeCreds(vaultToken))
 	log.Println(data)
