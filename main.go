@@ -12,8 +12,9 @@ const (
 
 func main() {
 
-	environments := initSecretEngines()
-	//fmt.Println(environments)
+	config := readConfig()
+	environments := initSecretEngines(config)
+	db := initDB(config)
 
 	demo0 := environments["demo0"]
 	fmt.Println(demo0)

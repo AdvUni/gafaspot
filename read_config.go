@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/spf13/viper"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 	"log"
@@ -9,6 +11,7 @@ import (
 
 type GafaspotConfig struct {
 	VaultAddress string                       `mapstructure:"vault-address"`
+	Database     string                       `mapstructure:"db-path"`
 	Environments map[string]environmentConfig //`yaml:"environments"`
 }
 
@@ -41,8 +44,7 @@ func readConfig() GafaspotConfig {
 	return config
 }
 
-func initSecretEngines() map[string][]vault.SecretEngine {
-	config := readConfig()
+func initSecretEngines(config GafaspotConfig) map[string][]vault.SecretEngine {
 
 	log.Println(config.VaultAddress)
 
@@ -62,4 +64,35 @@ func initSecretEngines() map[string][]vault.SecretEngine {
 
 	return environments
 
+}
+
+func initDB(config GafaspotConfig) {
+	db, err := sql.Open("sqlite3", config.Database)
+	if err != nil {
+		log.Fatal("Not able to open database: ", err)
+	}
+
+	// Create table reservations. If it already exists, don't overwrite
+	_, err := db.Exec("CREATE TABLE IF NOT EXISTS reservations (id INTEGER PRIMARY KEY, status TEXT NOT NULL, username TEXT NOT NULL, env_name TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME NOT NULL, subject TEXT, labels TEXT, delete_on DATE NOT NULL);")
+
+	// Create table users. If it already exists, don't overwrite
+	_, err := db.Exec("CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE NOT NULL, ssh_pub_key BLOB, delete_on DATE NOT NULL);")
+
+	// Create table environments. If it already exist, deltete it first. Someone might have updated the environment configurations before system restart. So we want to create this table from scratch.
+	_, err := db.Exec("DROP TABLE IF EXISTS environments);")
+	_, err := db.Exec("CREATE TABLE environments (env_name TEXT UNIQUE NOT NULL, has_ssh BOOLEAN NOT NULL, description TEXT);")
+
+	// Fill empty table environments with information from configuration file
+	for envName, envConf := range config.Environments {
+		envDescription := envConf.Description
+		envHasSSH := false
+		for _, secEng := range envConf.SecretEngines {
+			if secEng.EngineType == "ssh" {
+				envHasSSH = true
+			}
+		}
+		_, err := db.Exec("INSERT INTO environments VALUES (?, ?, ?);", envName, envHasSSH, envDescription)
+	}
+
+	return db
 }
