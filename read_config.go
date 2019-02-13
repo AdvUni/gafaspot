@@ -67,6 +67,7 @@ func initSecretEngines(config GafaspotConfig) map[string][]vault.SecretEngine {
 }
 
 func initDB(config GafaspotConfig) *sql.DB {
+	log.Println(config.Database)
 	db, err := sql.Open("sqlite3", config.Database)
 	if err != nil {
 		log.Fatal("Not able to open database: ", err)
@@ -85,7 +86,10 @@ func initDB(config GafaspotConfig) *sql.DB {
 	}
 
 	// Create table environments. If it already exist, deltete it first. Someone might have updated the environment configurations before system restart. So we want to create this table from scratch.
-	_, err = db.Exec("DROP TABLE IF EXISTS environments);")
+	_, err = db.Exec("DROP TABLE IF EXISTS environments;")
+	if err != nil {
+		log.Fatal(err)
+	}
 	_, err = db.Exec("CREATE TABLE environments (env_name TEXT UNIQUE NOT NULL, has_ssh BOOLEAN NOT NULL, description TEXT);")
 	if err != nil {
 		log.Fatal(err)
