@@ -2,6 +2,7 @@ package vault
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 )
@@ -13,7 +14,7 @@ func handle_bookings(db *sql.DB) {
 	// TODO: endless loop, triggered each 5 minutes
 
 	// have to start any upcoming bookings?
-	resRows, err := stmt.Query("(id, env_name)", "reservations", "(status='upcoming') AND (start<='"+string(time.Now)+"')")
+	resRows, err := stmt.Query("(id, env_name)", "reservations", "(status='upcoming') AND (start<='"+time.Now().String()+"')")
 	if err != nil {
 		log.Println(err)
 	}
@@ -29,9 +30,9 @@ func handle_bookings(db *sql.DB) {
 
 		// Does environment exist? Is ssh key needed?
 		var hasSSH bool
-		err := stmt.QueryRow("has_ssh", "environments", "(env_name='"+envName+"')").Scan(&hasSSH)
+		err = stmt.QueryRow("has_ssh", "environments", "(env_name='"+envName+"')").Scan(&hasSSH)
 		if err == sql.ErrNoRows {
-			log.Fatal("Environment %v does not exist. Can't book it.", envName)
+			log.Fatalf("Environment %v does not exist. Can't book it.", envName)
 		} else if err != nil {
 			log.Fatal(err)
 		}
@@ -43,7 +44,7 @@ func handle_bookings(db *sql.DB) {
 				log.Fatal(err)
 			}
 		}
-		
+
 		// TODO: finally submit booking. From where is the secret engine list retrieved?
 
 	}

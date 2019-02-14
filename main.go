@@ -1,9 +1,8 @@
 package main
 
-import (
-	//"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
-	"fmt"
-)
+import "log"
+
+//"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 
 const (
 	sshKey     = ""
