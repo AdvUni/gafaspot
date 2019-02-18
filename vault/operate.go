@@ -47,3 +47,15 @@ func NewSecEng(engineType, vaultAddress, env, name, role string) SecEng {
 		return nil
 	}
 }
+
+func StartBooking(environment []SecEng, vaultToken, sshKey string) {
+	for _, secEng := range environment {
+		secEng.startBooking(vaultToken, sshKey)
+	}
+}
+
+func EndBooking(environment []SecEng, vaultToken, sshKey string) {
+	for _, secEng := range environment {
+		secEng.endBooking(vaultToken, sshKey)
+	}
+}
