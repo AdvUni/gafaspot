@@ -1,11 +1,11 @@
 package vault
 
 import (
-	"strings"
 	"log"
+	"strings"
 )
 
-func WriteSecret(vaultToken, url, data string) {
+func vaultStorageWrite(vaultToken, url, data string) {
 
 	_, err := sendVaultRequest("POST", url, vaultToken, strings.NewReader(data))
 	if err != nil {
@@ -13,11 +13,11 @@ func WriteSecret(vaultToken, url, data string) {
 	}
 }
 
-func ReadSecret(vaultToken, url string) (interface{}, error){
+func vaultStorageRead(vaultToken, url string) (interface{}, error) {
 	return sendVaultRequest("GET", url, vaultToken, nil)
 }
 
-func DeleteSecret(vaultToken, url string) {
+func vaultStorageDelete(vaultToken, url string) {
 	_, err := sendVaultRequest("DELETE", url, vaultToken, nil)
 	if err != nil {
 		log.Println(err)

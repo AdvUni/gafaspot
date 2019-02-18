@@ -10,49 +10,6 @@ import (
 	"path"
 )
 
-const (
-	operateBasicPath = "operate"
-	storeBasicPath   = "store"
-)
-
-type SecretEngine interface {
-	StartBooking(vaultToken, sshKey string)
-	EndBooking(vaultToken, sshKey string)
-}
-
-func NewSecretEngine(engineType, vaultAddress, env, name, role string) SecretEngine {
-	switch engineType {
-	case "ad", "ontap":
-		log.Println("adding a creds secret engine")
-
-		changeCredsURL := joinRequestPath(vaultAddress, operateBasicPath, env, name, ontapCredsPath, role)
-		log.Println("creds path: ", changeCredsURL)
-		storeDataURL := joinRequestPath(vaultAddress, storeBasicPath, env, name, role, "data")
-		log.Println("kv path: ", storeDataURL)
-
-		return OntapSecretEngine{
-			changeCredsURL,
-			storeDataURL,
-		}
-	case "ssh":
-		log.Println("adding ssh secret engine")
-
-		signURL := joinRequestPath(vaultAddress, operateBasicPath, env, name, sshSignPath, role)
-		log.Println("sign path: ", signURL)
-		storeDataURL := joinRequestPath(vaultAddress, storeBasicPath, env, name, role, "signature")
-		log.Println("kv path: ", storeDataURL)
-
-		return SshSecretEngine{
-			signURL,
-			storeDataURL,
-		}
-
-	default:
-		log.Println(fmt.Errorf("Unsupported Secret Engine type: %v", engineType))
-		return nil
-	}
-}
-
 func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (interface{}, error) {
 
 	// Build request
