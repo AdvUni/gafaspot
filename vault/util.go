@@ -18,11 +18,11 @@ func sendVaultDataRequest(requestType, url, vaultToken string, body io.Reader) (
 	}
 	data, ok := res["data"]
 	if !ok {
-		err = fmt.Errorf("Malformed json response from vault: Didn't find expected field 'data'.")
+		err = fmt.Errorf("malformed json response from vault: Didn't find expected field 'data'")
 		return nil, err
 	}
 	if data == "null" {
-		err = fmt.Errorf("Json response from vault not has expected content: Tried to fetch field 'data', but it seems to be empty")
+		err = fmt.Errorf("json response from vault not has expected content: Tried to fetch field 'data', but it seems to be empty")
 		return nil, err
 	}
 	return data, nil
@@ -35,24 +35,16 @@ func sendVaultTokenRequest(requestType, url string, body io.Reader) (string, err
 	}
 	authField, ok := res["auth"]
 	if !ok {
-		err = fmt.Errorf("Malformed json response from vault: Didn't find expected field 'auth'.")
+		err = fmt.Errorf("malformed json response from vault: Didn't find expected field 'auth'")
 		return "", err
 	}
 	if authField == "null" {
-		err = fmt.Errorf("Json response from vault not has expected content: Tried to fetch field 'auth', but it seems to be empty")
+		err = fmt.Errorf("json response from vault not has expected content: Tried to fetch field 'auth', but it seems to be empty")
 		return "", err
 	}
-	/*
-		"auth":{
-			"client_token":"s.2JlKZZKp2w5YUiiOcZdxXBVu",
-			"accessor":"74CuNYNKar5XigEcAX4sTo10",
-			"policies":["default"],
-			"token_policies":["default"],
-			"metadata":{"role_name":"testrole"}
-	*/
 	token, ok := authField.(map[string]interface{})["client_token"]
 	if !ok {
-		err = fmt.Errorf("Malformed json response from vault: Didn't find expected field 'client_token' inside 'auth'.")
+		err = fmt.Errorf("malformed json response from vault: Didn't find expected field 'client_token' inside 'auth'")
 		return "", err
 	}
 	return token.(string), nil
@@ -65,7 +57,7 @@ func sendVaultRequestEmtpyResponse(requestType, url, vaultToken string, body io.
 		return err
 	}
 	if res != nil {
-		err = fmt.Errorf("Expected an empty response. Instead, got following content: %v", res)
+		err = fmt.Errorf("expected an empty response. Instead, got following content: %v", res)
 		return err
 	}
 
@@ -112,7 +104,7 @@ func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (map[
 		return nil, nil
 	default:
 		jsonErrors := result["errors"]
-		err = fmt.Errorf("Vault API returned following error(s): %v", jsonErrors)
+		err = fmt.Errorf("vault API returned following error(s): %v", jsonErrors)
 		return nil, err
 	}
 }
