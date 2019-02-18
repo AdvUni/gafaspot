@@ -5,6 +5,9 @@ db-path: ./gafaspot.db
 
 vault-address: http://127.0.0.1:8200/v1
 
+approle-roleID: someID
+approle-secretID: someSecret
+
 environments:
 
   demo0:

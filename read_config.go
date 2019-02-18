@@ -3,16 +3,21 @@ package main
 import (
 	"database/sql"
 	"fmt"
+
+	"log"
+
 	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/spf13/viper"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
-	"log"
 )
 
 type GafaspotConfig struct {
-	VaultAddress string                       `mapstructure:"vault-address"`
-	Database     string                       `mapstructure:"db-path"`
-	Environments map[string]environmentConfig //`yaml:"environments"`
+	VaultAddress  string                       `mapstructure:"vault-address"`
+	ApproleID     string                       `mapstructure:"approle-roleID"`
+	ApproleSecret string                       `mapstructure:"approle-secretID"`
+	Database      string                       `mapstructure:"db-path"`
+	Environments  map[string]environmentConfig //`yaml:"environments"`
 }
 
 type environmentConfig struct {
@@ -44,16 +49,16 @@ func readConfig() GafaspotConfig {
 	return config
 }
 
-func initSecretEngines(config GafaspotConfig) map[string][]vault.SecretEngine {
+func initSecretEngines(config GafaspotConfig) map[string][]vault.SecEng {
 
 	log.Println(config.VaultAddress)
 
-	environments := make(map[string][]vault.SecretEngine)
+	environments := make(map[string][]vault.SecEng)
 	for envName, envConf := range config.Environments {
-		var secretEngines []vault.SecretEngine
+		var secretEngines []vault.SecEng
 		for _, engine := range envConf.SecretEngines {
 			fmt.Printf("name: %v, type: %v, role: %v\n", engine.Name, engine.EngineType, engine.Role)
-			secretEngine := vault.NewSecretEngine(engine.EngineType, config.VaultAddress, envName, engine.Name, engine.Role)
+			secretEngine := vault.NewSecEng(engine.EngineType, config.VaultAddress, envName, engine.Name, engine.Role)
 			fmt.Println(secretEngine)
 			if secretEngine != nil {
 				secretEngines = append(secretEngines, secretEngine)
