@@ -7,18 +7,18 @@ import (
 
 func vaultStorageWrite(vaultToken, url, data string) {
 
-	_, err := sendVaultRequest("POST", url, vaultToken, strings.NewReader(data))
+	err := sendVaultRequestEmtpyResponse("POST", url, vaultToken, strings.NewReader(data))
 	if err != nil {
 		log.Println(err)
 	}
 }
 
 func vaultStorageRead(vaultToken, url string) (interface{}, error) {
-	return sendVaultRequest("GET", url, vaultToken, nil)
+	return sendVaultDataRequest("GET", url, vaultToken, nil)
 }
 
 func vaultStorageDelete(vaultToken, url string) {
-	_, err := sendVaultRequest("DELETE", url, vaultToken, nil)
+	err := sendVaultRequestEmtpyResponse("DELETE", url, vaultToken, nil)
 	if err != nil {
 		log.Println(err)
 	}

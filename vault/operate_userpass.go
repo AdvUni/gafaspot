@@ -27,7 +27,7 @@ func (secEng userpassSecEng) endBooking(vaultToken, _ string) {
 
 func (SecEng userpassSecEng) changeCreds(vaultToken string) interface{} {
 
-	data, err := sendVaultRequest("GET", SecEng.changeCredsURL, vaultToken, nil)
+	data, err := sendVaultDataRequest("GET", SecEng.changeCredsURL, vaultToken, nil)
 	if err != nil {
 		log.Println(err)
 	}

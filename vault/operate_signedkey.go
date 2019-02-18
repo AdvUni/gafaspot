@@ -27,7 +27,7 @@ func (secEng signedkeySecEng) endBooking(vaultToken, sshKey string) {
 
 func (secEng signedkeySecEng) signKey(vaultToken, sshKey string) interface{} {
 
-	data, err := sendVaultRequest("POST", secEng.signURL, vaultToken, strings.NewReader(sshKey))
+	data, err := sendVaultDataRequest("POST", secEng.signURL, vaultToken, strings.NewReader(sshKey))
 	if err != nil {
 		log.Println(err)
 	}
