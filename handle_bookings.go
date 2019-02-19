@@ -44,9 +44,17 @@ func readValues(db *sql.DB, resRows *sql.Rows, lookupSSH bool) (int, string, str
 func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle *vault.Approle) {
 
 	log.Println("startet booking handle procedure")
-
-	selectCurrentEvents, err := db.Prepare("SELECT (id, username, env_name) FROM reservations WHERE (status='?') AND (?<='" + time.Now().String() + "');")
+	queryString := "SELECT (id, username, env_name) FROM reservations WHERE (status='?') AND (?<='" + time.Now().String() + "');"
+	selectCurrentEvents, err := db.Prepare(queryString)
+	if err != nil {
+		log.Printf("first statement creation failed: %v", err)
+	}
+	defer selectCurrentEvents.Close()
 	updateState, err := db.Prepare("UPDATE reservations SET status='?' WHERE id=?;")
+	if err != nil {
+		log.Printf("second statement creation failed: %v", err)
+	}
+	defer updateState.Close()
 
 	// TODO: endless loop, triggered each 5 minutes
 
