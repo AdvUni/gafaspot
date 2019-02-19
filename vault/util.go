@@ -90,8 +90,8 @@ func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (map[
 	// Parse json output to an unstructured map
 	var result map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		log.Printf("json.NewDecoder throws following error: %v \n", err)
+	// ignore EOF errors, as they are expected for status code 204
+	if err != nil && err != io.EOF {
 		return nil, err
 	}
 
