@@ -43,7 +43,7 @@ func readValues(db *sql.DB, resRows *sql.Rows, lookupSSH bool) (int, string, str
 
 func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle *vault.Approle) {
 
-	log.println("startet booking handle procedure")
+	log.Println("startet booking handle procedure")
 
 	selectCurrentEvents, err := db.Prepare("SELECT (id, username, env_name) FROM reservations WHERE (status='?') AND (?<='" + time.Now().String() + "');")
 	updateState, err := db.Prepare("UPDATE reservations SET status='?' WHERE id=?;")
@@ -96,5 +96,5 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 		// delete booking from database
 		_, err = db.Exec("DELETE FROM reservations WHERE id=?;", reservationID)
 	}
-	log.println("end booking handle procedure")
+	log.Println("end booking handle procedure")
 }
