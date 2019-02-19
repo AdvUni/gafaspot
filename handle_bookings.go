@@ -17,7 +17,7 @@ func readValues(db *sql.DB, resRows *sql.Rows, lookupSSH bool) (int, string, str
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Values from matching query: id - %v, username - %v, envname %v", reservationID, username, envName)
+	fmt.Printf("Values from matching query: id - %v, username - %v, envname %v\n", reservationID, username, envName)
 
 	// Does environment exist? Is ssh key needed?
 	var hasSSH bool
@@ -72,6 +72,9 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 		// change booking status in database
 		log.Println("executed start of booking")
 		_, err = updateState.Exec("active", reservationID)
+		if err != nil {
+			log.Printf("did not change status from upcoming to active due to following error: %v\n", err)
+		}
 	}
 
 	// have to end any active bookings?
@@ -90,6 +93,9 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 		// change booking status in database
 		log.Println("executed end of booking")
 		_, err = updateState.Exec("expired", reservationID)
+		if err != nil {
+			log.Printf("did not change status from active to expired due to following error: %v\n", err)
+		}
 	}
 
 	// have to delete any expired bookings?
@@ -103,6 +109,9 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 
 		// delete booking from database
 		_, err = db.Exec("DELETE FROM reservations WHERE id=?;", reservationID)
+		if err != nil {
+			log.Printf("did not delete database entry due to following error: %v\n", err)
+		}
 	}
 	log.Println("end booking handle procedure")
 }

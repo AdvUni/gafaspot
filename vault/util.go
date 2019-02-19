@@ -91,6 +91,7 @@ func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (map[
 	var result map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
+		log.Printf("json.NewDecoder throws following error: %v \n", err)
 		return nil, err
 	}
 
