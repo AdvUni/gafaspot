@@ -20,8 +20,9 @@ func main() {
 	config := readConfig()
 
 	environments := initSecEngs(config)
-	log.Println(environments)
+	log.Printf("environments: %v", environments)
 	db := initDB(config)
+	log.Printf("db: %v", db)
 	approle := initApprole(config)
 
 	handleBookings(db, environments, approle)

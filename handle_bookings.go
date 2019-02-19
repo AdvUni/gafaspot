@@ -17,7 +17,7 @@ func readValues(db *sql.DB, resRows *sql.Rows, lookupSSH bool) (int, string, str
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(reservationID, username, envName)
+	fmt.Printf("Values from matching query: id - %v, username - %v, envname %v", reservationID, username, envName)
 
 	// Does environment exist? Is ssh key needed?
 	var hasSSH bool
@@ -42,6 +42,8 @@ func readValues(db *sql.DB, resRows *sql.Rows, lookupSSH bool) (int, string, str
 }
 
 func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle *vault.Approle) {
+
+	log.println("startet booking handle procedure")
 
 	selectCurrentEvents, err := db.Prepare("SELECT (id, username, env_name) FROM reservations WHERE (status='?') AND (?<='" + time.Now().String() + "');")
 	updateState, err := db.Prepare("UPDATE reservations SET status='?' WHERE id=?;")
@@ -94,4 +96,5 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 		// delete booking from database
 		_, err = db.Exec("DELETE FROM reservations WHERE id=?;", reservationID)
 	}
+	log.println("end booking handle procedure")
 }
