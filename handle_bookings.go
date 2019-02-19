@@ -43,13 +43,13 @@ func readValues(db *sql.DB, resRows *sql.Rows, lookupSSH bool) (int, string, str
 
 func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle *vault.Approle) {
 
-	s, err := db.Prepare("SELECT (id, username, env_name) FROM reservations WHERE (status='?') AND (?<='" + time.Now().String() + "');")
+	selectCurrentEvents, err := db.Prepare("SELECT (id, username, env_name) FROM reservations WHERE (status='?') AND (?<='" + time.Now().String() + "');")
 	updateState, err := db.Prepare("UPDATE reservations SET status='?' WHERE id=?;")
 
 	// TODO: endless loop, triggered each 5 minutes
 
 	// have to start any upcoming bookings?
-	resRows, err := s.Query("upcoming", "start")
+	resRows, err := selectCurrentEvents.Query("upcoming", "start")
 	if err != nil {
 		log.Println(err)
 	}
@@ -66,7 +66,7 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 	}
 
 	// have to end any active bookings?
-	resRows, err = s.Query("active", "end")
+	resRows, err = selectCurrentEvents.Query("active", "end")
 	if err != nil {
 		log.Println(err)
 	}
@@ -83,7 +83,7 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 	}
 
 	// have to delete any expired bookings?
-	resRows, err = s.Query("expired", "delete_on")
+	resRows, err = selectCurrentEvents.Query("expired", "delete_on")
 	if err != nil {
 		log.Println(err)
 	}
