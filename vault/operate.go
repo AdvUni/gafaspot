@@ -12,7 +12,7 @@ const (
 
 type SecEng interface {
 	startBooking(vaultToken, sshKey string)
-	endBooking(vaultToken, sshKey string)
+	endBooking(vaultToken string)
 }
 
 func NewSecEng(engineType, vaultAddress, env, name, role string) SecEng {
@@ -54,8 +54,8 @@ func StartBooking(environment []SecEng, vaultToken, sshKey string) {
 	}
 }
 
-func EndBooking(environment []SecEng, vaultToken, sshKey string) {
+func EndBooking(environment []SecEng, vaultToken string) {
 	for _, secEng := range environment {
-		secEng.endBooking(vaultToken, sshKey)
+		secEng.endBooking(vaultToken)
 	}
 }

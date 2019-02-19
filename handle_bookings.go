@@ -59,13 +59,13 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 	}
 
 	// TODO: have to end any active bookings?
-	resRows, err = s.Query("active")
-	if err != nil {
-		log.Println(err)
-	}
-	defer resRows.Close()
-	for resRows.Next() {
-	}
+	/* 	resRows, err = s.Query("active")
+	   	if err != nil {
+	   		log.Println(err)
+	   	}
+	   	defer resRows.Close()
+	   	for resRows.Next() {
+	   	} */
 
 	// TODO: have to delete any expired bookings?
 }

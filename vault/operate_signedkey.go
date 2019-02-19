@@ -21,7 +21,7 @@ func (secEng signedkeySecEng) startBooking(vaultToken, sshKey string) {
 	vaultStorageWrite(vaultToken, secEng.storeDataURL, data)
 }
 
-func (secEng signedkeySecEng) endBooking(vaultToken, sshKey string) {
+func (secEng signedkeySecEng) endBooking(vaultToken string) {
 	vaultStorageDelete(vaultToken, secEng.storeDataURL)
 }
 

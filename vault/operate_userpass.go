@@ -20,14 +20,14 @@ func (secEng userpassSecEng) startBooking(vaultToken, _ string) {
 	vaultStorageWrite(vaultToken, secEng.storeDataURL, data)
 }
 
-func (secEng userpassSecEng) endBooking(vaultToken, _ string) {
+func (secEng userpassSecEng) endBooking(vaultToken string) {
 	vaultStorageDelete(vaultToken, secEng.storeDataURL)
 	log.Println(secEng.changeCreds(vaultToken))
 }
 
-func (SecEng userpassSecEng) changeCreds(vaultToken string) interface{} {
+func (secEng userpassSecEng) changeCreds(vaultToken string) interface{} {
 
-	data, err := sendVaultDataRequest("GET", SecEng.changeCredsURL, vaultToken, nil)
+	data, err := sendVaultDataRequest("GET", secEng.changeCredsURL, vaultToken, nil)
 	if err != nil {
 		log.Println(err)
 	}
