@@ -44,11 +44,10 @@ func readValues(db *sql.DB, resRows *sql.Rows, lookupSSH bool) (int, string, str
 func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle *vault.Approle) {
 
 	log.Println("startet booking handle procedure")
-	selectCurrentEvents, err := db.Prepare("SELECT id, username, env_name FROM reservations WHERE (status=?) AND (?<='" + time.Now().String() + "');")
-	if err != nil {
-		log.Println(err)
-	}
-	defer selectCurrentEvents.Close()
+
+	// use sprintf formatting here instead of prepared statement, because prepared statements seems not to cope with coulumn name insertion
+	// this should be save because non of the parameters is user input
+	selectCurrentEvents := "SELECT id, username, env_name FROM reservations WHERE (status='%v') AND (%v<='" + time.Now().String() + "');"
 	updateState, err := db.Prepare("UPDATE reservations SET status=? WHERE id=?;")
 	defer updateState.Close()
 	if err != nil {
@@ -58,7 +57,7 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 	// TODO: endless loop, triggered each 5 minutes
 
 	// have to start any upcoming bookings?
-	resRows, err := selectCurrentEvents.Query("upcoming", "start")
+	resRows, err := db.Query(fmt.Sprintf(selectCurrentEvents, "upcoming", "start"))
 	if err != nil {
 		log.Println(err)
 	}
@@ -71,11 +70,12 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 		vault.StartBooking(environments[envName], vaultToken, sshKey)
 
 		// change booking status in database
+		log.Println("executed start of booking")
 		_, err = updateState.Exec("active", reservationID)
 	}
 
 	// have to end any active bookings?
-	resRows, err = selectCurrentEvents.Query("active", "end")
+	resRows, err = db.Query(fmt.Sprintf(selectCurrentEvents, "active", "end"))
 	if err != nil {
 		log.Println(err)
 	}
@@ -88,11 +88,12 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 		vault.EndBooking(environments[envName], vaultToken)
 
 		// change booking status in database
+		log.Println("executed end of booking")
 		_, err = updateState.Exec("expired", reservationID)
 	}
 
 	// have to delete any expired bookings?
-	resRows, err = selectCurrentEvents.Query("expired", "delete_on")
+	resRows, err = db.Query(fmt.Sprintf(selectCurrentEvents, "expired", "delete_on"))
 	if err != nil {
 		log.Println(err)
 	}
