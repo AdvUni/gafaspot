@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"path"
-	"strings"
 )
 
 func sendVaultDataRequest(requestType, url, vaultToken string, body io.Reader) (interface{}, error) {
@@ -119,14 +118,4 @@ func joinRequestPath(addressStart string, subpaths ...string) string {
 		url.Path = path.Join(url.Path, item)
 	}
 	return url.String()
-}
-
-func CreateVaultToken(approleID, approleSecret, vaultAddress string) string {
-	url := joinRequestPath(vaultAddress, "auth/approle/login")
-	payload := fmt.Sprintf("{\"role_id\": \"%v\", \"secret_id\": \"%v\"}", approleID, approleSecret)
-	token, err := sendVaultTokenRequest("POST", url, strings.NewReader(payload))
-	if err != nil {
-		log.Println(err)
-	}
-	return token
 }
