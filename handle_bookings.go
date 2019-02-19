@@ -57,38 +57,6 @@ func getRows(db *sql.DB, status, timeCol string) []reservationRow {
 	return rows
 }
 
-func readValues(db *sql.DB, resRows *sql.Rows, lookupSSH bool) (int, string, string) {
-	// TODO: error handling
-	var reservationID int
-	var username, envName string
-	err := resRows.Scan(&reservationID, &username, &envName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Values from matching query: id - %v, username - %v, envname %v\n", reservationID, username, envName)
-
-	// Does environment exist? Is ssh key needed?
-	var hasSSH bool
-	err = db.QueryRow("SELECT has_ssh FROM environments WHERE (env_name='" + envName + "');").Scan(&hasSSH)
-	if err == sql.ErrNoRows {
-		log.Fatalf("Environment %v does not exist. Can't book it.", envName)
-	} else if err != nil {
-		log.Fatal(err)
-	}
-
-	sshKey := ""
-	// only search for ssh key, if lookupSSH is true. Otherwise, return parameter sshKey is always empty.
-	if lookupSSH && hasSSH {
-		// retrieve ssh key from user table
-		err := db.QueryRow("SELECT ssh_pub_key FROM users WHERE (username='" + username + "');").Scan(&sshKey)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
-	return reservationID, envName, sshKey
-}
-
 func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle *vault.Approle) {
 	updateState, err := db.Prepare("UPDATE reservations SET status=? WHERE id=?;")
 	defer updateState.Close()
