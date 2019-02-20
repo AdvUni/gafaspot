@@ -11,8 +11,9 @@ import (
 //"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 
 const (
-	sshKey     = ""
-	vaultToken = ""
+	sshKey   = ""
+	username = ""
+	password = ""
 )
 
 func main() {
@@ -24,6 +25,11 @@ func main() {
 	db := initDB(config)
 	log.Printf("db: %v\n", db)
 	approle := initApprole(config)
+	ldap := initLdapAuth(config)
+
+	log.Println("Auhtentication test:")
+	log.Printf("Should return false: %v", ldap.DoLdapAuthentication("wrongUsername", "wrongPassword"))
+	log.Printf("Should return true: %v", ldap.DoLdapAuthentication(username, password))
 
 	handleBookings(db, environments, approle)
 
@@ -141,4 +147,8 @@ func initDB(config GafaspotConfig) *sql.DB {
 
 func initApprole(config GafaspotConfig) *vault.Approle {
 	return vault.NewApprole(config.ApproleID, config.ApproleSecret, config.VaultAddress)
+}
+
+func initLdapAuth(config GafaspotConfig) vault.AuthLDAP {
+	return vault.NewAuthLDAP(config.UserPolicy, config.VaultAddress)
 }

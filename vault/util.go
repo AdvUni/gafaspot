@@ -2,6 +2,7 @@ package vault
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -9,6 +10,8 @@ import (
 	"net/url"
 	"path"
 )
+
+var ErrAuth = errors.New("ldap authentication failed")
 
 func sendVaultDataRequest(requestType, url, vaultToken string, body io.Reader) (interface{}, error) {
 	res, err := sendVaultRequest(requestType, url, vaultToken, body)
@@ -27,8 +30,8 @@ func sendVaultDataRequest(requestType, url, vaultToken string, body io.Reader) (
 	return data, nil
 }
 
-func sendVaultTokenRequest(requestType, url string, body io.Reader) (string, error) {
-	res, err := sendVaultRequest(requestType, url, "", body)
+func sendVaultTokenRequest(url string, body io.Reader) (string, error) {
+	res, err := sendVaultRequest("POST", url, "", body)
 	if err != nil {
 		return "", err
 	}
@@ -48,6 +51,28 @@ func sendVaultTokenRequest(requestType, url string, body io.Reader) (string, err
 	}
 	return token.(string), nil
 
+}
+
+func sendVaultLdapRequest(url string, body io.Reader) ([]string, error) {
+	res, err := sendVaultRequest("POST", url, "", body)
+	if err != nil {
+		return nil, ErrAuth
+	}
+	policyField, ok := res["token_policies"]
+	if !ok {
+		err = fmt.Errorf("malformed json response from vault: Didn't find expected field 'token_policies'")
+		return nil, err
+	}
+	if policyField == "null" {
+		err = fmt.Errorf("json response from vault not has expected content: Tried to fetch field 'token_policies', but it seems to be empty")
+		return nil, err
+	}
+	policies, ok := policyField.([]string)
+	if !ok {
+		err = fmt.Errorf("malformed json response from vault: Expected field 'token_policies' to contain a list, but it doesn't. Content is instead: %v", policyField)
+		return nil, err
+	}
+	return policies, nil
 }
 
 func sendVaultRequestEmtpyResponse(requestType, url, vaultToken string, body io.Reader) error {

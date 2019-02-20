@@ -12,6 +12,7 @@ type GafaspotConfig struct {
 	VaultAddress  string                       `mapstructure:"vault-address"`
 	ApproleID     string                       `mapstructure:"approle-roleID"`
 	ApproleSecret string                       `mapstructure:"approle-secretID"`
+	UserPolicy    string                       `mapstructure:"ldap-group-policy"`
 	Database      string                       `mapstructure:"db-path"`
 	Environments  map[string]environmentConfig //`yaml:"environments"`
 }
@@ -34,7 +35,7 @@ func readConfig() GafaspotConfig {
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		panic(fmt.Errorf("fatal error config file: %s \n", err))
 	}
 
 	config := GafaspotConfig{}
