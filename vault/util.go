@@ -53,7 +53,7 @@ func sendVaultTokenRequest(url string, body io.Reader) (string, error) {
 
 }
 
-func sendVaultLdapRequest(url string, body io.Reader) ([]string, error) {
+func sendVaultLdapRequest(url string, body io.Reader) ([]interface{}, error) {
 	res, err := sendVaultRequest("POST", url, "", body)
 	if err != nil {
 		return nil, ErrAuth
@@ -76,7 +76,7 @@ func sendVaultLdapRequest(url string, body io.Reader) ([]string, error) {
 		err = fmt.Errorf("json response from vault not has expected content: Tried to fetch field 'token_policies', but it seems to be empty")
 		return nil, err
 	}
-	policySlice, ok := policies.([]string)
+	policySlice, ok := policies.([]interface{})
 	if !ok {
 		err = fmt.Errorf("malformed json response from vault: Expected field 'token_policies' to contain a list, but it doesn't. Content is instead: %v", policies)
 		return nil, err

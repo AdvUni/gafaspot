@@ -63,7 +63,7 @@ func (ldap AuthLDAP) DoLdapAuthentication(username, password string) bool {
 	}
 
 	for _, policy := range availablePolicies {
-		if policy == ldap.authPolicy {
+		if policy.(string) == ldap.authPolicy {
 			return true
 		}
 	}
