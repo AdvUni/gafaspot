@@ -58,21 +58,30 @@ func sendVaultLdapRequest(url string, body io.Reader) ([]string, error) {
 	if err != nil {
 		return nil, ErrAuth
 	}
-	policyField, ok := res["token_policies"]
+	authField, ok := res["auth"]
 	if !ok {
-		err = fmt.Errorf("malformed json response from vault: Didn't find expected field 'token_policies'")
+		err = fmt.Errorf("malformed json response from vault: Didn't find expected field 'auth'")
 		return nil, err
 	}
-	if policyField == "null" {
+	if authField == "null" {
+		err = fmt.Errorf("json response from vault not has expected content: Tried to fetch field 'auth', but it seems to be empty")
+		return nil, err
+	}
+	policies, ok := authField.(map[string]interface{})["token_policies"]
+	if !ok {
+		err = fmt.Errorf("malformed json response from vault: Didn't find expected field 'token_policies' inside 'auth'")
+		return nil, err
+	}
+	if policies == "null" {
 		err = fmt.Errorf("json response from vault not has expected content: Tried to fetch field 'token_policies', but it seems to be empty")
 		return nil, err
 	}
-	policies, ok := policyField.([]string)
+	policySlice, ok := policies.([]string)
 	if !ok {
-		err = fmt.Errorf("malformed json response from vault: Expected field 'token_policies' to contain a list, but it doesn't. Content is instead: %v", policyField)
+		err = fmt.Errorf("malformed json response from vault: Expected field 'token_policies' to contain a list, but it doesn't. Content is instead: %v", policies)
 		return nil, err
 	}
-	return policies, nil
+	return policySlice, nil
 }
 
 func sendVaultRequestEmtpyResponse(requestType, url, vaultToken string, body io.Reader) error {

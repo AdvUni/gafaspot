@@ -8,7 +8,7 @@ import (
 
 const (
 	createTokenPath   = "auth/approle/login"
-	ldapAuthBasicPath = "auth/ldap/login/"
+	ldapAuthBasicPath = "auth/ldap/login"
 )
 
 type Approle struct {
@@ -51,7 +51,7 @@ func NewAuthLDAP(authPolicy, vaultAddress string) AuthLDAP {
 }
 
 func (ldap AuthLDAP) DoLdapAuthentication(username, password string) bool {
-	url := ldap.authBasicURL + username
+	url := ldap.authBasicURL + "/" + username
 	payload := strings.NewReader(fmt.Sprintf("{\"password\": \"%v\"}", password))
 
 	availablePolicies, err := sendVaultLdapRequest(url, payload)
