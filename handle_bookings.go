@@ -13,12 +13,13 @@ type reservationRow struct {
 	id       int
 	username string
 	envName  string
+	end      string
 	hasSSH   bool
 }
 
-func (row reservationRow) check(db *sql.DB) {
+func (row reservationRow) check(tx *sql.Tx) {
 	// Does environment exist? Does it has components which require an ssh key for login?
-	err := db.QueryRow("SELECT has_ssh FROM environments WHERE (env_name='" + row.envName + "');").Scan(&row.hasSSH)
+	err := tx.QueryRow("SELECT has_ssh FROM environments WHERE (env_name='" + row.envName + "');").Scan(&row.hasSSH)
 	if err == sql.ErrNoRows {
 		log.Fatalf("environment %v does not exist", row.envName)
 	} else if err != nil {
@@ -26,11 +27,10 @@ func (row reservationRow) check(db *sql.DB) {
 	}
 }
 
-func getRows(db *sql.DB, status, timeCol string) []reservationRow {
+func getRows(tx *sql.Tx, now, status, timeCol string) []reservationRow {
 	// use sprintf formatting here instead of prepared statement, because prepared statements seems not to cope with coulumn name insertion
 	// this should be save because non of the parameters is user input
-	selectCurrentEvents := "SELECT id, username, env_name FROM reservations WHERE (status='%v') AND (%v<='" + time.Now().String() + "');"
-	resRows, err := db.Query(fmt.Sprintf(selectCurrentEvents, status, timeCol))
+	resRows, err := tx.Query(fmt.Sprintf("SELECT id, username, env_name, end FROM reservations WHERE (status='%v') AND (%v<='%v');", status, timeCol, now))
 	if err != nil {
 		log.Println(err)
 	}
@@ -40,8 +40,8 @@ func getRows(db *sql.DB, status, timeCol string) []reservationRow {
 
 	for resRows.Next() {
 		var reservationID int
-		var username, envName string
-		err := resRows.Scan(&reservationID, &username, &envName)
+		var username, envName, end string
+		err := resRows.Scan(&reservationID, &username, &envName, &end)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -49,6 +49,7 @@ func getRows(db *sql.DB, status, timeCol string) []reservationRow {
 			reservationID,
 			username,
 			envName,
+			end,
 			false,
 		}
 		rows = append(rows, row)
@@ -67,38 +68,17 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 
 	log.Println("startet booking handle procedure")
 
-	// have to start any upcoming bookings?
-	rows := getRows(db, "upcoming", "start")
-	for _, row := range rows {
-		// check, if enironment in reservation exists and fill in the information has_ssh
-		row.check(db)
+	now := time.Now().String()
 
-		sshKey := ""
-		if row.hasSSH {
-			// retrieve ssh key from user table
-			err := db.QueryRow("SELECT ssh_pub_key FROM users WHERE (username='" + row.username + "');").Scan(&sshKey)
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-
-		// trigger the start of the booking
-		vaultToken := approle.CreateVaultToken()
-		vault.StartBooking(environments[row.envName], vaultToken, sshKey)
-
-		// change booking status in database
-		log.Println("executed start of booking")
-		_, err = updateState.Exec("active", row.id)
-		if err != nil {
-			log.Printf("did not change status from upcoming to active due to following error: %v\n", err)
-		}
+	// any active bookings which should end?
+	tx, err := db.Begin()
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	// have to end any active bookings?
-	rows = getRows(db, "active", "end")
+	rows := getRows(tx, now, "active", "end")
 	for _, row := range rows {
 		// check, if enironment in reservation exists (and fill in the information has_ssh, which is not needed)
-		row.check(db)
+		row.check(tx)
 
 		// trigger the end of the booking
 		vaultToken := approle.CreateVaultToken()
@@ -106,22 +86,72 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 
 		// change booking status in database
 		log.Println("executed end of booking")
-		_, err = updateState.Exec("expired", row.id)
+		_, err = tx.Stmt(updateState).Exec("expired", row.id)
 		if err != nil {
 			log.Printf("did not change status from active to expired due to following error: %v\n", err)
 		}
 	}
+	tx.Commit()
 
-	// have to delete any expired bookings?
-	rows = getRows(db, "expired", "delete_on")
+	// any upcoming bookings which should start?
+	tx, err = db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+	rows = getRows(tx, now, "upcoming", "start")
+	for _, row := range rows {
+
+		if row.end <= now {
+			// in case the end time of the upcoming booking which never was active is already reached for some reason, don't start the booking, just expire it in database
+			_, err = tx.Stmt(updateState).Exec("expired", row.id)
+			if err != nil {
+				log.Printf("did not change status from upcoming to expired due to following error: %v\n", err)
+			}
+		} else {
+
+			// check, if enironment in reservation exists and fill in the information has_ssh
+			row.check(tx)
+
+			sshKey := ""
+			if row.hasSSH {
+				// retrieve ssh key from user table
+				err := tx.QueryRow("SELECT ssh_pub_key FROM users WHERE (username='" + row.username + "');").Scan(&sshKey)
+				if err == sql.ErrNoRows {
+					log.Fatalf("there is no ssh public key stored for user %v, but it is required for booking environment %v", row.username, row.envName)
+				} else if err != nil {
+					log.Println(err)
+				}
+			}
+
+			// trigger the start of the booking
+			vaultToken := approle.CreateVaultToken()
+			vault.StartBooking(environments[row.envName], vaultToken, sshKey)
+
+			// change booking status in database
+			log.Println("executed start of booking")
+			_, err = tx.Stmt(updateState).Exec("active", row.id)
+			if err != nil {
+				log.Printf("did not change status from upcoming to active due to following error: %v\n", err)
+			}
+		}
+	}
+	tx.Commit()
+
+	// any expired bookings which should get deleted?
+	tx, err = db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+	rows = getRows(tx, now, "expired", "delete_on")
 	for _, row := range rows {
 
 		// delete booking from database
-		_, err = db.Exec("DELETE FROM reservations WHERE id=?;", row.id)
+		_, err = tx.Exec("DELETE FROM reservations WHERE id=?;", row.id)
 		if err != nil {
 			log.Printf("did not delete database entry due to following error: %v\n", err)
 		}
 	}
+	tx.Commit()
 
 	log.Println("end booking handle procedure")
 }
