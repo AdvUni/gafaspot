@@ -16,6 +16,7 @@ type signedkeySecEng struct {
 }
 
 func (secEng signedkeySecEng) startBooking(vaultToken, sshKey string) {
+	// TODO: Set validity time for signature correctly
 	data := fmt.Sprintf("{\"signature\": \"%v\"}", secEng.signKey(vaultToken, sshKey))
 	log.Println(data)
 	vaultStorageWrite(vaultToken, secEng.storeDataURL, data)
