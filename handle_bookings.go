@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/constants"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
 
@@ -68,7 +69,7 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 
 	log.Println("startet booking handle procedure")
 
-	now := time.Now().String()
+	now := time.Now().Format(constants.TimeLayout)
 
 	// any active bookings which should end?
 	tx, err := db.Begin()
@@ -125,7 +126,7 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 
 			// trigger the start of the booking
 			vaultToken := approle.CreateVaultToken()
-			vault.StartBooking(environments[row.envName], vaultToken, sshKey.String)
+			vault.StartBooking(environments[row.envName], vaultToken, sshKey.String, row.end)
 
 			// change booking status in database
 			log.Println("executed start of booking")

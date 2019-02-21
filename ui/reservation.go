@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"time"
+
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/constants"
 )
 
 const (
@@ -74,8 +76,11 @@ func createReservation(db *sql.DB, username, envName, subject, labels string, st
 		log.Fatal(err)
 	}
 
+	startString := start.Format(constants.TimeLayout)
+	endString := end.Format(constants.TimeLayout)
+
 	var conflictStart, conflictEnd string
-	err = stmt.QueryRow(envName, end.String(), start.String()).Scan(&conflictStart, conflictEnd)
+	err = stmt.QueryRow(envName, endString, startString).Scan(&conflictStart, conflictEnd)
 	// there is a conflict, if answer is NOT empty
 	if err != sql.ErrNoRows {
 		return reservationError(fmt.Sprintf("reservation conflicts with an existing reservation from %v to %v", conflictStart, conflictEnd))
@@ -92,7 +97,7 @@ func createReservation(db *sql.DB, username, envName, subject, labels string, st
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = stmt.Exec("upcoming", username, envName, start.String(), end.String(), subject, labels, reservationDeleteDate)
+	_, err = stmt.Exec("upcoming", username, envName, startString, endString, subject, labels, reservationDeleteDate)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -121,7 +126,7 @@ func abortReservation(db *sql.DB, envName string, start, end time.Time) error {
 	}
 	var id int
 	var status string
-	err = stmt.QueryRow(envName, start.String(), end.String()).Scan(&id, &status)
+	err = stmt.QueryRow(envName, start.Format(constants.TimeLayout), end.Format(constants.TimeLayout)).Scan(&id, &status)
 	if err == sql.ErrNoRows {
 		log.Println(fmt.Errorf("tried to abort reservation which does not exist: environment '%v', start %v, end %v", envName, start, end))
 		return nil

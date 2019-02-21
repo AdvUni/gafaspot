@@ -14,7 +14,7 @@ type userpassSecEng struct {
 	storeDataURL   string
 }
 
-func (secEng userpassSecEng) startBooking(vaultToken, _ string) {
+func (secEng userpassSecEng) startBooking(vaultToken, _ string, _ int) {
 	data := fmt.Sprintf("{\"data\": \"%v\"}", secEng.changeCreds(vaultToken))
 	log.Println(data)
 	vaultStorageWrite(vaultToken, secEng.storeDataURL, data)

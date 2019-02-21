@@ -15,9 +15,9 @@ type signedkeySecEng struct {
 	storeDataURL string
 }
 
-func (secEng signedkeySecEng) startBooking(vaultToken, sshKey string) {
-	// TODO: Set validity time for signature correctly
-	data := fmt.Sprintf("{\"signature\": \"%v\"}", secEng.signKey(vaultToken, sshKey))
+func (secEng signedkeySecEng) startBooking(vaultToken, sshKey string, ttl int) {
+
+	data := fmt.Sprintf("{\"signature\": \"%v\"}", secEng.signKey(vaultToken, sshKey, ttl))
 	log.Println(data)
 	vaultStorageWrite(vaultToken, secEng.storeDataURL, data)
 }
@@ -26,7 +26,7 @@ func (secEng signedkeySecEng) endBooking(vaultToken string) {
 	vaultStorageDelete(vaultToken, secEng.storeDataURL)
 }
 
-func (secEng signedkeySecEng) signKey(vaultToken, sshKey string) interface{} {
+func (secEng signedkeySecEng) signKey(vaultToken, sshKey string, ttl int) interface{} {
 
 	data, err := sendVaultDataRequest("POST", secEng.signURL, vaultToken, strings.NewReader(sshKey))
 	if err != nil {

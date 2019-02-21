@@ -3,6 +3,9 @@ package vault
 import (
 	"fmt"
 	"log"
+	"time"
+
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/constants"
 )
 
 const (
@@ -11,7 +14,7 @@ const (
 )
 
 type SecEng interface {
-	startBooking(vaultToken, sshKey string)
+	startBooking(vaultToken, sshKey string, ttl int)
 	endBooking(vaultToken string)
 }
 
@@ -48,9 +51,14 @@ func NewSecEng(engineType, vaultAddress, env, name, role string) SecEng {
 	}
 }
 
-func StartBooking(environment []SecEng, vaultToken, sshKey string) {
+func StartBooking(environment []SecEng, vaultToken, sshKey string, until string) {
+	untilTime, err := time.ParseInLocation(constants.TimeLayout, until, time.Local)
+	if err != nil {
+		log.Fatal(err)
+	}
+	ttl := int(untilTime.Sub(time.Now()).Seconds())
 	for _, secEng := range environment {
-		secEng.startBooking(vaultToken, sshKey)
+		secEng.startBooking(vaultToken, sshKey, ttl)
 	}
 }
 
