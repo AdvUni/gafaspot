@@ -112,11 +112,11 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 			// check, if enironment in reservation exists and fill in the information has_ssh
 			row.check(tx)
 
-			sshKey := ""
+			var sshKey sql.NullString
 			if row.hasSSH {
 				// retrieve ssh key from user table
 				err := tx.QueryRow("SELECT ssh_pub_key FROM users WHERE (username='" + row.username + "');").Scan(&sshKey)
-				if err == sql.ErrNoRows {
+				if err == sql.ErrNoRows || !sshKey.Valid {
 					log.Fatalf("there is no ssh public key stored for user %v, but it is required for booking environment %v", row.username, row.envName)
 				} else if err != nil {
 					log.Println(err)
@@ -125,7 +125,7 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 
 			// trigger the start of the booking
 			vaultToken := approle.CreateVaultToken()
-			vault.StartBooking(environments[row.envName], vaultToken, sshKey)
+			vault.StartBooking(environments[row.envName], vaultToken, sshKey.String)
 
 			// change booking status in database
 			log.Println("executed start of booking")
