@@ -11,6 +11,7 @@ import (
 	"path"
 )
 
+// ErrAuth is thrown if an authentication against LDAP over Vault fails for any reason.
 var ErrAuth = errors.New("ldap authentication failed")
 
 func sendVaultDataRequest(requestType, url, vaultToken string, body io.Reader) (interface{}, error) {
@@ -97,6 +98,10 @@ func sendVaultRequestEmtpyResponse(requestType, url, vaultToken string, body io.
 	return nil
 }
 
+// sendVaultRequest is a function to send a HTTP request of any request type towards Vault. Most request to
+// Vault need a vault token as authentication. If a request is unauthenticated (such as auth requests),
+// submit an empty vaultToken. As this function returnes all of Vault's json response in an interface{} map,
+// there are several wrapper functions provided which unpack different values from the answer.
 func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (map[string]interface{}, error) {
 
 	// Build request

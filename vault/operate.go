@@ -13,11 +13,19 @@ const (
 	storeBasicPath   = "store"
 )
 
+// SecEng is a handler for one credential secret engine such as "ad" or "ssh" inside Vault.
+// As the secrets retrieved from a secret engine needs to be saved somewhere, each credential secret
+// engine has an equivalently named kv secret engine as storage which is also obtained by this interface.
+// A SecEng stores the URLs to which the secret engines listen to and provides the functionality which
+// is needed to start and end bookings, as changing credentials and storing or deleting them.
 type SecEng interface {
 	startBooking(vaultToken, sshKey string, ttl int)
 	endBooking(vaultToken string)
 }
 
+// NewSecEng creates a new SecEng. From string engineType, it decides, which implementation of the interface
+// must be instanciated. The path snippets vaultAddress, env, name and role get assembled to the the
+// URLs, to which the vault secret engines listen to.
 func NewSecEng(engineType, vaultAddress, env, name, role string) SecEng {
 	switch engineType {
 	case "ad", "ontap":
@@ -51,6 +59,10 @@ func NewSecEng(engineType, vaultAddress, env, name, role string) SecEng {
 	}
 }
 
+// StartBooking starts a booking for a whole environment. As the environment may include ssh secret
+// engines, this function needs an ssh key. It also needs the time string of format constants.timeLayout
+// until to determine the ttl for a possible ssh signature. If there is no ssh secret engine inside
+// the environment, the ssKey parameter will be ignored everywhere.
 func StartBooking(environment []SecEng, vaultToken, sshKey string, until string) {
 	untilTime, err := time.ParseInLocation(constants.TimeLayout, until, time.Local)
 	if err != nil {
@@ -62,6 +74,7 @@ func StartBooking(environment []SecEng, vaultToken, sshKey string, until string)
 	}
 }
 
+// EndBooking ends a booking for a whole environment.
 func EndBooking(environment []SecEng, vaultToken string) {
 	for _, secEng := range environment {
 		secEng.endBooking(vaultToken)
