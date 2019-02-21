@@ -28,7 +28,9 @@ func (secEng signedkeySecEng) endBooking(vaultToken string) {
 
 func (secEng signedkeySecEng) signKey(vaultToken, sshKey string, ttl int) interface{} {
 
-	data, err := sendVaultDataRequest("POST", secEng.signURL, vaultToken, strings.NewReader(sshKey))
+	payload := fmt.Sprintf("{\"public_key\": \"%v\", \"ttl\": \"%vs\"}", sshKey, ttl)
+
+	data, err := sendVaultDataRequest("POST", secEng.signURL, vaultToken, strings.NewReader(payload))
 	if err != nil {
 		log.Println(err)
 	}
