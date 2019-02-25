@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/ui"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
 
@@ -31,49 +33,11 @@ func main() {
 	log.Printf("Should return false: %v", ldap.DoLdapAuthentication("wrongUsername", "wrongPassword"))
 	log.Printf("Should return true: %v", ldap.DoLdapAuthentication(username, password))
 
+	ui.CreateReservation(db, "firstuser", "demo0", "testsubject", "", time.Date(2019, time.February, 25, 9, 0, 0, 0, time.Local), time.Date(2019, time.February, 25, 10, 0, 0, 0, time.Local))
+	ui.CreateReservation(db, "seconduser", "demo0", "testsubject", "", time.Date(2019, time.February, 25, 10, 1, 0, 0, time.Local), time.Date(2019, time.February, 26, 10, 15, 0, 0, time.Local))
+	ui.CreateReservation(db, "thirduser", "demo0", "testsubject", "", time.Date(2019, time.February, 27, 9, 0, 0, 0, time.Local), time.Date(2019, time.February, 28, 10, 0, 0, 0, time.Local))
+
 	handleBookings(db, environments, approle)
-
-	stmt, err := db.Prepare("INSERT INTO reservations (status, username, env_name, start, end, delete_on) VALUES(?,?,?,?,?,?);")
-	if err != nil {
-		log.Fatal(err)
-	}
-	res, err := stmt.Exec("upcoming", "some_user", "demo0", "2019-02-14 22:00:00", "2019-02-22 00:00:00", "2020-02-15 00:00:00")
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println(res)
-
-	/* 	res, err = stmt.Exec("upcoming", "some_user", "demo1", "2019-02-14 00:00:00", "2019-02-15 00:00:00", "2020-02-15 00:00:00")
-	   	if err != nil {
-	   		log.Fatal(err)
-	   	}
-	   	log.Println(res) */
-
-	res, err = stmt.Exec("upcoming", "other_user", "demo0", "2019-02-12 00:00:00", "2019-02-14 10:00:00", "2020-02-15 00:00:00")
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println(res)
-
-	res, err = stmt.Exec("upcoming", "third_user", "demo0", "2019-02-25 00:00:00", "2019-02-26 10:00:00", "2020-02-15 00:00:00")
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println(res)
-
-	//demo0 := environments["demo0"]
-	//fmt.Println(demo0)
-
-	//for _, secEng := range demo0 {
-	//	secEng.StartBooking(vaultToken, sshKey)
-	//}
-
-	//testOntap := vault.NewOntapSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, "ontap", "gafaspot")
-
-	//testSSH := vault.NewSshSecretEngine(vaultAddress, operateBasicPath, storeBasicPath, "ssh", "gafaspot")
-
-	//testOntap.StartBooking(vaultToken, "")
-	//testSSH.StartBooking(vaultToken, sshKey)
 }
 
 func initSecEngs(config GafaspotConfig) map[string][]vault.SecEng {

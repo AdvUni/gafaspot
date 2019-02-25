@@ -19,7 +19,7 @@ func (err reservationError) Error() string {
 	return fmt.Sprintf("reservation is invalid: %v", string(err))
 }
 
-func createReservation(db *sql.DB, username, envName, subject, labels string, start, end time.Time) error {
+func CreateReservation(db *sql.DB, username, envName, subject, labels string, start, end time.Time) error {
 
 	// check, whether reservation is in future
 	if !start.After(time.Now()) {
@@ -111,7 +111,7 @@ func createReservation(db *sql.DB, username, envName, subject, labels string, st
 	return nil
 }
 
-func abortReservation(db *sql.DB, envName string, start, end time.Time) error {
+func AbortReservation(db *sql.DB, envName string, start, end time.Time) error {
 	// start a transaction
 	tx, err := db.Begin()
 	if err != nil {
