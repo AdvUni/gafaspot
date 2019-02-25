@@ -81,10 +81,11 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 
 	var conflictStart, conflictEnd string
 	err = stmt.QueryRow(envName, endString, startString).Scan(&conflictStart, conflictEnd)
-	// there is a conflict, if answer is NOT empty
-	if err != sql.ErrNoRows {
+	// there is a conflict, if answer is NOT empty; means, if there is NO sql.ErrNoRows
+	if err == nil {
 		return reservationError(fmt.Sprintf("reservation conflicts with an existing reservation from %v to %v", conflictStart, conflictEnd))
-	} else if err != nil {
+	}
+	if err != sql.ErrNoRows {
 		log.Fatal(err)
 	}
 
