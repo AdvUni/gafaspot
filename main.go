@@ -33,9 +33,9 @@ func main() {
 	log.Printf("Should return false: %v", ldap.DoLdapAuthentication("wrongUsername", "wrongPassword"))
 	log.Printf("Should return true: %v", ldap.DoLdapAuthentication(username, password))
 
-	ui.CreateReservation(db, "firstuser", "demo0", "testsubject", "", time.Date(2019, time.February, 25, 9, 0, 0, 0, time.Local), time.Date(2019, time.February, 25, 10, 0, 0, 0, time.Local))
-	ui.CreateReservation(db, "seconduser", "demo0", "testsubject", "", time.Date(2019, time.February, 25, 10, 1, 0, 0, time.Local), time.Date(2019, time.February, 26, 10, 15, 0, 0, time.Local))
-	ui.CreateReservation(db, "thirduser", "demo0", "testsubject", "", time.Date(2019, time.February, 27, 9, 0, 0, 0, time.Local), time.Date(2019, time.February, 28, 10, 0, 0, 0, time.Local))
+	log.Println(ui.CreateReservation(db, "firstuser", "demo0", "testsubject", "", time.Date(2019, time.February, 25, 9, 0, 0, 0, time.Local), time.Date(2019, time.February, 25, 10, 0, 0, 0, time.Local)))
+	log.Println(ui.CreateReservation(db, "seconduser", "demo0", "testsubject", "", time.Date(2019, time.February, 25, 10, 1, 0, 0, time.Local), time.Date(2019, time.February, 25, 10, 1, 0, 0, time.Local)))
+	log.Println(ui.CreateReservation(db, "thirduser", "demo0", "testsubject", "", time.Date(2019, time.February, 25, 11, 5, 0, 0, time.Local), time.Date(2019, time.February, 25, 11, 8, 0, 0, time.Local)))
 
 	handleBookings(db, environments, approle)
 }
