@@ -3,8 +3,6 @@ package main
 import (
 	"log"
 
-	_ "github.com/mattn/go-sqlite3"
-
 	"github.com/spf13/viper"
 )
 

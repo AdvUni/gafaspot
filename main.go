@@ -6,6 +6,8 @@ import (
 	"log"
 	"time"
 
+	_ "github.com/mattn/go-sqlite3"
+
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/ui"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
@@ -37,7 +39,7 @@ func main() {
 	log.Println(ui.CreateReservation(db, "seconduser", "demo0", "testsubject", "", time.Date(2019, time.February, 25, 10, 1, 0, 0, time.Local), time.Date(2019, time.February, 25, 10, 1, 0, 0, time.Local)))
 	log.Println(ui.CreateReservation(db, "thirduser", "demo0", "testsubject", "", time.Date(2019, time.February, 25, 11, 5, 0, 0, time.Local), time.Date(2019, time.February, 25, 11, 8, 0, 0, time.Local)))
 
-	handleBookings(db, environments, approle)
+	handleReservationScanning(db, &environments, approle)
 }
 
 func initSecEngs(config GafaspotConfig) map[string][]vault.SecEng {
