@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"time"
-
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/constants"
 )
 
 const (
@@ -63,12 +61,8 @@ func NewSecEng(engineType, vaultAddress, env, name, role string) SecEng {
 // engines, this function needs an ssh key. It also needs the time string of format constants.timeLayout
 // until to determine the ttl for a possible ssh signature. If there is no ssh secret engine inside
 // the environment, the ssKey parameter will be ignored everywhere.
-func StartBooking(environment []SecEng, vaultToken, sshKey string, until string) {
-	untilTime, err := time.ParseInLocation(constants.TimeLayout, until, time.Local)
-	if err != nil {
-		log.Fatal(err)
-	}
-	ttl := int(untilTime.Sub(time.Now()).Seconds())
+func StartBooking(environment []SecEng, vaultToken, sshKey string, until time.Time) {
+	ttl := int(until.Sub(time.Now()).Seconds())
 	for _, secEng := range environment {
 		secEng.startBooking(vaultToken, sshKey, ttl)
 	}

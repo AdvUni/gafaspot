@@ -76,14 +76,11 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 		log.Fatal(err)
 	}
 
-	startString := start.Format(constants.TimeLayout)
-	endString := end.Format(constants.TimeLayout)
-
-	var conflictStart, conflictEnd string
-	err = stmt.QueryRow(envName, endString, startString).Scan(&conflictStart, &conflictEnd)
+	var conflictStart, conflictEnd time.Time
+	err = stmt.QueryRow(envName, end, start).Scan(&conflictStart, &conflictEnd)
 	// there is a conflict, if answer is NOT empty; means, if there is NO sql.ErrNoRows
 	if err == nil {
-		return reservationError(fmt.Sprintf("reservation conflicts with an existing reservation from %v to %v", conflictStart, conflictEnd))
+		return reservationError(fmt.Sprintf("reservation conflicts with an existing reservation from %v to %v", conflictStart.Format(constants.TimeLayout), conflictEnd.Format(constants.TimeLayout)))
 	}
 	if err != sql.ErrNoRows {
 		log.Fatal(err)
@@ -98,7 +95,7 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = stmt.Exec("upcoming", username, envName, startString, endString, subject, labels, reservationDeleteDate)
+	_, err = stmt.Exec("upcoming", username, envName, start, end, subject, labels, reservationDeleteDate)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -127,9 +124,9 @@ func AbortReservation(db *sql.DB, envName string, start, end time.Time) error {
 	}
 	var id int
 	var status string
-	err = stmt.QueryRow(envName, start.Format(constants.TimeLayout), end.Format(constants.TimeLayout)).Scan(&id, &status)
+	err = stmt.QueryRow(envName, start, end).Scan(&id, &status)
 	if err == sql.ErrNoRows {
-		log.Println(fmt.Errorf("tried to abort reservation which does not exist: environment '%v', start %v, end %v", envName, start, end))
+		log.Println(fmt.Errorf("tried to abort reservation which does not exist: environment '%v', start %v, end %v", envName, start.Format(constants.TimeLayout), end.Format(constants.TimeLayout)))
 		return nil
 	}
 	if err != nil {

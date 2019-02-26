@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/constants"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
 
@@ -14,7 +13,7 @@ type reservationRow struct {
 	id       int
 	username string
 	envName  string
-	end      string
+	end      time.Time
 	hasSSH   bool
 }
 
@@ -28,10 +27,13 @@ func (row reservationRow) check(tx *sql.Tx) {
 	}
 }
 
-func getRows(tx *sql.Tx, now, status, timeCol string) []reservationRow {
-	// use sprintf formatting here instead of prepared statement, because prepared statements seems not to cope with coulumn name insertion
-	// this should be save because non of the parameters is user input
-	resRows, err := tx.Query(fmt.Sprintf("SELECT id, username, env_name, end FROM reservations WHERE (status='%v') AND (%v<='%v');", status, timeCol, now))
+func getRows(tx *sql.Tx, now time.Time, status, timeCol string) []reservationRow {
+	stmt, err := tx.Prepare("SELECT id, username, env_name, end FROM reservations WHERE (status=?) AND (" + timeCol + "<=?);")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+	resRows, err := stmt.Query(status, now)
 	if err != nil {
 		log.Println(err)
 	}
@@ -41,7 +43,8 @@ func getRows(tx *sql.Tx, now, status, timeCol string) []reservationRow {
 
 	for resRows.Next() {
 		var reservationID int
-		var username, envName, end string
+		var username, envName string
+		var end time.Time
 		err := resRows.Scan(&reservationID, &username, &envName, &end)
 		if err != nil {
 			log.Fatal(err)
@@ -61,15 +64,15 @@ func getRows(tx *sql.Tx, now, status, timeCol string) []reservationRow {
 
 func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle *vault.Approle) {
 	updateState, err := db.Prepare("UPDATE reservations SET status=? WHERE id=?;")
-	defer updateState.Close()
 	if err != nil {
 		log.Println(err)
 	}
+	defer updateState.Close()
 	// TODO: endless loop, triggered each 5 minutes
 
 	log.Println("startet booking handle procedure")
 
-	now := time.Now().Format(constants.TimeLayout)
+	now := time.Now()
 
 	// any active bookings which should end?
 	tx, err := db.Begin()
@@ -102,7 +105,7 @@ func handleBookings(db *sql.DB, environments map[string][]vault.SecEng, approle 
 	rows = getRows(tx, now, "upcoming", "start")
 	for _, row := range rows {
 
-		if row.end <= now {
+		if row.end.Before(now) {
 			// in case the end time of the upcoming booking which never was active is already reached for some reason, don't start the booking, just expire it in database
 			_, err = tx.Stmt(updateState).Exec("expired", row.id)
 			if err != nil {
