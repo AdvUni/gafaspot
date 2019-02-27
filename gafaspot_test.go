@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -10,18 +11,22 @@ import (
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
 
-var dummyconfig GafaspotConfig
-
-func TestMain(m *testing.M) {
+func mockConfig() GafaspotConfig {
 
 	envconfig := make(map[string]environmentConfig)
 	envconfig["demo0"] = environmentConfig{SecretEngines: []SecretEngineConfig{}}
 	envconfig["demo1"] = environmentConfig{SecretEngines: []SecretEngineConfig{}}
-	dummyconfig = GafaspotConfig{Database: "./gafaspot-test.db", Environments: envconfig}
+	return GafaspotConfig{Database: "./gafaspot-test.db", Environments: envconfig}
 
+}
+func TestFail(t *testing.T) {
+	t.Fail()
 }
 
 func TestCreateInvalidReservations(t *testing.T) {
+	dummyconfig := mockConfig()
+	// delete database file if it already exists
+	os.Remove(dummyconfig.Database)
 
 	db := initDB(dummyconfig)
 	defer db.Close()
@@ -33,25 +38,30 @@ func TestCreateInvalidReservations(t *testing.T) {
 
 	err := ui.CreateReservation(db, "testuser", "demo0", "", "", past, future1)
 	t.Log(err)
-	_, ok := err.(*ui.ReservationError)
+	_, ok := err.(ui.ReservationError)
 	if !ok {
 		t.Fail()
 	}
 	err = ui.CreateReservation(db, "testuser", "demo0", "", "", future2, future1)
 	t.Log(err)
-	_, ok = err.(*ui.ReservationError)
+	_, ok = err.(ui.ReservationError)
 	if !ok {
 		t.Fail()
 	}
 	err = ui.CreateReservation(db, "testuser", "not a valid env", "", "", future1, future2)
 	t.Log(err)
-	_, ok = err.(*ui.ReservationError)
+	_, ok = err.(ui.ReservationError)
 	if !ok {
 		t.Fail()
 	}
+
 }
 
 func TestReservationStateRotation(t *testing.T) {
+
+	dummyconfig := mockConfig()
+	// delete database file if it already exists
+	os.Remove(dummyconfig.Database)
 
 	db := initDB(dummyconfig)
 	defer db.Close()
@@ -100,7 +110,7 @@ func TestReservationStateRotation(t *testing.T) {
 	}
 
 	just := time.Now().Add(-2 * time.Millisecond)
-	_, err = db.Exec(fmt.Sprintf("UPDATE reservations SET delete_on=%v WHERE id=%v;", just, id))
+	_, err = db.Exec(fmt.Sprintf("UPDATE reservations SET delete_on='%v' WHERE id=%v;", just, id))
 	reservationScan(db, &envs, &vault.Approle{})
 
 	err = db.QueryRow(fmt.Sprintf("select status from reservations where id='%v';", id)).Scan(&status)
