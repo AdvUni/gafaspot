@@ -19,9 +19,6 @@ func mockConfig() GafaspotConfig {
 	return GafaspotConfig{Database: "./gafaspot-test.db", Environments: envconfig}
 
 }
-func TestFail(t *testing.T) {
-	t.Fail()
-}
 
 func TestCreateInvalidReservations(t *testing.T) {
 	dummyconfig := mockConfig()
