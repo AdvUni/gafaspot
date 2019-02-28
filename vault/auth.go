@@ -11,6 +11,8 @@ const (
 	ldapAuthBasicPath = "auth/ldap/login"
 )
 
+var ldapAuthBasicURL, ldapAuthPolicy string
+
 type Approle struct {
 	roleID      string
 	secretID    string
@@ -36,22 +38,13 @@ func (approle Approle) CreateVaultToken() string {
 	return token
 }
 
-type AuthLDAP struct {
-	authBasicURL string
-	authPolicy   string
+func InitLDAP(authPolicy, vaultAddress string) {
+	ldapAuthBasicURL = joinRequestPath(vaultAddress, ldapAuthBasicPath)
+	ldapAuthPolicy = authPolicy
 }
 
-func NewAuthLDAP(authPolicy, vaultAddress string) AuthLDAP {
-	authBasicURL := joinRequestPath(vaultAddress, ldapAuthBasicPath)
-	authLDAP := AuthLDAP{
-		authBasicURL,
-		authPolicy,
-	}
-	return authLDAP
-}
-
-func (ldap AuthLDAP) DoLdapAuthentication(username, password string) bool {
-	url := ldap.authBasicURL + "/" + username
+func DoLdapAuthentication(username, password string) bool {
+	url := ldapAuthBasicURL + "/" + username
 	payload := strings.NewReader(fmt.Sprintf("{\"password\": \"%v\"}", password))
 
 	availablePolicies, err := sendVaultLdapRequest(url, payload)
@@ -63,7 +56,7 @@ func (ldap AuthLDAP) DoLdapAuthentication(username, password string) bool {
 	}
 
 	for _, policy := range availablePolicies {
-		if policy.(string) == ldap.authPolicy {
+		if policy.(string) == ldapAuthPolicy {
 			return true
 		}
 	}
