@@ -38,7 +38,10 @@ func RunWebserver(addr string) {
 	router.HandleFunc(logoutpath, logoutHandler).Methods(http.MethodPost)
 
 	http.Handle(indexpage, router)
-	http.ListenAndServe(addr, nil)
+	err = http.ListenAndServe(addr, nil)
+
+	// cause entire program to stop if the server crashes for any reason
+	log.Fatalf("webserver crashed: %v\n", err)
 }
 
 type Mainviewcontent struct {
