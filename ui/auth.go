@@ -22,15 +22,17 @@ type Claims struct {
 }
 
 func indexPageHandler(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles(indexpageTmpl)
+	t, err := template.ParseFiles(indexpageTmpl, topTmpl, bottomTmpl)
 	if err != nil {
 		log.Fatal(err)
 	}
-	t.Execute(w, "")
+	err = t.Execute(w, "")
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println(r)
 	err := r.ParseForm()
 	if err != nil {
 		log.Println(err)

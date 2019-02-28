@@ -1,0 +1,25 @@
+{{ template "top" }}
+<div class="container">
+    <h2> personal data </h2>
+
+    <p><b>User:</b> {{ .Username }}</p>
+    <p><b>SSH public key:</b> {{.SSH}}</p>
+
+    <form method="post" action="/addkey">
+        <button type="submit" class="btn btn-primary">add/change key</button>
+    </form>
+
+    <form method="post" action="creds">
+        <button type="submit" class="btn btn-primary">show recent credentials</button>
+    </form>
+
+    <h3>Your reservations:</h3>
+    <ul class="list-group">
+        {{ .Reservations }}
+    </ul>
+</div>
+{{ template "bottom" }}
+
+{{ define "reservation" }}
+<li class='list-group-item'>blank</li>
+{{ end }}

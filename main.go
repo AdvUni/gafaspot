@@ -23,16 +23,19 @@ func main() {
 	config := readConfig()
 
 	// do initialization with config values
-	environments := initSecEngs(config)
-	log.Printf("environments: %v\n", environments)
-	db := initDB(config)
-	log.Printf("db: %v\n", db)
-	approle := initApprole(config)
-	initLdapAuth(config)
+	/*	environments := initSecEngs(config)
+		log.Printf("environments: %v\n", environments)
+		db := initDB(config)
+		log.Printf("db: %v\n", db)
+		approle := initApprole(config)
+		log.Println(approle)
+		initLdapAuth(config)*/
+
+	var db *sql.DB
 
 	// start webserver and routine for processing reservations
-	go handleReservationScanning(db, &environments, approle)
-	ui.RunWebserver(config.WebserviceAddress)
+	//go handleReservationScanning(db, &environments, approle)
+	ui.RunWebserver(db, config.WebserviceAddress)
 }
 
 func initSecEngs(config GafaspotConfig) map[string][]vault.SecEng {
