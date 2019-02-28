@@ -9,6 +9,19 @@ import (
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
 
+const (
+	scanningInterval = 5 * time.Minute
+)
+
+func handleReservationScanning(db *sql.DB, environments *map[string][]vault.SecEng, approle *vault.Approle) {
+	// endless loop, triggered each 5 minutes
+	tick := time.NewTicker(scanningInterval).C
+	for {
+		<-tick
+		reservationScan(db, environments, approle)
+	}
+}
+
 type reservationRow struct {
 	id       int
 	username string
@@ -60,13 +73,6 @@ func getRows(tx *sql.Tx, now time.Time, status, timeCol string) []reservationRow
 		fmt.Printf("Values from matching query: id - %v, username - %v, envname %v\n", reservationID, username, envName)
 	}
 	return rows
-}
-
-func handleReservationScanning(db *sql.DB, environments *map[string][]vault.SecEng, approle *vault.Approle) {
-
-	// TODO: endless loop, triggered each 5 minutes
-	reservationScan(db, environments, approle)
-
 }
 
 func reservationScan(db *sql.DB, environments *map[string][]vault.SecEng, approle *vault.Approle) {
