@@ -8,12 +8,13 @@ import (
 
 // GafaspotConfig is a struct to load every information from config file.
 type GafaspotConfig struct {
-	VaultAddress  string                       `mapstructure:"vault-address"`
-	ApproleID     string                       `mapstructure:"approle-roleID"`
-	ApproleSecret string                       `mapstructure:"approle-secretID"`
-	UserPolicy    string                       `mapstructure:"ldap-group-policy"`
-	Database      string                       `mapstructure:"db-path"`
-	Environments  map[string]environmentConfig //`yaml:"environments"`
+	VaultAddress      string                       `mapstructure:"vault-address"`
+	WebserviceAddress string                       `mapstructure:"webservice-address"`
+	ApproleID         string                       `mapstructure:"approle-roleID"`
+	ApproleSecret     string                       `mapstructure:"approle-secretID"`
+	UserPolicy        string                       `mapstructure:"ldap-group-policy"`
+	Database          string                       `mapstructure:"db-path"`
+	Environments      map[string]environmentConfig //`yaml:"environments"`
 }
 
 // environmentConfig is a struct to load information about one environment from config file.

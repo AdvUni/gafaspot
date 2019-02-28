@@ -4,15 +4,12 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/ui"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
-
-//"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 
 const (
 	sshKey   = ""
@@ -22,30 +19,23 @@ const (
 
 func main() {
 
+	// get all config
 	config := readConfig()
 
+	// do initialization with config values
 	environments := initSecEngs(config)
 	log.Printf("environments: %v\n", environments)
 	db := initDB(config)
 	log.Printf("db: %v\n", db)
 	approle := initApprole(config)
-	ldap := initLdapAuth(config)
+	initLdapAuth(config)
 
-	log.Println("Auhtentication test:")
-	log.Printf("Should return false: %v", ldap.DoLdapAuthentication("wrongUsername", "wrongPassword"))
-	log.Printf("Should return true: %v", ldap.DoLdapAuthentication(username, password))
-
-	log.Println(ui.CreateReservation(db, "firstuser", "demo0", "testsubject", "", time.Date(2019, time.February, 25, 9, 0, 0, 0, time.Local), time.Date(2019, time.February, 25, 10, 0, 0, 0, time.Local)))
-	log.Println(ui.CreateReservation(db, "seconduser", "demo0", "testsubject", "", time.Date(2019, time.February, 25, 10, 1, 0, 0, time.Local), time.Date(2019, time.February, 25, 10, 1, 0, 0, time.Local)))
-	log.Println(ui.CreateReservation(db, "thirduser", "demo0", "testsubject", "", time.Date(2019, time.February, 25, 11, 5, 0, 0, time.Local), time.Date(2019, time.February, 25, 11, 8, 0, 0, time.Local)))
-
-	handleReservationScanning(db, &environments, approle)
+	// start webserver and routine for processing reservations
+	go handleReservationScanning(db, &environments, approle)
+	ui.RunWebserver(config.WebserviceAddress)
 }
 
 func initSecEngs(config GafaspotConfig) map[string][]vault.SecEng {
-
-	log.Println(config.VaultAddress)
-
 	environments := make(map[string][]vault.SecEng)
 	for envName, envConf := range config.Environments {
 		var secretEngines []vault.SecEng
@@ -59,9 +49,7 @@ func initSecEngs(config GafaspotConfig) map[string][]vault.SecEng {
 		}
 		environments[envName] = secretEngines
 	}
-
 	return environments
-
 }
 
 func initDB(config GafaspotConfig) *sql.DB {
@@ -107,7 +95,6 @@ func initDB(config GafaspotConfig) *sql.DB {
 			log.Fatal(err)
 		}
 	}
-
 	return db
 }
 
@@ -115,6 +102,6 @@ func initApprole(config GafaspotConfig) *vault.Approle {
 	return vault.NewApprole(config.ApproleID, config.ApproleSecret, config.VaultAddress)
 }
 
-func initLdapAuth(config GafaspotConfig) vault.AuthLDAP {
-	return vault.NewAuthLDAP(config.UserPolicy, config.VaultAddress)
+func initLdapAuth(config GafaspotConfig) {
+	vault.InitLDAP(config.UserPolicy, config.VaultAddress)
 }
