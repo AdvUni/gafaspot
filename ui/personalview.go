@@ -24,12 +24,15 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type PersonalviewContent struct {
-	Username     string
-	SSH          string
-	Reservations string
+	Username             string
+	SSH                  string
+	ReservationsUpcoming []string
+	ReservationsActive   []string
+	ReservationsExpired  []string
 }
 
 func personalPageHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("referer: %v\n", r.Referer())
 	username, ok := verifyUser(w, r)
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
@@ -40,7 +43,10 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = t.Execute(w, PersonalviewContent{username, "blank", string(template.HTML("<li class='list-group-item'>blank</li>"))})
+	upcoming := []string{"first reservation", "second reservation", "third reservation"}
+	active := []string{"first reservation", "second reservation", "third reservation"}
+	expired := []string{"first reservation", "second reservation", "third reservation"}
+	err = t.Execute(w, PersonalviewContent{username, "blank", upcoming, active, expired})
 	if err != nil {
 		log.Println(err)
 	}

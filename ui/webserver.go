@@ -29,13 +29,14 @@ const (
 
 	credsview = "/personal/creds"
 
-	reservationform     = "/newreservation"
+	reservationform     = "/newreservation/{env}"
 	reservationformTmpl = "ui/templates/newreservation.html"
 )
 
 var (
 	router = mux.NewRouter()
 	db     *sql.DB
+	envs   = []string{"demo0", "demo1", "demo2", "demo3", "demo4", "demo5"}
 )
 
 func RunWebserver(database *sql.DB, addr string) {
@@ -69,6 +70,14 @@ func RunWebserver(database *sql.DB, addr string) {
 
 type Mainviewcontent struct {
 	Username string
+	Envs     []string
+}
+
+type Reservationcontent struct {
+	Username   string
+	Env        string
+	Envs       []string
+	SSHmissing bool
 }
 
 func reservationHandler(w http.ResponseWriter, r *http.Request) {
@@ -82,7 +91,10 @@ func reservationHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	err = t.Execute(w, Mainviewcontent{username})
+	env := mux.Vars(r)["env"]
+
+	// TODO: Check if ssh key is needed and if user has one
+	err = t.Execute(w, Reservationcontent{username, env, envs, true})
 	if err != nil {
 		log.Println(err)
 	}
@@ -90,6 +102,7 @@ func reservationHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func mainPageHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("referer: %v\n", r.Referer())
 	username, ok := verifyUser(w, r)
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
@@ -100,7 +113,7 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	err = t.Execute(w, Mainviewcontent{username})
+	err = t.Execute(w, Mainviewcontent{username, envs})
 	if err != nil {
 		log.Println(err)
 	}

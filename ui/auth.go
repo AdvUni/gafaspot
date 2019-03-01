@@ -21,18 +21,32 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
+type Banner struct {
+	Wrong bool
+}
+
 func indexPageHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("referer: %v\n", r.Referer())
+	log.Printf("path: %v\n", r.URL.Path)
+	log.Printf("raw path: %v\n", r.URL.RawPath)
+	log.Printf("ur: %v\n", r.RequestURI)
+
+	banner := false
+	if r.Referer() == indexpage {
+		banner = true
+	}
 	t, err := template.ParseFiles(indexpageTmpl, topTmpl, bottomTmpl)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = t.Execute(w, "")
+	err = t.Execute(w, Banner{banner})
 	if err != nil {
 		log.Println(err)
 	}
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("referer: %v\n", r.Referer())
 	err := r.ParseForm()
 	if err != nil {
 		log.Println(err)
@@ -51,6 +65,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("referer: %v\n", r.Referer())
 	// return a new, empty cookie which overwrites previous ones and expires immediately
 	cookie := &http.Cookie{
 		Name:   authCookieName,

@@ -3,13 +3,26 @@
 <main>
     <div class="container w-50">
         <h2>new reservation</h2>
+
+        {{ if .SSHmissing }}
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">Error</h4>
+            <p>You have not saved a SSH public key yet. You can not do this reservation without SSH key. Go to the <a
+                    href="/personal" class="alert-link">personal view</a> and add a key first.</p>
+        </div>
+        {{ end }}
         <form method="POST" , action="/reserve">
             <div class="form-group row">
                 <label for="env" class="col-form-label col-md-2">environment</label>
-                <select class="form-control col-md-10" id="env">
-                    <option>DEMO 0</option>
-                    <option>DEMO 1</option>
-                    <option>DEMO 2</option>
+                <select class="form-control col-md-10" id="env" onChange="window.location.href=this.value">
+                    {{ $env := .Env }}
+                    {{ range .Envs }}
+                    {{ if eq . $env }}
+                    <option selected>{{ . }}</option>
+                    {{ else }}
+                    <option>{{ . }}</option>
+                    {{ end }}
+                    {{ end }}
                 </select>
             </div>
             <div class="row">
@@ -32,7 +45,7 @@
             </div>
             <div class="d-flex justify-content-end">
                 <a href="/mainview"><input type=button class="btn btn-primary m-2" value="cancel"></a>
-                <button type="submit" class="btn btn-primary m-2" onclick=>submit</button>
+                <button type="submit" class="btn btn-primary m-2" {{ if .SSHmissing }}disabled{{ end }}>submit</button>
             </div>
         </form>
     </div>

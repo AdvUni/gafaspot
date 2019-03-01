@@ -8,21 +8,38 @@
         <p><b>SSH public key:</b> {{.SSH}}</p>
 
         <form method="post" action="/addkey">
-            <button type="submit" class="btn btn-primary">add/change key</button>
-        </form>
-
-        <form method="post" action="creds">
-            <button type="submit" class="btn btn-primary">show recent credentials</button>
+            <button type="submit" class="btn btn-primary m-2">add/change key</button>
         </form>
 
         <h3>Your reservations:</h3>
         <ul class="list-group">
-            {{ .Reservations }}
+            {{ range .ReservationsUpcoming }}
+            <li class="list-group-item list-group-item-warning d-flex justify-content-between">
+                <div>
+                    <span class="badge badge-warning">upcoming</span>
+                    {{ . }}
+                </div>
+                <a href="#" class="badge badge-danger">Abort</a>
+            </li>
+            {{ end }}
+            {{ range .ReservationsActive }}
+            <li class="list-group-item list-group-item-success d-flex justify-content-between">
+                <div>
+                    <span class="badge badge-success">active</span>
+                    {{ . }}
+                </div>
+                <a href="#" class="badge badge-success">Show credentials</a>
+            </li>
+            {{ end }}
+            {{ range .ReservationsExpired }}
+            <li class="list-group-item list-group-item-dark d-flex justify-content-between">
+                <div>
+                    <span class="badge badge-dark">expired</span>
+                    {{ . }}
+                </div>
+            </li>
+            {{ end }}
         </ul>
     </div>
 </main>
 {{ template "bottom" }}
-
-{{ define "reservation" }}
-<li class='list-group-item'>blank</li>
-{{ end }}

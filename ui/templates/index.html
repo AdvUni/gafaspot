@@ -1,6 +1,11 @@
 {{ template "top" }}
 <main>
   <div class="container">
+    {{ if .Wrong}}
+    <div class="alert alert-danger" role="alert">
+      Wrong credentials
+    </div>
+    {{ end }}
     <h2> Login gafaspot </h2>
     <form method="POST" , action="/login">
       <div class="form-group">
