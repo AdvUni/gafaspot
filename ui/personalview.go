@@ -36,7 +36,7 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := template.ParseFiles(personalviewTmpl, topTmpl, bottomTmpl)
+	t, err := template.ParseFiles(personalviewTmpl, topTmpl, bottomTmpl, navTmpl)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,21 +1,38 @@
 {{ template "top" }}
-<div class="container">
-    <h2> personal data </h2>
-
-    <p><b>User:</b> {{ .Username }}</p>
-    <p><b>SSH public key:</b> {{.SSH}}</p>
-
-    <form method="post" action="/addkey">
-        <button type="submit" class="btn btn-primary">add/change key</button>
+{{ template "nav" .Username }}
+<div class="container w-50">
+    <h2>new reservation</h2>
+    <form method="POST" , action="/reserve">
+        <div class="form-group row">
+            <label for="env" class="col-form-label col-md-2">environment</label>
+            <select class="form-control col-md-10" id="env">
+                <option>DEMO 0</option>
+                <option>DEMO 1</option>
+                <option>DEMO 2</option>
+            </select>
+        </div>
+        <div class="row">
+            <label for="start" class="col-form-label col-md-2">start reservation</label>
+            <div class="form-group row col-md-10" id="start">
+                <input type="date" class="form-control col-md" id="startdate" name="startdate">
+                <input type="time" class="form-control col-md" id="starttime" name="starttime" value="00:00">
+            </div>
+        </div>
+        <div class="row">
+            <label for="end" class="col-form-label col-md-2">end reservation</label>
+            <div class="form-group row col-md-10" id="end">
+                <input type="date" class="form-control col-md" id="enddate" name="enddate">
+                <input type="time" class="form-control col-md" id="endtime" name="endtime" value="23:59">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="sub" class="col-form-label col-md-2">subject</label>
+            <input type="text" class="form-control col-md-10" id="sub" name="sub">
+        </div>
+        <div class="d-flex justify-content-end">
+            <a href="/mainview"><input type=button class="btn btn-primary m-2" value="cancel"></a>
+            <button type="submit" class="btn btn-primary m-2" onclick=>submit</button>
+        </div>
     </form>
-
-    <form method="post" action="creds">
-        <button type="submit" class="btn btn-primary">show recent credentials</button>
-    </form>
-
-    <h3>Your reservations:</h3>
-    <ul class="list-group">
-        {{ .Reservations }}
-    </ul>
 </div>
 {{ template "bottom" }}

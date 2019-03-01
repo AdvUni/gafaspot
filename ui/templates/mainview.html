@@ -1,4 +1,5 @@
 {{ template "top" }}
+{{ template "nav" .Username }}
 <div class="container">
     <small>User: {{.Username}}</small>
     <form method="post" action="/logout">
