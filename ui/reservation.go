@@ -109,7 +109,7 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 	return nil
 }
 
-func AbortReservation(db *sql.DB, envName string, start, end time.Time) error {
+func AbortReservation(db *sql.DB, username, string, id int) error {
 	// start a transaction
 	tx, err := db.Begin()
 	if err != nil {
@@ -117,16 +117,15 @@ func AbortReservation(db *sql.DB, envName string, start, end time.Time) error {
 	}
 
 	// fetch reservation from database
-	stmt, err := tx.Prepare("SELECT id, status FROM reservations WHERE (envName=?) AND (start=?) AND (end=?);")
+	stmt, err := tx.Prepare("SELECT status FROM reservations WHERE (username=?) AND (id=?);")
 	defer stmt.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
-	var id int
-	var status string
-	err = stmt.QueryRow(envName, start, end).Scan(&id, &status)
+	status := ""
+	err = stmt.QueryRow(username, id).Scan(&status)
 	if err == sql.ErrNoRows {
-		log.Println(fmt.Errorf("tried to abort reservation which does not exist: environment '%v', start %v, end %v", envName, start.Format(constants.TimeLayout), end.Format(constants.TimeLayout)))
+		log.Println(fmt.Errorf("tried to abort reservation which does not exist or not belongs to specified user; id '%v', user '%v'", id, username))
 		return nil
 	}
 	if err != nil {
@@ -135,7 +134,7 @@ func AbortReservation(db *sql.DB, envName string, start, end time.Time) error {
 
 	// check reservation status (can only abort upcoming reservations)
 	if status != "upcoming" {
-		return fmt.Errorf("reservation is already active, though it is not possible anymore to abort it")
+		return fmt.Errorf("reservation is already active or expired, though it is not possible anymore to abort it")
 	}
 
 	// delete reservation from database
