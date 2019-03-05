@@ -1,10 +1,10 @@
 {{ template "top" }}
-{{ template "nav" .Username }}
+{{ template "nav" index .Username }}
 <main>
     <div class="container w-50">
         <h2>new reservation</h2>
 
-        {{ if .SSHmissing }}
+        {{ if index .SSHmissing }}
         <div class="alert alert-danger" role="alert">
             <h4 class="alert-heading">Error</h4>
             <p>You have not saved a SSH public key yet. You can not do this reservation without SSH key. Go to the <a
@@ -15,13 +15,12 @@
             <div class="form-group row">
                 <label for="env" class="col-form-label col-md-2">environment</label>
                 <select class="form-control col-md-10" id="env" onChange="window.location.href=this.value">
-                    {{ $plainSelected := plainString .SelectedEnv }}
-                    {{ range .Envs }}
-                    {{ $plainEnv := plainString . }}
-                    {{ if eq $plainEnv $plainSelected }}
-                    <option value="{{ $plainEnv }}" selected>{{ . }}</option>
+                    {{ $selected := index .Selected }}
+                    {{ range index .Envs }}
+                    {{ if eq .NamePlain $selected }}
+                    <option value="{{ .NamePlain }}" selected>{{ .Name }}</option>
                     {{ else }}
-                    <option value="{{ $plainEnv }}">{{ . }}</option>
+                    <option value="{{ .NamePlain }}">{{ .Name }}</option>
                     {{ end }}
                     {{ end }}
                 </select>
@@ -45,9 +44,9 @@
                 <input type="text" class="form-control col-md-10" id="sub" name="sub">
             </div>
             <div class="d-flex justify-content-end">
-                <a href="/mainview#{{ $plainSelected }}"><input type=button class="btn btn-primary m-2"
+                <a href="/mainview#{{ $selected }}"><input type=button class="btn btn-primary m-2"
                         value="cancel"></a>
-                <button type="submit" class="btn btn-primary m-2" {{ if .SSHmissing }}disabled{{ end }}>submit</button>
+                <button type="submit" class="btn btn-primary m-2" {{ if index .SSHmissing }}disabled{{ end }}>submit</button>
             </div>
         </form>
     </div>

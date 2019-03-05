@@ -1,7 +1,7 @@
 {{ template "top" }}
 <main>
   <div class="container">
-    {{ if .Wrong}}
+    {{ if index .ShowBanner}}
     <div class="alert alert-danger" role="alert">
       Wrong credentials
     </div>

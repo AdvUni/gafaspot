@@ -22,24 +22,6 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(resp)
 }
 
-type reservation struct {
-	ID      int
-	User    string
-	Env     string
-	Start   string
-	End     string
-	Subject string
-	Labels  string
-}
-
-type PersonalviewContent struct {
-	Username             string
-	SSH                  string
-	ReservationsUpcoming []reservation
-	ReservationsActive   []reservation
-	ReservationsExpired  []reservation
-}
-
 func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("referer: %v\n", r.Referer())
 	username, ok := verifyUser(w, r)
@@ -50,7 +32,7 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 
 	res := reservation{0, "user1", "demo0", "2000-01-01", "2000-01-01", "no subject", ""}
 	list := []reservation{res, res, res}
-	err := personalviewTmpl.Execute(w, PersonalviewContent{username, "blank", list, list, list})
+	err := personalviewTmpl.Execute(w, map[string]interface{}{"Username": username, "SSHkey": "blank", "ReservationsUpcoming": list, "ReservationsActive": list, "ReservationsExpired": list})
 	if err != nil {
 		log.Println(err)
 	}

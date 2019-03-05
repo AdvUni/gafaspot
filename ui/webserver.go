@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"path"
 	"regexp"
 	"strings"
 
@@ -30,13 +29,37 @@ const (
 
 var (
 	db   *sql.DB
-	envs = []string{"DEMO 0", "DEMO 1", "DEMO 2", "DEMO 3", "DEMO 4", "DEMO 5"}
+	envs map[string]env
 
 	loginformTmpl       *template.Template
 	mainviewTmpl        *template.Template
 	personalviewTmpl    *template.Template
 	reservationformTmpl *template.Template
 )
+
+type env struct {
+	Name        string
+	NamePlain   string
+	HasSSH      bool
+	Description string
+}
+
+type reservation struct {
+	ID      int
+	User    string
+	Env     string
+	Start   string
+	End     string
+	Subject string
+	Labels  string
+}
+
+type envReservations struct {
+	Env                  env
+	ReservationsUpcoming []reservation
+	ReservationsActive   []reservation
+	ReservationsExpired  []reservation
+}
 
 func RunWebserver(database *sql.DB, addr string) {
 
@@ -63,9 +86,7 @@ func RunWebserver(database *sql.DB, addr string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	mainviewTmpl, err = template.New(path.Base(mainviewTmplFile)).Funcs(template.FuncMap{
-		"plainString": createPlainIdentifier,
-	}).ParseFiles(mainviewTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	mainviewTmpl, err = template.ParseFiles(mainviewTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -73,12 +94,20 @@ func RunWebserver(database *sql.DB, addr string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	reservationformTmpl, err = template.New(path.Base(reservationformTmplFile)).Funcs(template.FuncMap{
-		"plainString": createPlainIdentifier,
-	}).ParseFiles(reservationformTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	reservationformTmpl, err = template.ParseFiles(reservationformTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// fetch static information about environments from database
+	// TODO: get data from database
+	envs = make(map[string]env)
+	envs[createPlainIdentifier("DEMO 0")] = env{"DEMO 0", createPlainIdentifier("DEMO 0"), true, "zero"}
+	envs[createPlainIdentifier("DEMO 1")] = env{"DEMO 1", createPlainIdentifier("DEMO 1"), false, "first"}
+	envs[createPlainIdentifier("DEMO 2")] = env{"DEMO 2", createPlainIdentifier("DEMO 2"), true, "second"}
+	envs[createPlainIdentifier("DEMO 3")] = env{"DEMO 3", createPlainIdentifier("DEMO 3"), false, "third"}
+	envs[createPlainIdentifier("DEMO 4")] = env{"DEMO 4", createPlainIdentifier("DEMO 4"), true, "fourth"}
+	envs[createPlainIdentifier("DEMO 5")] = env{"DEMO 5", createPlainIdentifier("DEMO 5"), false, "last"}
 
 	// create router and register all paths
 	router := mux.NewRouter()
@@ -103,26 +132,6 @@ func RunWebserver(database *sql.DB, addr string) {
 	log.Fatalf("webserver crashed: %v\n", err)
 }
 
-type Mainviewcontent struct {
-	Username             string
-	Envs                 []env
-	ReservationsUpcoming []reservation
-	ReservationsActive   []reservation
-	ReservationsExpired  []reservation
-}
-
-type Reservationcontent struct {
-	Username    string
-	SelectedEnv string
-	Envs        []string
-	SSHmissing  bool
-}
-
-type env struct {
-	Name        string
-	Description string
-}
-
 func reservationHandler(w http.ResponseWriter, r *http.Request) {
 	username, ok := verifyUser(w, r)
 	if !ok {
@@ -133,7 +142,9 @@ func reservationHandler(w http.ResponseWriter, r *http.Request) {
 	selectedEnv := mux.Vars(r)["env"]
 
 	// TODO: Check if ssh key is needed and if user has one
-	err := reservationformTmpl.Execute(w, Reservationcontent{username, selectedEnv, envs, true})
+	sshMissing := !envs[selectedEnv].HasSSH || false
+
+	err := reservationformTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": envs, "Selected": selectedEnv, "SSHmissing": sshMissing})
 	if err != nil {
 		log.Println(err)
 	}
@@ -147,11 +158,17 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := reservation{0, "user1", "demo0", "2000-01-01", "2000-01-01", "no subject", ""}
-	list := []reservation{res, res, res}
+	envReservationsList := []envReservations{}
+	for _, env := range envs {
+		// TODO: fetch reservations from database
+		res := reservation{0, "user1", "demo0", "2000-01-01", "2000-01-01", "no subject", ""}
+		list := []reservation{res, res, res}
+		envReservations := envReservations{env, list, list, list}
 
-	envs := []env{env{"DEMO 0", "zero"}, env{"DEMO 1", "first"}, env{"DEMO 2", "second"}, env{"DEMO 3", "third"}, env{"DEMO 4", "fourth"}, env{"DEMO 5", "last"}}
-	err := mainviewTmpl.Execute(w, Mainviewcontent{username, envs, list, list, list})
+		envReservationsList = append(envReservationsList, envReservations)
+	}
+
+	err := mainviewTmpl.Execute(w, map[string]interface{}{"Username": username, "Envcontent": envReservationsList})
 	if err != nil {
 		log.Println(err)
 	}

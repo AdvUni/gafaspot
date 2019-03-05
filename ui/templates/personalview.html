@@ -1,5 +1,5 @@
 {{ template "top" }}
-{{ template "nav" .Username }}
+{{ template "nav" index .Username }}
 <main>
     <!-- confirm modal for aborting reservations -->
     <div class="modal fade" id="confirmAbortion" tabindex="-1" role="dialog" aria-labelledby="confirmAbortionTitle"
@@ -29,8 +29,8 @@
     <div class="container">
         <h2> personal data </h2>
 
-        <p><b>User:</b> {{ .Username }}</p>
-        <p><b>SSH public key:</b> {{.SSH}}</p>
+        <p><b>User:</b> {{ index .Username }}</p>
+        <p><b>SSH public key:</b> {{ index .SSHkey }}</p>
 
         <form method="post" action="/addkey">
             <button type="submit" class="btn btn-primary m-2">add/change key</button>
@@ -39,7 +39,7 @@
         <h3>Your reservations:</h3>
         <ul class="list-group">
             <!-- all upcoming reservations -->
-            {{ range .ReservationsUpcoming }}
+            {{ range index .ReservationsUpcoming }}
             <li class="list-group-item list-group-item-info">
                 <div class="row">
                     <span class="badge border border-info overflow-hidden col-md-1">upcoming</span>
@@ -52,7 +52,7 @@
             </li>
             {{ end }}
             <!-- all active reservations -->
-            {{ range .ReservationsActive }}
+            {{ range index .ReservationsActive }}
             <li class="list-group-item list-group-item-success">
                 <div class="row">
                     <span class="badge border border-success col-md-1">active</span>
@@ -62,7 +62,7 @@
             </li>
             {{ end }}
             <!-- all expired reservations -->
-            {{ range .ReservationsExpired }}
+            {{ range index .ReservationsExpired }}
             <li class="list-group-item list-group-item-dark">
                 <div class="row">
                     <span class="badge border border-dark col-md-1">expired</span>

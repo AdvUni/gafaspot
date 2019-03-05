@@ -15,13 +15,9 @@ const (
 
 var hmacKey = make([]byte, 128)
 
-type Claims struct {
+type claims struct {
 	Username string `json:"username"`
 	jwt.StandardClaims
-}
-
-type Banner struct {
-	Wrong bool
 }
 
 func indexPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +30,7 @@ func indexPageHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Referer() == indexpage {
 		banner = true
 	}
-	err := loginformTmpl.Execute(w, Banner{banner})
+	err := loginformTmpl.Execute(w, map[string]interface{}{"ShowBanner": banner})
 	if err != nil {
 		log.Println(err)
 	}
@@ -83,7 +79,7 @@ func verifyUser(w http.ResponseWriter, r *http.Request) (string, bool) {
 		return "", false
 	}
 
-	tokenContent := &Claims{}
+	tokenContent := &claims{}
 
 	token, err := jwt.ParseWithClaims(cookie.Value, tokenContent, func(t *jwt.Token) (interface{}, error) { return hmacKey, nil })
 	if err != nil {
@@ -101,7 +97,7 @@ func verifyUser(w http.ResponseWriter, r *http.Request) (string, bool) {
 
 func setNewAuthCookie(w http.ResponseWriter, username string) {
 	timeout := time.Now().Add(authCookieTTL)
-	jwtContent := &Claims{username, jwt.StandardClaims{ExpiresAt: timeout.Unix()}}
+	jwtContent := &claims{username, jwt.StandardClaims{ExpiresAt: timeout.Unix()}}
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS512, jwtContent).SignedString(hmacKey)
 

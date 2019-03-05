@@ -1,61 +1,51 @@
 {{ template "top" }}
-{{ template "nav" .Username }}
+{{ template "nav" index .Username }}
 <main>
 
     <div class="row">
         <!-- tab bar for all environments -->
         <div class="col-2">
             <div class="list-group" id="list-tab" role="tablist">
-                {{ range .Envs }}
-                {{ $plainEnv := plainString .Name }}
-                <a class="list-group-item list-group-item-action" id="{{ $plainEnv }}-tab" data-toggle="list"
-                    href="#{{ $plainEnv }}" role="tab" aria-controls="{{ $plainEnv }}">{{ .Name }}</a>
+                {{ range index .Envcontent }}
+                <a class="list-group-item list-group-item-action" id="{{ .Env.NamePlain }}-tab" data-toggle="list"
+                    href="#{{ .Env.NamePlain }}" role="tab" aria-controls="{{ .Env.NamePlain }}">{{ .Env.Name }}</a>
                 {{ end }}
             </div>
         </div>
         <!-- contents to the different tabs -->
         <div class="container col-8">
             <div class="tab-content" id="nav-tabContent">
-                {{ $upcoming := .ReservationsUpcoming }}
-                {{ $active := .ReservationsActive }}
-                {{ $expired := .ReservationsExpired }}
-                {{ range .Envs }}
-                {{ $plainEnv := plainString .Name }}
-                <div class="tab-pane" id="{{ $plainEnv }}" role="tabpanel" aria-labelledby="{{ $plainEnv }}-tab">
-                    <h2>{{ .Name }}</h2>
+                {{ range index .Envcontent }}
+                <div class="tab-pane" id="{{ .Env.NamePlain }}" role="tabpanel" aria-labelledby="{{ .Env.NamePlain }}-tab">
+                    <h2>{{ .Env.Name }}</h2>
                     <h3>description:</h3>
-                    <p>{{ .Description }}</p>
+                    <p>{{ .Env.Description }}</p>
                     <h3>reservations:</h3>
                     <ul class="list-group">
                         <!-- all upcoming reservations -->
-                        {{ range $upcoming }}
+                        {{ range .ReservationsUpcoming }}
                         <li class="list-group-item list-group-item-info">
                             <div class="row">
                                 <span class="badge border border-info overflow-hidden col-md-1">upcoming</span>
                                 <span class="col-md-10"><span class="font-weight-bold">{{ .Env }}:</span><span
                                         class="ml-3 mr-2">{{ .Start }}</span>&ndash;<span
                                         class="ml-2 mr-3">{{ .End }}</span>({{ .Subject }})</span>
-                                <button type="button" class="btn badge badge-danger col-md-1" data-toggle="modal"
-                                    data-target="#confirmAbortion" data-id="{{ .ID }}"
-                                    data-reservation="{{ .Env }}: {{ .Start }} &ndash; {{ .End }} ({{ .Subject }})">Abort
-                                </button>
                             </div>
                         </li>
                         {{ end }}
                         <!-- all active reservations -->
-                        {{ range $active }}
+                        {{ range .ReservationsActive }}
                         <li class="list-group-item list-group-item-success">
                             <div class="row">
                                 <span class="badge border border-success col-md-1">active</span>
                                 <span class="col-md-9"><span class="font-weight-bold">{{ .Env }}:</span><span
                                         class="ml-3 mr-2">{{ .Start }}</span>&ndash;<span
                                         class="ml-2 mr-3">{{ .End }}</span>({{ .Subject }})</span>
-                                <a href="#" class="badge badge-success col-md-2">Show credentials</a>
                             </div>
                         </li>
                         {{ end }}
                         <!-- all expired reservations -->
-                        {{ range $expired }}
+                        {{ range .ReservationsExpired }}
                         <li class="list-group-item list-group-item-dark">
                             <div class="row">
                                 <span class="badge border border-dark col-md-1">expired</span>
@@ -66,7 +56,7 @@
                         </li>
                         {{ end }}
                     </ul>
-                    <form method="post" action="/newreservation/{{ $plainEnv }}">
+                    <form method="post" action="/newreservation/{{ .Env.NamePlain }}">
                         <button type="submit" class="btn btn-primary">new reservation</button>
                     </form>
                 </div>
