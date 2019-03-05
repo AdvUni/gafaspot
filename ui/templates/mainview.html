@@ -3,25 +3,28 @@
 <main>
 
     <div class="row">
+        <!-- tab bar for all environments -->
         <div class="col-2">
             <div class="list-group" id="list-tab" role="tablist">
-
                 {{ range .Envs }}
-                <a class="list-group-item list-group-item-action" id="{{ . }}-tab" data-toggle="list" href="#{{ . }}" role="tab"
-                    aria-controls="{{ . }}">{{ . }}</a>
+                {{ $plainEnv := plainString .Name }}
+                <a class="list-group-item list-group-item-action" id="{{ $plainEnv }}-tab" data-toggle="list"
+                    href="#{{ $plainEnv }}" role="tab" aria-controls="{{ $plainEnv }}">{{ .Name }}</a>
                 {{ end }}
             </div>
         </div>
+        <!-- contents to the different tabs -->
         <div class="container col-8">
             <div class="tab-content" id="nav-tabContent">
                 {{ range .Envs }}
-                <div class="tab-pane fade" id="{{ . }}" role="tabpanel" aria-labelledby="{{ . }}-tab">
-                    <h2>{{ . }}</h2>
-                    <form method="post" action="/newreservation/{{ . }}">
+                {{ $plainEnv := plainString .Name }}
+                <div class="tab-pane" id="{{ $plainEnv }}" role="tabpanel" aria-labelledby="{{ $plainEnv }}-tab">
+                    <h2>{{ .Name }}</h2>
+                    <form method="post" action="/newreservation/{{ $plainEnv }}">
                         <button type="submit" class="btn btn-primary">new reservation</button>
                     </form>
                     <h3>description</h3>
-                    <p>...</p>
+                    <p>{{ .Description }}</p>
                 </div>
                 {{ end }}
             </div>
@@ -30,3 +33,14 @@
 
 </main>
 {{ template "bottom" }}
+
+<!-- functionality for accessing specified tabs when linking from another site -->
+<script type="text/javascript">
+    var url = document.location.toString();
+    if (url.match('#')) {
+        $('.list-group a[href="#' + url.split('#')[1] + '"]').tab('show');
+    }
+    $('.list-group a').on('shown.bs.tab', function (e) {
+        window.location.hash = e.target.hash;
+    })
+</script>

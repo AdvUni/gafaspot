@@ -15,12 +15,13 @@
             <div class="form-group row">
                 <label for="env" class="col-form-label col-md-2">environment</label>
                 <select class="form-control col-md-10" id="env" onChange="window.location.href=this.value">
-                    {{ $env := .Env }}
+                    {{ $plainSelected := plainString .SelectedEnv }}
                     {{ range .Envs }}
-                    {{ if eq . $env }}
-                    <option selected>{{ . }}</option>
+                    {{ $plainEnv := plainString . }}
+                    {{ if eq $plainEnv $plainSelected }}
+                    <option value="{{ $plainEnv }}" selected>{{ . }}</option>
                     {{ else }}
-                    <option>{{ . }}</option>
+                    <option value="{{ $plainEnv }}">{{ . }}</option>
                     {{ end }}
                     {{ end }}
                 </select>
@@ -44,7 +45,8 @@
                 <input type="text" class="form-control col-md-10" id="sub" name="sub">
             </div>
             <div class="d-flex justify-content-end">
-                <a href="/mainview"><input type=button class="btn btn-primary m-2" value="cancel"></a>
+                <a href="/mainview#{{ $plainSelected }}"><input type=button class="btn btn-primary m-2"
+                        value="cancel"></a>
                 <button type="submit" class="btn btn-primary m-2" {{ if .SSHmissing }}disabled{{ end }}>submit</button>
             </div>
         </form>

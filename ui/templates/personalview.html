@@ -1,6 +1,31 @@
 {{ template "top" }}
 {{ template "nav" .Username }}
 <main>
+    <!-- confirm modal for aborting reservations -->
+    <div class="modal fade" id="confirmAbortion" tabindex="-1" role="dialog" aria-labelledby="confirmAbortionTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmAbortionTitle">Want to abort reservation?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control-plaintext" readonly name="reservation" value="" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">no</button>
+                    <form method="post" action="/abortreservation">
+                        <input type="hidden" name="id" value="" />
+                        <button type="submit" class="btn btn-primary">yes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <h2> personal data </h2>
 
@@ -13,33 +38,48 @@
 
         <h3>Your reservations:</h3>
         <ul class="list-group">
+            <!-- all upcoming reservations -->
             {{ range .ReservationsUpcoming }}
-            <li class="list-group-item list-group-item-warning d-flex justify-content-between">
-                <div>
-                    <span class="badge badge-warning">upcoming</span>
-                    {{ . }}
+            <li class="list-group-item list-group-item-warning">
+                <div class="row">
+                    <span class="badge badge-warning col-md-1">upcoming</span>
+                    <span class="col-md-10">{{ .Env }}: {{ .Start }} - {{ .End }} ({{ .Subject }})</span>
+                    <button type="button" class="btn badge badge-danger col-md-1" data-toggle="modal"
+                        data-target="#confirmAbortion" data-id="{{ .ID }}"
+                        data-reservation="{{ .Env }}: {{ .Start }} - {{ .End }} ({{ .Subject }})">Abort
+                    </button>
                 </div>
-                <a href="#" class="badge badge-danger">Abort</a>
             </li>
             {{ end }}
+            <!-- all active reservations -->
             {{ range .ReservationsActive }}
-            <li class="list-group-item list-group-item-success d-flex justify-content-between">
-                <div>
-                    <span class="badge badge-success">active</span>
-                    {{ . }}
+            <li class="list-group-item list-group-item-success">
+                <div class="row">
+                    <span class="badge badge-success col-md-1">active</span>
+                    <span class="col-md-9">{{ .Env }}: {{ .Start }} - {{ .End }} ({{ .Subject }})</span>
+                    <a href="#" class="badge badge-success col-md-2">Show credentials</a>
                 </div>
-                <a href="#" class="badge badge-success">Show credentials</a>
             </li>
             {{ end }}
+            <!-- all expired reservations -->
             {{ range .ReservationsExpired }}
-            <li class="list-group-item list-group-item-dark d-flex justify-content-between">
-                <div>
-                    <span class="badge badge-dark">expired</span>
-                    {{ . }}
+            <li class="list-group-item list-group-item-dark">
+                <div class="row">
+                    <span class="badge badge-dark col-md-1">expired</span>
+                    <span class="col-md-11">{{ .Env }}: {{ .Start }} - {{ .End }} ({{ .Subject }})</span>
                 </div>
             </li>
             {{ end }}
         </ul>
     </div>
 </main>
+
 {{ template "bottom" }}
+
+<!-- functionality for passing the right data to the confirm-abortion-modal when clicking an abort button -->
+<script type="text/javascript">
+    $('#confirmAbortion').on('show.bs.modal', function (e) {
+        $(e.currentTarget).find('input[name="reservation"]').val($(e.relatedTarget).data('reservation'));
+        $(e.currentTarget).find('input[name="id"]').val($(e.relatedTarget).data('id'));
+    });
+</script>

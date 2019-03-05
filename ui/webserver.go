@@ -6,6 +6,9 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"path"
+	"regexp"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -16,7 +19,7 @@ const (
 	navTmpl    = "ui/templates/nav.html"
 
 	indexpage     = "/"
-	indexpageTmpl = "ui/templates/index.html"
+	indexpageTmpl = "ui/templates/login.html"
 
 	loginpath  = "/login"
 	logoutpath = "/logout"
@@ -34,9 +37,8 @@ const (
 )
 
 var (
-	router = mux.NewRouter()
-	db     *sql.DB
-	envs   = []string{"demo0", "demo1", "demo2", "demo3", "demo4", "demo5"}
+	db   *sql.DB
+	envs = []string{"DEMO 0", "DEMO 1", "DEMO 2", "DEMO 3", "DEMO 4", "DEMO 5"}
 )
 
 func RunWebserver(database *sql.DB, addr string) {
@@ -50,6 +52,8 @@ func RunWebserver(database *sql.DB, addr string) {
 		log.Fatalf("could not create key for jwt signing: %v\n", err)
 	}
 
+	router := mux.NewRouter()
+
 	router.HandleFunc(indexpage, indexPageHandler)
 
 	router.HandleFunc(loginpath, loginHandler).Methods(http.MethodPost)
@@ -61,6 +65,8 @@ func RunWebserver(database *sql.DB, addr string) {
 
 	router.HandleFunc(reservationform, reservationHandler)
 
+	//router.PathPrefix("/js/").Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("ui/templates/js"))))
+
 	http.Handle(indexpage, router)
 	err = http.ListenAndServe(addr, nil)
 
@@ -70,31 +76,39 @@ func RunWebserver(database *sql.DB, addr string) {
 
 type Mainviewcontent struct {
 	Username string
-	Envs     []string
+	Envs     []env
 }
 
 type Reservationcontent struct {
-	Username   string
-	Env        string
-	Envs       []string
-	SSHmissing bool
+	Username    string
+	SelectedEnv string
+	Envs        []string
+	SSHmissing  bool
+}
+
+type env struct {
+	Name        string
+	Description string
 }
 
 func reservationHandler(w http.ResponseWriter, r *http.Request) {
 	username, ok := verifyUser(w, r)
 	if !ok {
-		w.WriteHeader(http.StatusNotFound)
+		http.NotFound(w, r)
 		return
 	}
-	t, err := template.ParseFiles(reservationformTmpl, topTmpl, bottomTmpl, navTmpl)
+
+	t, err := template.New(path.Base(reservationformTmpl)).Funcs(template.FuncMap{
+		"plainString": createPlainIdentifier,
+	}).ParseFiles(reservationformTmpl, topTmpl, bottomTmpl, navTmpl)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	env := mux.Vars(r)["env"]
+	selectedEnv := mux.Vars(r)["env"]
 
 	// TODO: Check if ssh key is needed and if user has one
-	err = t.Execute(w, Reservationcontent{username, env, envs, true})
+	err = t.Execute(w, Reservationcontent{username, selectedEnv, envs, true})
 	if err != nil {
 		log.Println(err)
 	}
@@ -105,16 +119,26 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("referer: %v\n", r.Referer())
 	username, ok := verifyUser(w, r)
 	if !ok {
-		w.WriteHeader(http.StatusNotFound)
+		http.NotFound(w, r)
 		return
 	}
-	t, err := template.ParseFiles(mainviewTmpl, topTmpl, bottomTmpl, navTmpl)
+
+	t, err := template.New(path.Base(mainviewTmpl)).Funcs(template.FuncMap{
+		"plainString": createPlainIdentifier,
+	}).ParseFiles(mainviewTmpl, topTmpl, bottomTmpl, navTmpl)
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	envs := []env{env{"DEMO 0", "zero"}, env{"DEMO 1", "first"}, env{"DEMO 2", "second"}, env{"DEMO 3", "third"}, env{"DEMO 4", "fourth"}, env{"DEMO 5", "last"}}
 	err = t.Execute(w, Mainviewcontent{username, envs})
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func createPlainIdentifier(name string) string {
+	re := regexp.MustCompile(`[^a-zA-Z0-9]`)
+	return strings.ToLower(re.ReplaceAllString(name, "_"))
 }

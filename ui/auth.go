@@ -66,13 +66,16 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("referer: %v\n", r.Referer())
-	// return a new, empty cookie which overwrites previous ones and expires immediately
-	cookie := &http.Cookie{
-		Name:   authCookieName,
-		Value:  "",
-		MaxAge: -1,
+	_, ok := verifyUser(w, r)
+	if ok {
+		// return a new, empty cookie which overwrites previous ones and expires immediately
+		cookie := &http.Cookie{
+			Name:   authCookieName,
+			Value:  "",
+			MaxAge: -1,
+		}
+		http.SetCookie(w, cookie)
 	}
-	http.SetCookie(w, cookie)
 
 	// redirect to login page
 	http.Redirect(w, r, indexpage, http.StatusSeeOther)
