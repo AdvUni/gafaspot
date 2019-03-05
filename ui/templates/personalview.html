@@ -40,13 +40,13 @@
         <ul class="list-group">
             <!-- all upcoming reservations -->
             {{ range .ReservationsUpcoming }}
-            <li class="list-group-item list-group-item-warning">
+            <li class="list-group-item list-group-item-info">
                 <div class="row">
-                    <span class="badge badge-warning col-md-1">upcoming</span>
-                    <span class="col-md-10">{{ .Env }}: {{ .Start }} - {{ .End }} ({{ .Subject }})</span>
+                    <span class="badge border border-info overflow-hidden col-md-1">upcoming</span>
+                    <span class="col-md-10"><span class="font-weight-bold">{{ .Env }}:</span><span class="ml-3 mr-2">{{ .Start }}</span>&ndash;<span class="ml-2 mr-3">{{ .End }}</span>({{ .Subject }})</span>
                     <button type="button" class="btn badge badge-danger col-md-1" data-toggle="modal"
                         data-target="#confirmAbortion" data-id="{{ .ID }}"
-                        data-reservation="{{ .Env }}: {{ .Start }} - {{ .End }} ({{ .Subject }})">Abort
+                        data-reservation="{{ .Env }}: {{ .Start }} &ndash; {{ .End }} ({{ .Subject }})">Abort
                     </button>
                 </div>
             </li>
@@ -55,8 +55,8 @@
             {{ range .ReservationsActive }}
             <li class="list-group-item list-group-item-success">
                 <div class="row">
-                    <span class="badge badge-success col-md-1">active</span>
-                    <span class="col-md-9">{{ .Env }}: {{ .Start }} - {{ .End }} ({{ .Subject }})</span>
+                    <span class="badge border border-success col-md-1">active</span>
+                    <span class="col-md-9"><span class="font-weight-bold">{{ .Env }}:</span><span class="ml-3 mr-2">{{ .Start }}</span>&ndash;<span class="ml-2 mr-3">{{ .End }}</span>({{ .Subject }})</span>
                     <a href="#" class="badge badge-success col-md-2">Show credentials</a>
                 </div>
             </li>
@@ -65,8 +65,8 @@
             {{ range .ReservationsExpired }}
             <li class="list-group-item list-group-item-dark">
                 <div class="row">
-                    <span class="badge badge-dark col-md-1">expired</span>
-                    <span class="col-md-11">{{ .Env }}: {{ .Start }} - {{ .End }} ({{ .Subject }})</span>
+                    <span class="badge border border-dark col-md-1">expired</span>
+                    <span class="col-md-11"><span class="font-weight-bold">{{ .Env }}:</span><span class="ml-3 mr-2">{{ .Start }}</span>&ndash;<span class="ml-2 mr-3">{{ .End }}</span>({{ .Subject }})</span>
                 </div>
             </li>
             {{ end }}

@@ -104,8 +104,11 @@ func RunWebserver(database *sql.DB, addr string) {
 }
 
 type Mainviewcontent struct {
-	Username string
-	Envs     []env
+	Username             string
+	Envs                 []env
+	ReservationsUpcoming []reservation
+	ReservationsActive   []reservation
+	ReservationsExpired  []reservation
 }
 
 type Reservationcontent struct {
@@ -144,8 +147,11 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	res := reservation{0, "user1", "demo0", "2000-01-01", "2000-01-01", "no subject", ""}
+	list := []reservation{res, res, res}
+
 	envs := []env{env{"DEMO 0", "zero"}, env{"DEMO 1", "first"}, env{"DEMO 2", "second"}, env{"DEMO 3", "third"}, env{"DEMO 4", "fourth"}, env{"DEMO 5", "last"}}
-	err := mainviewTmpl.Execute(w, Mainviewcontent{username, envs})
+	err := mainviewTmpl.Execute(w, Mainviewcontent{username, envs, list, list, list})
 	if err != nil {
 		log.Println(err)
 	}
