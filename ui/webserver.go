@@ -14,31 +14,28 @@ import (
 )
 
 const (
-	topTmpl    = "ui/templates/top.html"
-	bottomTmpl = "ui/templates/bottom.html"
-	navTmpl    = "ui/templates/nav.html"
-
-	indexpage     = "/"
-	indexpageTmpl = "ui/templates/login.html"
+	indexpage = "/"
 
 	loginpath  = "/login"
 	logoutpath = "/logout"
 
-	mainview     = "/mainview"
-	mainviewTmpl = "ui/templates/mainview.html"
+	mainview = "/mainview"
 
-	personalview     = "/personal"
-	personalviewTmpl = "ui/templates/personalview.html"
+	personalview = "/personal"
 
 	credsview = "/personal/creds"
 
-	reservationform     = "/newreservation/{env}"
-	reservationformTmpl = "ui/templates/newreservation.html"
+	reservationform = "/newreservation/{env}"
 )
 
 var (
 	db   *sql.DB
 	envs = []string{"DEMO 0", "DEMO 1", "DEMO 2", "DEMO 3", "DEMO 4", "DEMO 5"}
+
+	loginformTmpl       *template.Template
+	mainviewTmpl        *template.Template
+	personalviewTmpl    *template.Template
+	reservationformTmpl *template.Template
 )
 
 func RunWebserver(database *sql.DB, addr string) {
@@ -52,6 +49,38 @@ func RunWebserver(database *sql.DB, addr string) {
 		log.Fatalf("could not create key for jwt signing: %v\n", err)
 	}
 
+	// pre-assembling and caching of all the page templates
+	const (
+		topTmplFile             = "ui/templates/top.html"
+		bottomTmplFile          = "ui/templates/bottom.html"
+		navTmplFile             = "ui/templates/nav.html"
+		loginformTmplFile       = "ui/templates/login.html"
+		mainviewTmplFile        = "ui/templates/mainview.html"
+		personalviewTmplFile    = "ui/templates/personalview.html"
+		reservationformTmplFile = "ui/templates/newreservation.html"
+	)
+	loginformTmpl, err = template.ParseFiles(loginformTmplFile, topTmplFile, bottomTmplFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	mainviewTmpl, err = template.New(path.Base(mainviewTmplFile)).Funcs(template.FuncMap{
+		"plainString": createPlainIdentifier,
+	}).ParseFiles(mainviewTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	personalviewTmpl, err = template.ParseFiles(personalviewTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	reservationformTmpl, err = template.New(path.Base(reservationformTmplFile)).Funcs(template.FuncMap{
+		"plainString": createPlainIdentifier,
+	}).ParseFiles(reservationformTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// create router and register all paths
 	router := mux.NewRouter()
 
 	router.HandleFunc(indexpage, indexPageHandler)
@@ -98,21 +127,13 @@ func reservationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := template.New(path.Base(reservationformTmpl)).Funcs(template.FuncMap{
-		"plainString": createPlainIdentifier,
-	}).ParseFiles(reservationformTmpl, topTmpl, bottomTmpl, navTmpl)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	selectedEnv := mux.Vars(r)["env"]
 
 	// TODO: Check if ssh key is needed and if user has one
-	err = t.Execute(w, Reservationcontent{username, selectedEnv, envs, true})
+	err := reservationformTmpl.Execute(w, Reservationcontent{username, selectedEnv, envs, true})
 	if err != nil {
 		log.Println(err)
 	}
-
 }
 
 func mainPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -123,21 +144,14 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := template.New(path.Base(mainviewTmpl)).Funcs(template.FuncMap{
-		"plainString": createPlainIdentifier,
-	}).ParseFiles(mainviewTmpl, topTmpl, bottomTmpl, navTmpl)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	envs := []env{env{"DEMO 0", "zero"}, env{"DEMO 1", "first"}, env{"DEMO 2", "second"}, env{"DEMO 3", "third"}, env{"DEMO 4", "fourth"}, env{"DEMO 5", "last"}}
-	err = t.Execute(w, Mainviewcontent{username, envs})
+	err := mainviewTmpl.Execute(w, Mainviewcontent{username, envs})
 	if err != nil {
 		log.Println(err)
 	}
 }
 
+// createPlainIdentifier replaces all characters which are not ascii letters oder numbers through an underscore
 func createPlainIdentifier(name string) string {
 	re := regexp.MustCompile(`[^a-zA-Z0-9]`)
 	return strings.ToLower(re.ReplaceAllString(name, "_"))

@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"html/template"
 	"log"
 	"net/http"
 	"time"
@@ -35,11 +34,7 @@ func indexPageHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Referer() == indexpage {
 		banner = true
 	}
-	t, err := template.ParseFiles(indexpageTmpl, topTmpl, bottomTmpl)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = t.Execute(w, Banner{banner})
+	err := loginformTmpl.Execute(w, Banner{banner})
 	if err != nil {
 		log.Println(err)
 	}

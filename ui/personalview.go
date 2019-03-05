@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"html/template"
 	"log"
 	"net/http"
 )
@@ -49,13 +48,9 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := template.ParseFiles(personalviewTmpl, topTmpl, bottomTmpl, navTmpl)
-	if err != nil {
-		log.Fatal(err)
-	}
 	res := reservation{0, "user1", "demo0", "2000-01-01", "2000-01-01", "no subject", ""}
 	list := []reservation{res, res, res}
-	err = t.Execute(w, PersonalviewContent{username, "blank", list, list, list})
+	err := personalviewTmpl.Execute(w, PersonalviewContent{username, "blank", list, list, list})
 	if err != nil {
 		log.Println(err)
 	}
