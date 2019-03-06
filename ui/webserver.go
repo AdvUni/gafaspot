@@ -20,6 +20,7 @@ const (
 	personalview    = "/personal"
 	credsview       = "/personal/creds"
 	reservationform = "/newreservation/{env}"
+	reserve         = "/reserve"
 )
 
 var (
@@ -72,18 +73,6 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// create router and register all paths
-	router := mux.NewRouter()
-
-	router.HandleFunc(loginpage, loginPageHandler)
-	router.HandleFunc(login, loginHandler).Methods(http.MethodPost)
-	router.HandleFunc(logout, logoutHandler).Methods(http.MethodPost)
-	router.HandleFunc(mainview, mainPageHandler)
-	router.HandleFunc(personalview, personalPageHandler)
-	//router.HandleFunc(credsview, credsPageHandler)
-	router.HandleFunc(reservationform, newreservationPageHandler)
-	//router.PathPrefix("/js/").Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("ui/templates/js"))))
 }
 
 func RunWebserver(database *sql.DB, addr string) {
@@ -99,6 +88,19 @@ func RunWebserver(database *sql.DB, addr string) {
 	envs[createPlainIdentifier("DEMO 3")] = env{"DEMO 3", createPlainIdentifier("DEMO 3"), false, "third"}
 	envs[createPlainIdentifier("DEMO 4")] = env{"DEMO 4", createPlainIdentifier("DEMO 4"), true, "fourth"}
 	envs[createPlainIdentifier("DEMO 5")] = env{"DEMO 5", createPlainIdentifier("DEMO 5"), false, "last"}
+
+	// create router and register all paths
+	router := mux.NewRouter()
+
+	router.HandleFunc(loginpage, loginPageHandler)
+	router.HandleFunc(login, loginHandler).Methods(http.MethodPost)
+	router.HandleFunc(logout, logoutHandler).Methods(http.MethodPost)
+	router.HandleFunc(mainview, mainPageHandler)
+	router.HandleFunc(personalview, personalPageHandler)
+	//router.HandleFunc(credsview, credsPageHandler)
+	router.HandleFunc(reservationform, newreservationPageHandler)
+	router.HandleFunc()
+	//router.PathPrefix("/js/").Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("ui/templates/js"))))
 
 	// start web server
 	err := http.ListenAndServe(addr, nil)
