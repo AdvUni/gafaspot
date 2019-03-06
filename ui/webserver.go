@@ -103,6 +103,7 @@ func RunWebserver(database *sql.DB, addr string) {
 	//router.PathPrefix("/js/").Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("ui/templates/js"))))
 
 	// start web server
+	http.Handle(loginpage, router)
 	err := http.ListenAndServe(addr, nil)
 	// cause entire program to stop if the server crashes for any reason
 	log.Fatalf("webserver crashed: %v\n", err)
