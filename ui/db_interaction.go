@@ -36,6 +36,13 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 	if err != nil {
 		log.Fatal(err)
 	}
+	// defer the transaction's commit as this function may return an error
+	defer func() {
+		err = tx.Commit()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	// check, whether environment exists and determine, whether the reservation needs an ssh key
 	stmt, err := tx.Prepare("SELECT has_ssh FROM environments WHERE (env_name=?);")
@@ -100,12 +107,6 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 		log.Fatal(err)
 	}
 
-	// commit transaction
-	err = tx.Commit()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	return nil
 }
 
@@ -115,6 +116,13 @@ func AbortReservation(db *sql.DB, username, string, id int) error {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// defer the transaction's commit as this function may return an error
+	defer func() {
+		err = tx.Commit()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	// fetch reservation from database
 	stmt, err := tx.Prepare("SELECT status FROM reservations WHERE (username=?) AND (id=?);")
@@ -144,12 +152,6 @@ func AbortReservation(db *sql.DB, username, string, id int) error {
 		log.Fatal(err)
 	}
 	_, err = stmt.Exec(id)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// commit transaction
-	err = tx.Commit()
 	if err != nil {
 		log.Fatal(err)
 	}
