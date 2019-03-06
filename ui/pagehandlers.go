@@ -9,8 +9,9 @@ import (
 
 type reservation struct {
 	ID      int
+	Status  string
 	User    string
-	Env     string
+	EnvName string
 	Start   string
 	End     string
 	Subject string
@@ -47,15 +48,23 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-
 	envReservationsList := []envReservations{}
+
 	for _, env := range envs {
 		// TODO: fetch reservations from database
-		res := reservation{0, "user1", "demo0", "2000-01-01", "2000-01-01", "no subject", ""}
-		list := []reservation{res, res, res}
-		envReservations := envReservations{env, list, list, list}
-
-		envReservationsList = append(envReservationsList, envReservations)
+		reservations := getEnvReservations(db, env.Name)
+		var upcoming, active, expired []reservation
+		for _, r := range reservations {
+			switch r.Status {
+			case "upcoming":
+				upcoming = append(upcoming, r)
+			case "active":
+				active = append(active, r)
+			case "expired":
+				expired = append(expired, r)
+			}
+		}
+		envReservationsList = append(envReservationsList, envReservations{env, upcoming, active, expired})
 	}
 
 	err := mainviewTmpl.Execute(w, map[string]interface{}{"Username": username, "Envcontent": envReservationsList})
@@ -72,7 +81,7 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := reservation{0, "user1", "demo0", "2000-01-01", "2000-01-01", "no subject", ""}
+	res := reservation{0, "somestatus", "user1", "demo0", "2000-01-01", "2000-01-01", "no subject", ""}
 	list := []reservation{res, res, res}
 	err := personalviewTmpl.Execute(w, map[string]interface{}{"Username": username, "SSHkey": "blank", "ReservationsUpcoming": list, "ReservationsActive": list, "ReservationsExpired": list})
 	if err != nil {

@@ -40,16 +40,16 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 	defer func() {
 		err = tx.Commit()
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 	}()
 
 	// check, whether environment exists and determine, whether the reservation needs an ssh key
 	stmt, err := tx.Prepare("SELECT has_ssh FROM environments WHERE (env_name=?);")
-	defer stmt.Close()
 	if err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
+	defer stmt.Close()
 
 	var hasSSH bool
 	err = stmt.QueryRow(envName).Scan(&hasSSH)
@@ -63,10 +63,10 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 	if hasSSH {
 		var sshKey sql.NullString
 		stmt, err = tx.Prepare("SELECT ssh_pub_key FROM users WHERE (username=?);")
-		defer stmt.Close()
 		if err != nil {
-			log.Println(err)
+			log.Fatal(err)
 		}
+		defer stmt.Close()
 		err = stmt.QueryRow(username).Scan(&sshKey)
 		if err == sql.ErrNoRows || !sshKey.Valid {
 			return ReservationError(fmt.Sprintf("there is no ssh public key stored for user %v, but it is required for booking environment %v", username, envName))
@@ -78,10 +78,10 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 	// check the environment's availability within the requested time range:
 	// a conflict occurs iff ((start1 <= end2) && (end1 >= start2))
 	stmt, err = tx.Prepare("SELECT start, end FROM reservations WHERE (env_name=?) AND (start<=?) AND (end>=?);")
-	defer stmt.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer stmt.Close()
 
 	var conflictStart, conflictEnd time.Time
 	err = stmt.QueryRow(envName, end, start).Scan(&conflictStart, &conflictEnd)
@@ -98,10 +98,10 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 
 	// finally write reservation into database
 	stmt, err = tx.Prepare("INSERT INTO reservations (status, username, env_name, start, end, subject, labels, delete_on) VALUES(?,?,?,?,?,?,?,?);")
-	defer stmt.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer stmt.Close()
 	_, err = stmt.Exec("upcoming", username, envName, start, end, subject, labels, reservationDeleteDate)
 	if err != nil {
 		log.Fatal(err)
@@ -120,16 +120,16 @@ func AbortReservation(db *sql.DB, username, string, id int) error {
 	defer func() {
 		err = tx.Commit()
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 	}()
 
 	// fetch reservation from database
 	stmt, err := tx.Prepare("SELECT status FROM reservations WHERE (username=?) AND (id=?);")
-	defer stmt.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer stmt.Close()
 	status := ""
 	err = stmt.QueryRow(username, id).Scan(&status)
 	if err == sql.ErrNoRows {
@@ -147,14 +147,56 @@ func AbortReservation(db *sql.DB, username, string, id int) error {
 
 	// delete reservation from database
 	stmt, err = tx.Prepare("DELETE FROM reservations WHERE id=?;")
-	defer stmt.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer stmt.Close()
 	_, err = stmt.Exec(id)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	return nil
+}
+
+func getEnvReservations(db *sql.DB, envName string) []reservation {
+	return getReservations(db, "env_name", envName)
+}
+
+func getUserReservations(db *sql.DB, username string) []reservation {
+	return getReservations(db, "username", username)
+}
+
+func getReservations(db *sql.DB, conditionKey, conditionVal string) []reservation {
+	tx, err := db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+	stmtstring := fmt.Sprintf("SELECT id, status, username, env_name, start, end, subject, labels FROM reservations WHERE %v=?", conditionKey)
+	stmt, err := tx.Prepare(stmtstring)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(conditionVal)
+	if err != nil {
+		log.Println(err)
+	}
+	defer rows.Close()
+
+	reservations := []reservation{}
+	for rows.Next() {
+		r := reservation{}
+		err := rows.Scan(&r.ID, &r.Status, &r.User, &r.EnvName, &r.Start, &r.End, &r.Subject, &r.Labels)
+		if err != nil {
+			log.Fatal(err)
+		}
+		reservations = append(reservations, r)
+	}
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+	}
+	return reservations
 }
