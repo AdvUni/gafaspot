@@ -1,9 +1,13 @@
 package ui
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"time"
+
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/constants"
 
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
@@ -56,11 +60,38 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println(username)
-	env := template.HTMLEscapeString(r.Form.Get("env"))
-	startdate := template.HTMLEscapeString(r.Form.Get("startdate"))
-	starttime := template.HTMLEscapeString(r.Form.Get("starttime"))
-	subject := template.HTMLEscapeString(r.Form.Get("sub"))
-	log.Printf("env: %v, startdate: %v, starttime: %v, subject: %v\n", env, startdate, starttime, subject)
+	env, ok := envs[template.HTMLEscapeString(r.Form.Get("env"))]
+	if !ok {
+		fmt.Fprintf(w, "environment invalid")
+		return
+	}
+	envName := env.Name
 
-	//CreateReservation(db, username)
+	startstring := template.HTMLEscapeString(r.Form.Get("startdate")) + " " + template.HTMLEscapeString(r.Form.Get("starttime"))
+	start, err := time.ParseInLocation(constants.TimeLayout, startstring, time.Local)
+	if err != nil {
+		log.Println(err)
+		fmt.Fprint(w, "start date/time malformed")
+		return
+	}
+
+	endstring := template.HTMLEscapeString(r.Form.Get("enddate")) + " " + template.HTMLEscapeString(r.Form.Get("endtime"))
+	end, err := time.ParseInLocation(constants.TimeLayout, endstring, time.Local)
+	if err != nil {
+		log.Println(err)
+		fmt.Fprint(w, "end date/time malformed")
+		return
+	}
+
+	subject := template.HTMLEscapeString(r.Form.Get("sub"))
+
+	log.Printf("env: %v, start: %v, end: %v, subject: %v\n", env, start, end, subject)
+
+	err = CreateReservation(db, username, envName, subject, "", start, end)
+	if err != nil {
+		fmt.Fprint(w, err)
+		return
+	}
+
+	fmt.Fprint(w, "success!")
 }
