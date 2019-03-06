@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/ui"
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
 
 func mockConfig() GafaspotConfig {
@@ -85,7 +84,7 @@ func TestReservationStateRotation(t *testing.T) {
 	}
 
 	time.Sleep(2 * time.Millisecond)
-	reservationScan(db, &envs, &vault.Approle{})
+	reservationScan(db, &envs)
 
 	err = db.QueryRow(fmt.Sprintf("select status from reservations where id='%v';", id)).Scan(&status)
 	if err != nil {
@@ -96,7 +95,7 @@ func TestReservationStateRotation(t *testing.T) {
 	}
 
 	time.Sleep(100 * time.Millisecond)
-	reservationScan(db, &envs, &vault.Approle{})
+	reservationScan(db, &envs)
 
 	err = db.QueryRow(fmt.Sprintf("select status from reservations where id='%v';", id)).Scan(&status)
 	if err != nil {
@@ -108,7 +107,7 @@ func TestReservationStateRotation(t *testing.T) {
 
 	just := time.Now().Add(-2 * time.Millisecond)
 	_, err = db.Exec(fmt.Sprintf("UPDATE reservations SET delete_on='%v' WHERE id=%v;", just, id))
-	reservationScan(db, &envs, &vault.Approle{})
+	reservationScan(db, &envs)
 
 	err = db.QueryRow(fmt.Sprintf("select status from reservations where id='%v';", id)).Scan(&status)
 	if err != sql.ErrNoRows {

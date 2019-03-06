@@ -13,12 +13,12 @@ const (
 	scanningInterval = 5 * time.Minute
 )
 
-func handleReservationScanning(db *sql.DB, environments *map[string][]vault.SecEng, approle *vault.Approle) {
+func handleReservationScanning(db *sql.DB, environments *map[string][]vault.SecEng) {
 	// endless loop, triggered each 5 minutes
 	tick := time.NewTicker(scanningInterval).C
 	for {
 		<-tick
-		reservationScan(db, environments, approle)
+		reservationScan(db, environments)
 	}
 }
 
@@ -75,7 +75,7 @@ func getRows(tx *sql.Tx, now time.Time, status, timeCol string) []reservationRow
 	return rows
 }
 
-func reservationScan(db *sql.DB, environments *map[string][]vault.SecEng, approle *vault.Approle) {
+func reservationScan(db *sql.DB, environments *map[string][]vault.SecEng) {
 	updateState, err := db.Prepare("UPDATE reservations SET status=? WHERE id=?;")
 	if err != nil {
 		log.Println(err)
@@ -97,7 +97,7 @@ func reservationScan(db *sql.DB, environments *map[string][]vault.SecEng, approl
 		row.check(tx)
 
 		// trigger the end of the booking
-		vaultToken := approle.CreateVaultToken()
+		vaultToken := vault.CreateVaultToken()
 		vault.EndBooking((*environments)[row.envName], vaultToken)
 
 		// change booking status in database
@@ -140,7 +140,7 @@ func reservationScan(db *sql.DB, environments *map[string][]vault.SecEng, approl
 			}
 
 			// trigger the start of the booking
-			vaultToken := approle.CreateVaultToken()
+			vaultToken := vault.CreateVaultToken()
 			vault.StartBooking((*environments)[row.envName], vaultToken, sshKey.String, row.end)
 
 			// change booking status in database

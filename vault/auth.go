@@ -12,26 +12,26 @@ const (
 )
 
 var ldapAuthBasicURL, ldapAuthPolicy string
+var apprl approle
 
-type Approle struct {
+type approle struct {
 	roleID      string
 	secretID    string
 	getTokenURL string
 }
 
-func NewApprole(approleID, approleSecret, vaultAddress string) *Approle {
+func InitApprole(approleID, approleSecret, vaultAddress string) {
 	getTokenURL := joinRequestPath(vaultAddress, createTokenPath)
-	approle := Approle{
+	apprl = approle{
 		approleID,
 		approleSecret,
 		getTokenURL,
 	}
-	return &approle
 }
 
-func (approle Approle) CreateVaultToken() string {
-	payload := fmt.Sprintf("{\"role_id\": \"%v\", \"secret_id\": \"%v\"}", approle.roleID, approle.secretID)
-	token, err := sendVaultTokenRequest(approle.getTokenURL, strings.NewReader(payload))
+func CreateVaultToken() string {
+	payload := fmt.Sprintf("{\"role_id\": \"%v\", \"secret_id\": \"%v\"}", apprl.roleID, apprl.secretID)
+	token, err := sendVaultTokenRequest(apprl.getTokenURL, strings.NewReader(payload))
 	if err != nil {
 		log.Println(err)
 	}
