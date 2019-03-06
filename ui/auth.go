@@ -21,22 +21,6 @@ type claims struct {
 	jwt.StandardClaims
 }
 
-func indexPageHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("referer: %v\n", r.Referer())
-	log.Printf("path: %v\n", r.URL.Path)
-	log.Printf("raw path: %v\n", r.URL.RawPath)
-	log.Printf("ur: %v\n", r.RequestURI)
-
-	banner := false
-	if r.Referer() == indexpage {
-		banner = true
-	}
-	err := loginformTmpl.Execute(w, map[string]interface{}{"ShowBanner": banner})
-	if err != nil {
-		log.Println(err)
-	}
-}
-
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("referer: %v\n", r.Referer())
 	err := r.ParseForm()
@@ -51,7 +35,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		setNewAuthCookie(w, username)
 		http.Redirect(w, r, mainview, http.StatusSeeOther)
 	} else {
-		http.Redirect(w, r, indexpage, http.StatusSeeOther)
+		http.Redirect(w, r, loginpage, http.StatusSeeOther)
 	}
 }
 
@@ -69,7 +53,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// redirect to login page
-	http.Redirect(w, r, indexpage, http.StatusSeeOther)
+	http.Redirect(w, r, loginpage, http.StatusSeeOther)
 }
 
 func verifyUser(w http.ResponseWriter, r *http.Request) (string, bool) {
