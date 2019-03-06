@@ -107,7 +107,10 @@ func reservationScan(db *sql.DB, environments *map[string][]vault.SecEng) {
 			log.Printf("did not change status from active to expired due to following error: %v\n", err)
 		}
 	}
-	tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+	}
 
 	// any upcoming bookings which should start?
 	tx, err = db.Begin()
@@ -151,7 +154,10 @@ func reservationScan(db *sql.DB, environments *map[string][]vault.SecEng) {
 			}
 		}
 	}
-	tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+	}
 
 	// any expired bookings which should get deleted?
 	tx, err = db.Begin()
@@ -167,7 +173,10 @@ func reservationScan(db *sql.DB, environments *map[string][]vault.SecEng) {
 			log.Printf("did not delete database entry due to following error: %v\n", err)
 		}
 	}
-	tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+	}
 
 	log.Println("end booking handle procedure")
 }
