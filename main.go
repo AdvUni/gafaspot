@@ -28,8 +28,8 @@ func main() {
 		db := initDB(config)
 		log.Printf("db: %v\n", db)
 		approle := initApprole(config)
-		log.Println(approle)
-		initLdapAuth(config)*/
+		log.Println(approle)*/
+	initLdapAuth(config)
 
 	var db *sql.DB
 

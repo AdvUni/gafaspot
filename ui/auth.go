@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
 
 const (
@@ -46,8 +47,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.Form.Get("name")
 	pass := r.Form.Get("pass")
 
-	//if vault.DoLdapAuthentication(username, pass) {
-	if username == "hello" && pass == "world" {
+	if vault.DoLdapAuthentication(username, pass) {
 		setNewAuthCookie(w, username)
 		http.Redirect(w, r, mainview, http.StatusSeeOther)
 	} else {
