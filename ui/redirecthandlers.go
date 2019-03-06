@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"html/template"
 	"log"
 	"net/http"
 
@@ -40,4 +41,26 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	// redirect to login page
 	http.Redirect(w, r, loginpage, http.StatusSeeOther)
+}
+
+func reserveHandler(w http.ResponseWriter, r *http.Request) {
+	username, ok := verifyUser(w, r)
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+	err := r.ParseForm()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	log.Println(username)
+	env := template.HTMLEscapeString(r.Form.Get("env"))
+	startdate := template.HTMLEscapeString(r.Form.Get("startdate"))
+	starttime := template.HTMLEscapeString(r.Form.Get("starttime"))
+	subject := template.HTMLEscapeString(r.Form.Get("sub"))
+	log.Printf("env: %v, startdate: %v, starttime: %v, subject: %v\n", env, startdate, starttime, subject)
+
+	//CreateReservation(db, username)
 }

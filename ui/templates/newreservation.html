@@ -14,7 +14,7 @@
         <form method="POST" , action="/reserve">
             <div class="form-group row">
                 <label for="env" class="col-form-label col-md-2">environment</label>
-                <select class="form-control col-md-10" id="env" onChange="window.location.href=this.value">
+                <select class="form-control col-md-10" id="env" name="env" onChange="window.location.href=this.value">
                     {{ $selected := index .Selected }}
                     {{ range index .Envs }}
                     {{ if eq .NamePlain $selected }}
