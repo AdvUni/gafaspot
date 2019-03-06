@@ -188,10 +188,14 @@ func getReservations(db *sql.DB, conditionKey, conditionVal string) []reservatio
 	reservations := []reservation{}
 	for rows.Next() {
 		r := reservation{}
-		err := rows.Scan(&r.ID, &r.Status, &r.User, &r.EnvName, &r.Start, &r.End, &r.Subject, &r.Labels)
+		var starttime, endtime time.Time
+		err := rows.Scan(&r.ID, &r.Status, &r.User, &r.EnvName, &starttime, &endtime, &r.Subject, &r.Labels)
 		if err != nil {
 			log.Fatal(err)
 		}
+		r.Start = starttime.Format(constants.TimeLayout)
+		r.End = endtime.Format(constants.TimeLayout)
+
 		reservations = append(reservations, r)
 	}
 	err = tx.Commit()
