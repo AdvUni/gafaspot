@@ -99,7 +99,7 @@ func RunWebserver(database *sql.DB, addr string) {
 	router.HandleFunc(personalview, personalPageHandler)
 	//router.HandleFunc(credsview, credsPageHandler)
 	router.HandleFunc(reservationform, newreservationPageHandler)
-	router.HandleFunc()
+	router.HandleFunc(reserve, reserveHandler)
 	//router.PathPrefix("/js/").Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("ui/templates/js"))))
 
 	// start web server
