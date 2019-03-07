@@ -170,11 +170,14 @@ func getEnvironments(db *sql.DB) ([]env, map[string]env) {
 	envMap := make(map[string]env)
 	for rows.Next() {
 		e := env{}
-		err := rows.Scan(&e.Name, &e.HasSSH, &e.Description)
+		description := sql.NullString{}
+		err := rows.Scan(&e.Name, &e.HasSSH, &description)
 		if err != nil {
 			log.Fatal(err)
 		}
-
+		if description.Valid {
+			e.Description = description.String
+		}
 		e.NamePlain = createPlainIdentifier(e.Name)
 
 		envList = append(envList, e)
@@ -209,12 +212,19 @@ func getReservations(db *sql.DB, conditionKey, conditionVal string) []reservatio
 	for rows.Next() {
 		r := reservation{}
 		var starttime, endtime time.Time
-		err := rows.Scan(&r.ID, &r.Status, &r.User, &r.EnvName, &starttime, &endtime, &r.Subject, &r.Labels)
+		var subject, labels sql.NullString
+		err := rows.Scan(&r.ID, &r.Status, &r.User, &r.EnvName, &starttime, &endtime, &subject, &labels)
 		if err != nil {
 			log.Fatal(err)
 		}
 		r.Start = starttime.Format(constants.TimeLayout)
 		r.End = endtime.Format(constants.TimeLayout)
+		if subject.Valid {
+			r.Subject = subject.String
+		}
+		if labels.Valid {
+			r.Labels = labels.String
+		}
 
 		reservations = append(reservations, r)
 	}
