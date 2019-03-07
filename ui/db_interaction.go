@@ -19,6 +19,28 @@ func (err ReservationError) Error() string {
 	return fmt.Sprintf("reservation is invalid: %v", string(err))
 }
 
+func userHasSSH(db *sql.DB, username string) bool {
+	_, ok := getUserSSH(db, username)
+	return ok
+}
+
+func getUserSSH(db *sql.DB, username string) (string, bool) {
+	var sshKey sql.NullString
+	stmt, err := db.Prepare("SELECT ssh_pub_key FROM users WHERE (username=?);")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+	err = stmt.QueryRow(username).Scan(&sshKey)
+	if err == sql.ErrNoRows || !sshKey.Valid {
+		return "", false
+	} else if err != nil {
+		log.Println(err)
+		return "", false
+	}
+	return sshKey.String, true
+}
+
 func CreateReservation(db *sql.DB, username, envName, subject, labels string, start, end time.Time) error {
 
 	// check, whether reservation is in future
@@ -61,17 +83,8 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 
 	// check, whether there is stored an ssh key for the user, if it is needed for the reservation
 	if hasSSH {
-		var sshKey sql.NullString
-		stmt, err = tx.Prepare("SELECT ssh_pub_key FROM users WHERE (username=?);")
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer stmt.Close()
-		err = stmt.QueryRow(username).Scan(&sshKey)
-		if err == sql.ErrNoRows || !sshKey.Valid {
+		if !userHasSSH(db, username) {
 			return ReservationError(fmt.Sprintf("there is no ssh public key stored for user %v, but it is required for booking environment %v", username, envName))
-		} else if err != nil {
-			log.Println(err)
 		}
 	}
 

@@ -122,7 +122,7 @@ func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: Check if ssh key is needed and if user has one
-	sshMissing := !selectedEnv.HasSSH || false
+	sshMissing := selectedEnv.HasSSH && !userHasSSH(db, username)
 
 	err := reservationformTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": envList, "Selected": selectedEnvPlainName, "SSHmissing": sshMissing})
 	if err != nil {
