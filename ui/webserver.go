@@ -13,14 +13,15 @@ import (
 )
 
 const (
-	loginpage       = "/"
-	login           = "/login"
-	logout          = "/logout"
-	mainview        = "/mainview"
-	personalview    = "/personal"
-	credsview       = "/personal/creds"
-	reservationform = "/newreservation/{env}"
-	reserve         = "/reserve"
+	loginpage        = "/"
+	login            = "/login"
+	logout           = "/logout"
+	mainview         = "/mainview"
+	personalview     = "/personal"
+	credsview        = "/personal/creds"
+	reservationform  = "/newreservation/{env}"
+	reserve          = "/reserve"
+	abortreservation = "/abortreservation"
 )
 
 var (
@@ -94,6 +95,7 @@ func RunWebserver(database *sql.DB, addr string) {
 	//router.HandleFunc(credsview, credsPageHandler)
 	router.HandleFunc(reservationform, newreservationPageHandler)
 	router.HandleFunc(reserve, reserveHandler)
+	router.HandleFunc(abortreservation, abortreservationHandler)
 	//router.PathPrefix("/js/").Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("ui/templates/js"))))
 
 	// start web server

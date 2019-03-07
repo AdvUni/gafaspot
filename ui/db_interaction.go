@@ -123,7 +123,7 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 	return nil
 }
 
-func AbortReservation(db *sql.DB, username, string, id int) error {
+func AbortReservation(db *sql.DB, username string, id int) error {
 	// start a transaction
 	tx, err := db.Begin()
 	if err != nil {

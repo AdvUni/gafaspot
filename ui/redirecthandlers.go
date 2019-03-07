@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/constants"
@@ -13,7 +14,6 @@ import (
 )
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("referer: %v\n", r.Referer())
 	err := r.ParseForm()
 	if err != nil {
 		log.Println(err)
@@ -31,7 +31,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("referer: %v\n", r.Referer())
 	_, ok := verifyUser(w, r)
 	if ok {
 		// return a new, empty cookie which overwrites previous ones and expires immediately
@@ -59,7 +58,6 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(username)
 	env, ok := envMap[template.HTMLEscapeString(r.Form.Get("env"))]
 	if !ok {
 		fmt.Fprintf(w, "environment invalid")
@@ -94,4 +92,25 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprint(w, "success!")
+}
+
+func abortreservationHandler(w http.ResponseWriter, r *http.Request) {
+	username, ok := verifyUser(w, r)
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+	err := r.ParseForm()
+	if err != nil {
+		log.Printf("could not get parameter id from abort reservation request: %v\n", err)
+		return
+	}
+
+	reservationID, err := strconv.Atoi(template.HTMLEscapeString(r.Form.Get("id")))
+	if err != nil {
+		log.Printf("abortreservation request passes an id which is not comparable to int: %v\n", template.HTMLEscapeString(r.Form.Get("id")))
+		return
+	}
+	AbortReservation(db, username, reservationID)
+
 }
