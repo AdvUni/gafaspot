@@ -42,6 +42,21 @@ func loginPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func sortReservations(reservations []reservation) ([]reservation, []reservation, []reservation) {
+	var upcoming, active, expired []reservation
+	for _, r := range reservations {
+		switch r.Status {
+		case "upcoming":
+			upcoming = append(upcoming, r)
+		case "active":
+			active = append(active, r)
+		case "expired":
+			expired = append(expired, r)
+		}
+	}
+	return upcoming, active, expired
+}
+
 func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("referer: %v\n", r.Referer())
 	username, ok := verifyUser(w, r)
@@ -52,19 +67,7 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 	envReservationsList := []envReservations{}
 
 	for _, env := range envList {
-		// TODO: fetch reservations from database
-		reservations := getEnvReservations(db, env.Name)
-		var upcoming, active, expired []reservation
-		for _, r := range reservations {
-			switch r.Status {
-			case "upcoming":
-				upcoming = append(upcoming, r)
-			case "active":
-				active = append(active, r)
-			case "expired":
-				expired = append(expired, r)
-			}
-		}
+		upcoming, active, expired := sortReservations(getEnvReservations(db, env.Name))
 		envReservationsList = append(envReservationsList, envReservations{env, upcoming, active, expired})
 	}
 
@@ -82,9 +85,13 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := reservation{0, "somestatus", "user1", "demo0", "2000-01-01", "2000-01-01", "no subject", ""}
-	list := []reservation{res, res, res}
-	err := personalviewTmpl.Execute(w, map[string]interface{}{"Username": username, "SSHkey": "blank", "ReservationsUpcoming": list, "ReservationsActive": list, "ReservationsExpired": list})
+	sshEntry, ok := getUserSSH(db, username)
+	if !ok {
+		sshEntry = "no key yet"
+	}
+
+	upcoming, active, expired := sortReservations(getUserReservations(db, username))
+	err := personalviewTmpl.Execute(w, map[string]interface{}{"Username": username, "SSHkey": sshEntry, "ReservationsUpcoming": upcoming, "ReservationsActive": active, "ReservationsExpired": expired})
 	if err != nil {
 		log.Println(err)
 	}
@@ -120,8 +127,6 @@ func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "environment in url does not exist")
 		return
 	}
-
-	// TODO: Check if ssh key is needed and if user has one
 	sshMissing := selectedEnv.HasSSH && !userHasSSH(db, username)
 
 	err := reservationformTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": envList, "Selected": selectedEnvPlainName, "SSHmissing": sshMissing})
