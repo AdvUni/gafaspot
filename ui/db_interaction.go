@@ -243,3 +243,28 @@ func getReservations(db *sql.DB, conditionKey, conditionVal string) []reservatio
 	}
 	return reservations
 }
+
+func getUserActiveReservationEnv(db *sql.DB, username string) []string {
+	stmt, err := db.Prepare("SELECT env_name FROM reservations WHERE (status='active') AND (username=?);")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(username)
+	if err != nil {
+		log.Println(err)
+	}
+	defer rows.Close()
+
+	var envNames []string
+	for rows.Next() {
+		env := ""
+		err := rows.Scan(&env)
+		if err != nil {
+			log.Fatal(err)
+		}
+		envNames = append(envNames, env)
+	}
+	return envNames
+}

@@ -109,15 +109,8 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	envNames := getUserActiveReservationEnv(db, username)
 
-	stmt, err := db.Prepare("SELECT env_name, start, end FROM reservations WHERE (status='active') AND (username=?);")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer stmt.Close()
-
-	resp, err := stmt.Query(username)
-	log.Println(resp)
 }
 
 func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
