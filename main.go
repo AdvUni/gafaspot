@@ -23,8 +23,8 @@ func main() {
 	config := readConfig()
 
 	// do initialization with config values
-	/*environments := initSecEngs(config)
-	log.Printf("environments: %v\n", environments)*/
+	environments := initSecEngs(config)
+	log.Printf("environments: %v\n", environments)
 	db := initDB(config)
 	log.Printf("db: %v\n", db)
 
@@ -32,7 +32,7 @@ func main() {
 	initLdapAuth(config)
 
 	// start webserver and routine for processing reservations
-	// go handleReservationScanning(db, &environments)
+	go handleReservationScanning(db, &environments)
 	ui.RunWebserver(db, config.WebserviceAddress)
 }
 
