@@ -30,14 +30,21 @@ type reservationRow struct {
 	hasSSH   bool
 }
 
-func (row reservationRow) check(tx *sql.Tx) {
+func (row reservationRow) check(tx *sql.Tx) bool {
 	// Does environment exist? Does it has components which require an ssh key for login?
 	err := tx.QueryRow("SELECT has_ssh FROM environments WHERE (env_name='" + row.envName + "');").Scan(&row.hasSSH)
 	if err == sql.ErrNoRows {
-		log.Fatalf("environment %v does not exist", row.envName)
+		log.Printf("environment %v does not exis; delete reservation with id=%v for user=%v from database", row.envName, row.id, row.username)
+		// delete booking from database
+		_, err = tx.Exec("DELETE FROM reservations WHERE id=?;", row.id)
+		if err != nil {
+			log.Printf("did not delete database entry due to following error: %v\n", err)
+		}
+		return false
 	} else if err != nil {
 		log.Fatal(err)
 	}
+	return true
 }
 
 func getRows(tx *sql.Tx, now time.Time, status, timeCol string) []reservationRow {
@@ -76,11 +83,6 @@ func getRows(tx *sql.Tx, now time.Time, status, timeCol string) []reservationRow
 }
 
 func reservationScan(db *sql.DB, environments *map[string][]vault.SecEng) {
-	updateState, err := db.Prepare("UPDATE reservations SET status=? WHERE id=?;")
-	if err != nil {
-		log.Println(err)
-	}
-	defer updateState.Close()
 
 	log.Println("startet booking handle procedure")
 
@@ -94,17 +96,14 @@ func reservationScan(db *sql.DB, environments *map[string][]vault.SecEng) {
 	rows := getRows(tx, now, "active", "end")
 	for _, row := range rows {
 		// check, if enironment in reservation exists (and fill in the information has_ssh, which is not needed)
-		row.check(tx)
+		ok := row.check(tx)
+		if ok {
+			// trigger the end of the booking
+			vaultToken := vault.CreateVaultToken()
+			vault.EndBooking((*environments)[row.envName], vaultToken)
 
-		// trigger the end of the booking
-		vaultToken := vault.CreateVaultToken()
-		vault.EndBooking((*environments)[row.envName], vaultToken)
-
-		// change booking status in database
-		log.Println("executed end of booking")
-		_, err = tx.Stmt(updateState).Exec("expired", row.id)
-		if err != nil {
-			log.Printf("did not change status from active to expired due to following error: %v\n", err)
+			// change booking status in database
+			changeStatus(tx, row.id, "expired")
 		}
 	}
 	err = tx.Commit()
@@ -122,35 +121,30 @@ func reservationScan(db *sql.DB, environments *map[string][]vault.SecEng) {
 
 		if row.end.Before(now) {
 			// in case the end time of the upcoming booking which never was active is already reached for some reason, don't start the booking, just expire it in database
-			_, err = tx.Stmt(updateState).Exec("expired", row.id)
-			if err != nil {
-				log.Printf("did not change status from upcoming to expired due to following error: %v\n", err)
-			}
+			changeStatus(tx, row.id, "expired")
 		} else {
 
 			// check, if enironment in reservation exists and fill in the information has_ssh
-			row.check(tx)
+			ok := row.check(tx)
 
-			var sshKey sql.NullString
-			if row.hasSSH {
-				// retrieve ssh key from user table
-				err := tx.QueryRow("SELECT ssh_pub_key FROM users WHERE (username='" + row.username + "');").Scan(&sshKey)
-				if err == sql.ErrNoRows || !sshKey.Valid {
-					log.Fatalf("there is no ssh public key stored for user %v, but it is required for booking environment %v", row.username, row.envName)
-				} else if err != nil {
-					log.Println(err)
+			if ok {
+				var sshKey sql.NullString
+				if row.hasSSH {
+					// retrieve ssh key from user table
+					err := tx.QueryRow("SELECT ssh_pub_key FROM users WHERE (username='" + row.username + "');").Scan(&sshKey)
+					if err == sql.ErrNoRows || !sshKey.Valid {
+						log.Fatalf("there is no ssh public key stored for user %v, but it is required for booking environment %v", row.username, row.envName)
+					} else if err != nil {
+						log.Println(err)
+					}
 				}
-			}
 
-			// trigger the start of the booking
-			vaultToken := vault.CreateVaultToken()
-			vault.StartBooking((*environments)[row.envName], vaultToken, sshKey.String, row.end)
+				// trigger the start of the booking
+				vaultToken := vault.CreateVaultToken()
+				vault.StartBooking((*environments)[row.envName], vaultToken, sshKey.String, row.end)
 
-			// change booking status in database
-			log.Println("executed start of booking")
-			_, err = tx.Stmt(updateState).Exec("active", row.id)
-			if err != nil {
-				log.Printf("did not change status from upcoming to active due to following error: %v\n", err)
+				// change booking status in database
+				changeStatus(tx, row.id, "active")
 			}
 		}
 	}
@@ -179,4 +173,11 @@ func reservationScan(db *sql.DB, environments *map[string][]vault.SecEng) {
 	}
 
 	log.Println("end booking handle procedure")
+}
+
+func changeStatus(tx *sql.Tx, rowID int, status string) {
+	_, err := tx.Exec("UPDATE reservations SET status=? WHERE id=?;", status, rowID)
+	if err != nil {
+		log.Printf("did not change status due to following error: %v\n", err)
+	}
 }
