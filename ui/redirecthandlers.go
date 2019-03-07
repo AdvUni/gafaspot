@@ -112,5 +112,6 @@ func abortreservationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	AbortReservation(db, username, reservationID)
-
+	// return to personal view
+	http.Redirect(w, r, personalview, http.StatusSeeOther)
 }
