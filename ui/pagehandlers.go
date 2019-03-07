@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sort"
 
 	"github.com/gorilla/mux"
 )
@@ -43,6 +44,11 @@ func loginPageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func sortReservations(reservations []reservation) ([]reservation, []reservation, []reservation) {
+	// sort reservation list by start date
+	sort.Slice(reservations, func(i, j int) bool {
+		return reservations[i].Start < reservations[j].Start
+	})
+	// split list into three sub lists
 	var upcoming, active, expired []reservation
 	for _, r := range reservations {
 		switch r.Status {
