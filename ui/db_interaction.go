@@ -159,6 +159,30 @@ func AbortReservation(db *sql.DB, username, string, id int) error {
 	return nil
 }
 
+func getEnvironments(db *sql.DB) ([]env, map[string]env) {
+	rows, err := db.Query("SELECT env_name, has_ssh, description FROM environments;")
+	if err != nil {
+		log.Println(err)
+	}
+	defer rows.Close()
+
+	envList := []env{}
+	envMap := make(map[string]env)
+	for rows.Next() {
+		e := env{}
+		err := rows.Scan(&e.Name, &e.HasSSH, &e.Description)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		e.NamePlain = createPlainIdentifier(e.Name)
+
+		envList = append(envList, e)
+		envMap[e.NamePlain] = e
+	}
+	return envList, envMap
+}
+
 func getEnvReservations(db *sql.DB, envName string) []reservation {
 	return getReservations(db, "env_name", envName)
 }
@@ -168,12 +192,8 @@ func getUserReservations(db *sql.DB, username string) []reservation {
 }
 
 func getReservations(db *sql.DB, conditionKey, conditionVal string) []reservation {
-	tx, err := db.Begin()
-	if err != nil {
-		log.Fatal(err)
-	}
 	stmtstring := fmt.Sprintf("SELECT id, status, username, env_name, start, end, subject, labels FROM reservations WHERE %v=?", conditionKey)
-	stmt, err := tx.Prepare(stmtstring)
+	stmt, err := db.Prepare(stmtstring)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -197,10 +217,6 @@ func getReservations(db *sql.DB, conditionKey, conditionVal string) []reservatio
 		r.End = endtime.Format(constants.TimeLayout)
 
 		reservations = append(reservations, r)
-	}
-	err = tx.Commit()
-	if err != nil {
-		log.Println(err)
 	}
 	return reservations
 }

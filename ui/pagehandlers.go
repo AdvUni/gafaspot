@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -50,7 +51,7 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	envReservationsList := []envReservations{}
 
-	for _, env := range envs {
+	for _, env := range envList {
 		// TODO: fetch reservations from database
 		reservations := getEnvReservations(db, env.Name)
 		var upcoming, active, expired []reservation
@@ -113,12 +114,17 @@ func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	selectedEnv := mux.Vars(r)["env"]
+	selectedEnvPlainName := mux.Vars(r)["env"]
+	selectedEnv, ok := envMap[selectedEnvPlainName]
+	if !ok {
+		fmt.Fprint(w, "environment in url does not exist")
+		return
+	}
 
 	// TODO: Check if ssh key is needed and if user has one
-	sshMissing := !envs[selectedEnv].HasSSH || false
+	sshMissing := !selectedEnv.HasSSH || false
 
-	err := reservationformTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": envs, "Selected": selectedEnv, "SSHmissing": sshMissing})
+	err := reservationformTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": envList, "Selected": selectedEnvPlainName, "SSHmissing": sshMissing})
 	if err != nil {
 		log.Println(err)
 	}

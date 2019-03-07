@@ -24,8 +24,9 @@ const (
 )
 
 var (
-	db   *sql.DB
-	envs map[string]env
+	db      *sql.DB
+	envList []env
+	envMap  map[string]env
 
 	loginformTmpl       *template.Template
 	mainviewTmpl        *template.Template
@@ -80,14 +81,7 @@ func RunWebserver(database *sql.DB, addr string) {
 	db = database
 
 	// fetch static information about environments from database
-	// TODO: get data from database
-	envs = make(map[string]env)
-	envs[createPlainIdentifier("DEMO 0")] = env{"DEMO 0", createPlainIdentifier("DEMO 0"), true, "zero"}
-	envs[createPlainIdentifier("DEMO 1")] = env{"DEMO 1", createPlainIdentifier("DEMO 1"), false, "first"}
-	envs[createPlainIdentifier("DEMO 2")] = env{"DEMO 2", createPlainIdentifier("DEMO 2"), true, "second"}
-	envs[createPlainIdentifier("DEMO 3")] = env{"DEMO 3", createPlainIdentifier("DEMO 3"), false, "third"}
-	envs[createPlainIdentifier("DEMO 4")] = env{"DEMO 4", createPlainIdentifier("DEMO 4"), true, "fourth"}
-	envs[createPlainIdentifier("DEMO 5")] = env{"DEMO 5", createPlainIdentifier("DEMO 5"), false, "last"}
+	envList, envMap = getEnvironments(db)
 
 	// create router and register all paths
 	router := mux.NewRouter()

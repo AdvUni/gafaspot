@@ -60,7 +60,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println(username)
-	env, ok := envs[template.HTMLEscapeString(r.Form.Get("env"))]
+	env, ok := envMap[template.HTMLEscapeString(r.Form.Get("env"))]
 	if !ok {
 		fmt.Fprintf(w, "environment invalid")
 		return
