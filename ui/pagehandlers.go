@@ -110,7 +110,7 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	envNames := getUserActiveReservationEnv(db, username)
-
+	log.Println(envNames)
 }
 
 func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {

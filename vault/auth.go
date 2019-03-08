@@ -20,7 +20,7 @@ type approle struct {
 	getTokenURL string
 }
 
-func InitApprole(approleID, approleSecret, vaultAddress string) {
+func initApprole(approleID, approleSecret, vaultAddress string) {
 	getTokenURL := joinRequestPath(vaultAddress, createTokenPath)
 	apprl = approle{
 		approleID,
@@ -38,7 +38,7 @@ func CreateVaultToken() string {
 	return token
 }
 
-func InitLDAP(authPolicy, vaultAddress string) {
+func initLDAP(authPolicy, vaultAddress string) {
 	ldapAuthBasicURL = joinRequestPath(vaultAddress, ldapAuthBasicPath)
 	ldapAuthPolicy = authPolicy
 }

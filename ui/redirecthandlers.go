@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/constants"
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
@@ -66,7 +66,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	envName := env.Name
 
 	startstring := template.HTMLEscapeString(r.Form.Get("startdate")) + " " + template.HTMLEscapeString(r.Form.Get("starttime"))
-	start, err := time.ParseInLocation(constants.TimeLayout, startstring, time.Local)
+	start, err := time.ParseInLocation(util.TimeLayout, startstring, time.Local)
 	if err != nil {
 		log.Println(err)
 		fmt.Fprint(w, "start date/time malformed")
@@ -74,7 +74,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	endstring := template.HTMLEscapeString(r.Form.Get("enddate")) + " " + template.HTMLEscapeString(r.Form.Get("endtime"))
-	end, err := time.ParseInLocation(constants.TimeLayout, endstring, time.Local)
+	end, err := time.ParseInLocation(util.TimeLayout, endstring, time.Local)
 	if err != nil {
 		log.Println(err)
 		fmt.Fprint(w, "end date/time malformed")

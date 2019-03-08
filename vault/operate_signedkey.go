@@ -15,6 +15,7 @@ const (
 // .../sign/rolename. This returnes not a username and a password, but an ssh signature which can be used to
 // log in into machines which are configured for this.
 type signedkeySecEng struct {
+	name         string
 	signURL      string
 	storeDataURL string
 }
@@ -29,9 +30,17 @@ func (secEng signedkeySecEng) startBooking(vaultToken, sshKey string, ttl int) {
 	vaultStorageWrite(vaultToken, secEng.storeDataURL, data)
 }
 
+func (secEng signedkeySecEng) getName() string {
+	return secEng.name
+}
+
 // endBooking only needs to delete the data from Vault's kv storage, as the signature expires at its own.
 func (secEng signedkeySecEng) endBooking(vaultToken string) {
 	vaultStorageDelete(vaultToken, secEng.storeDataURL)
+}
+
+func (secEng signedkeySecEng) readCreds(vaultToken string) (interface{}, error) {
+	return vaultStorageRead(vaultToken, secEng.storeDataURL)
 }
 
 func (secEng signedkeySecEng) signKey(vaultToken, sshKey string, ttl int) interface{} {

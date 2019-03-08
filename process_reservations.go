@@ -13,12 +13,12 @@ const (
 	scanningInterval = 5 * time.Minute
 )
 
-func handleReservationScanning(db *sql.DB, environments *map[string][]vault.SecEng) {
+func handleReservationScanning(db *sql.DB) {
 	// endless loop, triggered each 5 minutes
 	tick := time.NewTicker(scanningInterval).C
 	for {
 		<-tick
-		reservationScan(db, environments)
+		reservationScan(db)
 	}
 }
 
@@ -82,7 +82,7 @@ func getRows(tx *sql.Tx, now time.Time, status, timeCol string) []reservationRow
 	return rows
 }
 
-func reservationScan(db *sql.DB, environments *map[string][]vault.SecEng) {
+func reservationScan(db *sql.DB) {
 
 	log.Println("startet booking handle procedure")
 
@@ -100,7 +100,7 @@ func reservationScan(db *sql.DB, environments *map[string][]vault.SecEng) {
 		if ok {
 			// trigger the end of the booking
 			vaultToken := vault.CreateVaultToken()
-			vault.EndBooking((*environments)[row.envName], vaultToken)
+			vault.EndBooking(row.envName, vaultToken)
 
 			// change booking status in database
 			changeStatus(tx, row.id, "expired")
@@ -141,7 +141,7 @@ func reservationScan(db *sql.DB, environments *map[string][]vault.SecEng) {
 
 				// trigger the start of the booking
 				vaultToken := vault.CreateVaultToken()
-				vault.StartBooking((*environments)[row.envName], vaultToken, sshKey.String, row.end)
+				vault.StartBooking(row.envName, vaultToken, sshKey.String, row.end)
 
 				// change booking status in database
 				changeStatus(tx, row.id, "active")

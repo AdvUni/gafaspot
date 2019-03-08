@@ -7,15 +7,17 @@ import (
 	"testing"
 	"time"
 
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
+
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/ui"
 )
 
-func mockConfig() GafaspotConfig {
+func mockConfig() util.GafaspotConfig {
 
-	envconfig := make(map[string]environmentConfig)
-	envconfig["demo0"] = environmentConfig{SecretEngines: []SecretEngineConfig{}}
-	envconfig["demo1"] = environmentConfig{SecretEngines: []SecretEngineConfig{}}
-	return GafaspotConfig{Database: "./gafaspot-test.db", Environments: envconfig}
+	envconfig := make(map[string]util.EnvironmentConfig)
+	envconfig["demo0"] = util.EnvironmentConfig{SecretEngines: []util.SecretEngineConfig{}}
+	envconfig["demo1"] = util.EnvironmentConfig{SecretEngines: []util.SecretEngineConfig{}}
+	return util.GafaspotConfig{Database: "./gafaspot-test.db", Environments: envconfig}
 
 }
 
@@ -61,7 +63,6 @@ func TestReservationStateRotation(t *testing.T) {
 
 	db := initDB(dummyconfig)
 	defer db.Close()
-	envs := initSecEngs(dummyconfig)
 
 	now := time.Now()
 	time1 := now.Add(1 * time.Millisecond)
@@ -84,7 +85,7 @@ func TestReservationStateRotation(t *testing.T) {
 	}
 
 	time.Sleep(2 * time.Millisecond)
-	reservationScan(db, &envs)
+	reservationScan(db)
 
 	err = db.QueryRow(fmt.Sprintf("select status from reservations where id='%v';", id)).Scan(&status)
 	if err != nil {
@@ -95,7 +96,7 @@ func TestReservationStateRotation(t *testing.T) {
 	}
 
 	time.Sleep(100 * time.Millisecond)
-	reservationScan(db, &envs)
+	reservationScan(db)
 
 	err = db.QueryRow(fmt.Sprintf("select status from reservations where id='%v';", id)).Scan(&status)
 	if err != nil {
@@ -107,7 +108,7 @@ func TestReservationStateRotation(t *testing.T) {
 
 	just := time.Now().Add(-2 * time.Millisecond)
 	_, err = db.Exec(fmt.Sprintf("UPDATE reservations SET delete_on='%v' WHERE id=%v;", just, id))
-	reservationScan(db, &envs)
+	reservationScan(db)
 
 	err = db.QueryRow(fmt.Sprintf("select status from reservations where id='%v';", id)).Scan(&status)
 	if err != sql.ErrNoRows {

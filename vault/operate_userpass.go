@@ -13,8 +13,13 @@ const (
 // URL .../creds/rolename for changing credentials. This apllies to most of the credential secret engines
 // such as ad, ontap and database.
 type userpassSecEng struct {
+	name           string
 	changeCredsURL string
 	storeDataURL   string
+}
+
+func (secEng userpassSecEng) getName() string {
+	return secEng.name
 }
 
 // startBooking for a userpassSecEng means to change the credentials and store it inside the respective
@@ -30,6 +35,10 @@ func (secEng userpassSecEng) startBooking(vaultToken, _ string, _ int) {
 func (secEng userpassSecEng) endBooking(vaultToken string) {
 	vaultStorageDelete(vaultToken, secEng.storeDataURL)
 	log.Println(secEng.changeCreds(vaultToken))
+}
+
+func (secEng userpassSecEng) readCreds(vaultToken string) (interface{}, error) {
+	return vaultStorageRead(vaultToken, secEng.storeDataURL)
 }
 
 func (secEng userpassSecEng) changeCreds(vaultToken string) interface{} {

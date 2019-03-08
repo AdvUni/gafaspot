@@ -3,7 +3,8 @@ package vault
 import (
 	"fmt"
 	"log"
-	"time"
+
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 )
 
 const (
@@ -17,14 +18,16 @@ const (
 // A SecEng stores the URLs to which the secret engines listen to and provides the functionality which
 // is needed to start and end bookings, as changing credentials and storing or deleting them.
 type SecEng interface {
+	getName() string
 	startBooking(vaultToken, sshKey string, ttl int)
 	endBooking(vaultToken string)
+	readCreds(vaultToken string) (interface{}, error)
 }
 
 // NewSecEng creates a new SecEng. From string engineType, it decides, which implementation of the interface
 // must be instanciated. The path snippets vaultAddress, env, name and role get assembled to the the
 // URLs, to which the vault secret engines listen to.
-func NewSecEng(engineType, vaultAddress, env, name, role string) SecEng {
+func newSecEng(engineType, vaultAddress, env, name, role string) SecEng {
 	switch engineType {
 	case "ad", "ontap":
 		log.Println("adding a creds secret engine")
@@ -35,6 +38,7 @@ func NewSecEng(engineType, vaultAddress, env, name, role string) SecEng {
 		log.Println("kv path: ", storeDataURL)
 
 		return userpassSecEng{
+			name,
 			changeCredsURL,
 			storeDataURL,
 		}
@@ -47,6 +51,7 @@ func NewSecEng(engineType, vaultAddress, env, name, role string) SecEng {
 		log.Println("kv path: ", storeDataURL)
 
 		return signedkeySecEng{
+			name,
 			signURL,
 			storeDataURL,
 		}
@@ -57,20 +62,19 @@ func NewSecEng(engineType, vaultAddress, env, name, role string) SecEng {
 	}
 }
 
-// StartBooking starts a booking for a whole environment. As the environment may include ssh secret
-// engines, this function needs an ssh key. It also needs the time string of format constants.timeLayout
-// until to determine the ttl for a possible ssh signature. If there is no ssh secret engine inside
-// the environment, the ssKey parameter will be ignored everywhere.
-func StartBooking(environment []SecEng, vaultToken, sshKey string, until time.Time) {
-	ttl := int(until.Sub(time.Now()).Seconds())
-	for _, secEng := range environment {
-		secEng.startBooking(vaultToken, sshKey, ttl)
+func initSecEngs(environmentConfigs map[string]util.EnvironmentConfig, vaultAddress string) map[string][]SecEng {
+	environments := make(map[string][]SecEng)
+	for envName, envConf := range environmentConfigs {
+		var secretEngines []SecEng
+		for _, engine := range envConf.SecretEngines {
+			fmt.Printf("name: %v, type: %v, role: %v\n", engine.Name, engine.EngineType, engine.Role)
+			secretEngine := newSecEng(engine.EngineType, vaultAddress, envName, engine.Name, engine.Role)
+			fmt.Println(secretEngine)
+			if secretEngine != nil {
+				secretEngines = append(secretEngines, secretEngine)
+			}
+		}
+		environments[envName] = secretEngines
 	}
-}
-
-// EndBooking ends a booking for a whole environment.
-func EndBooking(environment []SecEng, vaultToken string) {
-	for _, secEng := range environment {
-		secEng.endBooking(vaultToken)
-	}
+	return environments
 }

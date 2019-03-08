@@ -2,8 +2,9 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
+
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 
 	_ "github.com/mattn/go-sqlite3"
 
@@ -23,37 +24,16 @@ func main() {
 	config := readConfig()
 
 	// do initialization with config values
-	environments := initSecEngs(config)
-	log.Printf("environments: %v\n", environments)
+	vault.InitVaultParams(config)
 	db := initDB(config)
 	log.Printf("db: %v\n", db)
 
-	initApprole(config)
-	initLdapAuth(config)
-
 	// start webserver and routine for processing reservations
-	go handleReservationScanning(db, &environments)
+	go handleReservationScanning(db)
 	ui.RunWebserver(db, config.WebserviceAddress)
 }
 
-func initSecEngs(config GafaspotConfig) map[string][]vault.SecEng {
-	environments := make(map[string][]vault.SecEng)
-	for envName, envConf := range config.Environments {
-		var secretEngines []vault.SecEng
-		for _, engine := range envConf.SecretEngines {
-			fmt.Printf("name: %v, type: %v, role: %v\n", engine.Name, engine.EngineType, engine.Role)
-			secretEngine := vault.NewSecEng(engine.EngineType, config.VaultAddress, envName, engine.Name, engine.Role)
-			fmt.Println(secretEngine)
-			if secretEngine != nil {
-				secretEngines = append(secretEngines, secretEngine)
-			}
-		}
-		environments[envName] = secretEngines
-	}
-	return environments
-}
-
-func initDB(config GafaspotConfig) *sql.DB {
+func initDB(config util.GafaspotConfig) *sql.DB {
 	log.Println(config.Database)
 	db, err := sql.Open("sqlite3", config.Database)
 	if err != nil {
@@ -97,12 +77,4 @@ func initDB(config GafaspotConfig) *sql.DB {
 		}
 	}
 	return db
-}
-
-func initApprole(config GafaspotConfig) {
-	vault.InitApprole(config.ApproleID, config.ApproleSecret, config.VaultAddress)
-}
-
-func initLdapAuth(config GafaspotConfig) {
-	vault.InitLDAP(config.UserPolicy, config.VaultAddress)
 }

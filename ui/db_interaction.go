@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/constants"
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 )
 
 const (
@@ -100,7 +100,7 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 	err = stmt.QueryRow(envName, end, start).Scan(&conflictStart, &conflictEnd)
 	// there is a conflict, if answer is NOT empty; means, if there is NO sql.ErrNoRows
 	if err == nil {
-		return ReservationError(fmt.Sprintf("reservation conflicts with an existing reservation from %v to %v", conflictStart.Format(constants.TimeLayout), conflictEnd.Format(constants.TimeLayout)))
+		return ReservationError(fmt.Sprintf("reservation conflicts with an existing reservation from %v to %v", conflictStart.Format(util.TimeLayout), conflictEnd.Format(util.TimeLayout)))
 	}
 	if err != sql.ErrNoRows {
 		log.Fatal(err)
@@ -230,8 +230,8 @@ func getReservations(db *sql.DB, conditionKey, conditionVal string) []reservatio
 		if err != nil {
 			log.Fatal(err)
 		}
-		r.Start = starttime.Format(constants.TimeLayout)
-		r.End = endtime.Format(constants.TimeLayout)
+		r.Start = starttime.Format(util.TimeLayout)
+		r.End = endtime.Format(util.TimeLayout)
 		if subject.Valid {
 			r.Subject = subject.String
 		}

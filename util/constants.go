@@ -1,4 +1,4 @@
-package constants
+package util
 
 const (
 	// TimeLayout is the layout which must follow all time strings stored to and retrieved from database.
