@@ -92,7 +92,7 @@ func RunWebserver(database *sql.DB, addr string) {
 	router.HandleFunc(logout, logoutHandler).Methods(http.MethodPost)
 	router.HandleFunc(mainview, mainPageHandler)
 	router.HandleFunc(personalview, personalPageHandler)
-	//router.HandleFunc(credsview, credsPageHandler)
+	router.HandleFunc(credsview, credsPageHandler)
 	router.HandleFunc(reservationform, newreservationPageHandler)
 	router.HandleFunc(reserve, reserveHandler)
 	router.HandleFunc(abortreservation, abortreservationHandler)
