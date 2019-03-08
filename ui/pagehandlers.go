@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"sort"
 
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
+
 	"github.com/gorilla/mux"
 )
 
@@ -111,6 +113,14 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	envNames := getUserActiveReservationEnv(db, username)
 	log.Println(envNames)
+
+	for _, env := range envNames {
+		creds, err := vault.ReadCredentials(env, vault.CreateVaultToken())
+		if err != nil {
+			log.Println(err)
+		}
+		fmt.Fprintf(w, "creds for environment '%v':\n%v\n", env, creds)
+	}
 }
 
 func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
