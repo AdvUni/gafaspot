@@ -14,7 +14,8 @@ var db *sql.DB
 
 func InitDB(config util.GafaspotConfig) {
 	log.Println(config.Database)
-	db, err := sql.Open("sqlite3", config.Database)
+	var err error
+	db, err = sql.Open("sqlite3", config.Database)
 	if err != nil {
 		log.Fatal("Not able to open database: ", err)
 	}
