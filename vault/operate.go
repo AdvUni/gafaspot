@@ -67,8 +67,8 @@ func initSecEngs(environmentConfigs map[string]util.EnvironmentConfig, vaultAddr
 	for envName, envConf := range environmentConfigs {
 		var secretEngines []SecEng
 		for _, engine := range envConf.SecretEngines {
-			fmt.Printf("name: %v, type: %v, role: %v\n", engine.Name, engine.EngineType, engine.Role)
-			secretEngine := newSecEng(engine.EngineType, vaultAddress, envName, engine.Name, engine.Role)
+			fmt.Printf("name: %v, type: %v, role: %v\n", engine.NiceName, engine.EngineType, engine.Role)
+			secretEngine := newSecEng(engine.EngineType, vaultAddress, envName, engine.NiceName, engine.Role)
 			fmt.Println(secretEngine)
 			if secretEngine != nil {
 				secretEngines = append(secretEngines, secretEngine)

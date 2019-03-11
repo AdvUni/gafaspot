@@ -30,35 +30,34 @@ func GetUserSSH(username string) (string, bool) {
 	return sshKey.String, true
 }
 
-func GetEnvironments() ([]util.Environment, map[string]util.Environment) {
-	rows, err := db.Query("SELECT env_name, has_ssh, description FROM environments;")
+func GetEnvironments() ([]util.Environment, map[string]bool) {
+	rows, err := db.Query("SELECT env_plain_name, env_nice_name, has_ssh, description FROM environments;")
 	if err != nil {
 		log.Println(err)
 	}
 	defer rows.Close()
 
-	envList := []util.Environment{}
-	envMap := make(map[string]util.Environment)
+	envs := []util.Environment{}
+	envHasSSHMap := make(map[string]bool)
 	for rows.Next() {
 		e := util.Environment{}
 		description := sql.NullString{}
-		err := rows.Scan(&e.Name, &e.HasSSH, &description)
+		err := rows.Scan(&e.PlainName, &e.NiceName, &e.HasSSH, &description)
 		if err != nil {
 			log.Fatal(err)
 		}
 		if description.Valid {
 			e.Description = description.String
 		}
-		e.NamePlain = createPlainIdentifier(e.Name)
 
-		envList = append(envList, e)
-		envMap[e.NamePlain] = e
+		envs = append(envs, e)
+		envHasSSHMap[e.PlainName] = e.HasSSH
 	}
-	return envList, envMap
+	return envs, envHasSSHMap
 }
 
-func GetEnvReservations(envName string) []util.Reservation {
-	return getReservations("env_name", envName)
+func GetEnvReservations(envPlainName string) []util.Reservation {
+	return getReservations("env_plain_name", envPlainName)
 }
 
 func GetUserReservations(username string) []util.Reservation {
@@ -66,7 +65,7 @@ func GetUserReservations(username string) []util.Reservation {
 }
 
 func getReservations(conditionKey, conditionVal string) []util.Reservation {
-	stmtstring := fmt.Sprintf("SELECT id, status, username, env_name, start, end, subject, labels FROM reservations WHERE %v=?", conditionKey)
+	stmtstring := fmt.Sprintf("SELECT id, status, username, env_plain_name, start, end, subject, labels FROM reservations WHERE %v=?", conditionKey)
 	stmt, err := db.Prepare(stmtstring)
 	if err != nil {
 		log.Fatal(err)
@@ -83,7 +82,7 @@ func getReservations(conditionKey, conditionVal string) []util.Reservation {
 	for rows.Next() {
 		r := util.Reservation{}
 		var subject, labels sql.NullString
-		err := rows.Scan(&r.ID, &r.Status, &r.User, &r.EnvName, &r.Start, &r.End, &subject, &labels)
+		err := rows.Scan(&r.ID, &r.Status, &r.User, &r.EnvPlainName, &r.Start, &r.End, &subject, &labels)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -100,7 +99,7 @@ func getReservations(conditionKey, conditionVal string) []util.Reservation {
 }
 
 func GetUserActiveReservationEnv(username string) []string {
-	stmt, err := db.Prepare("SELECT env_name FROM reservations WHERE (status='active') AND (username=?);")
+	stmt, err := db.Prepare("SELECT env_plain_name FROM reservations WHERE (status='active') AND (username=?);")
 	if err != nil {
 		log.Fatal(err)
 	}

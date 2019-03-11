@@ -24,7 +24,7 @@ func deleteReservation(tx *sql.Tx, reservationID int) {
 }
 
 func getApplicableReservations(tx *sql.Tx, now time.Time, status, timeCol string) []util.Reservation {
-	stmt, err := tx.Prepare("SELECT id, username, env_name, end FROM reservations WHERE (status=?) AND (" + timeCol + "<=?);")
+	stmt, err := tx.Prepare("SELECT id, username, env_plain_name, end FROM reservations WHERE (status=?) AND (" + timeCol + "<=?);")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -41,19 +41,19 @@ func getApplicableReservations(tx *sql.Tx, now time.Time, status, timeCol string
 	for rows.Next() {
 		r := util.Reservation{}
 
-		err := rows.Scan(&r.ID, &r.User, &r.EnvName, &r.End)
+		err := rows.Scan(&r.ID, &r.User, &r.EnvPlainName, &r.End)
 		if err != nil {
 			log.Fatal(err)
 		}
 		reservations = append(reservations, r)
-		fmt.Printf("Values from matching query: id - %v, username - %v, envname %v\n", r.ID, r.User, r.EnvName)
+		fmt.Printf("Values from matching query: id - %v, username - %v, env_plain_name %v\n", r.ID, r.User, r.EnvPlainName)
 	}
 	return reservations
 }
 
 func check(tx *sql.Tx, r util.Reservation, hasSSH *bool) bool {
 	// Does environment exist? Does it has components which require an ssh key for login?
-	err := tx.QueryRow("SELECT has_ssh FROM environments WHERE (env_name='" + r.EnvName + "');").Scan(hasSSH)
+	err := tx.QueryRow("SELECT has_ssh FROM environments WHERE (env_plain_name='" + r.EnvPlainName + "');").Scan(hasSSH)
 	if err == sql.ErrNoRows {
 		return false
 	} else if err != nil {
@@ -62,7 +62,7 @@ func check(tx *sql.Tx, r util.Reservation, hasSSH *bool) bool {
 	return true
 }
 
-type startBookingFunc func(envName, sshKey string, until time.Time)
+type startBookingFunc func(envPlainName, sshKey string, until time.Time)
 
 func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 	tx := beginTransaction()
@@ -81,7 +81,7 @@ func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 		var hasSSH bool
 		ok := check(tx, r, &hasSSH)
 		if !ok {
-			log.Printf("environment %v does not exis; mark reservation with id=%v for user=%v as error", r.EnvName, r.ID, r.User)
+			log.Printf("environment %v does not exis; mark reservation with id=%v for user=%v as error", r.EnvPlainName, r.ID, r.User)
 			changeStatus(tx, r.ID, "error")
 			return
 		}
@@ -91,14 +91,14 @@ func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 			// retrieve ssh key from user table
 			sshKey, ok = GetUserSSH(r.User)
 			if !ok {
-				log.Printf("there is no ssh public key stored for user %v, but it is required for booking environment %v", r.User, r.EnvName)
+				log.Printf("there is no ssh public key stored for user %v, but it is required for booking environment %v", r.User, r.EnvPlainName)
 				changeStatus(tx, r.ID, "error")
 				return
 			}
 		}
 
 		// trigger the start of the booking
-		startBooking(r.EnvName, sshKey, r.End)
+		startBooking(r.EnvPlainName, sshKey, r.End)
 
 		// change booking status in database
 		changeStatus(tx, r.ID, "active")
@@ -106,7 +106,7 @@ func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 	}
 }
 
-type endBookingFunc func(envName string)
+type endBookingFunc func(envPlainName string)
 
 func ExpireActiveReservations(now time.Time, endBooking endBookingFunc) {
 	tx := beginTransaction()
@@ -118,7 +118,7 @@ func ExpireActiveReservations(now time.Time, endBooking endBookingFunc) {
 		ok := check(tx, r, new(bool))
 		if ok {
 			// trigger the end of the booking
-			endBooking(r.EnvName)
+			endBooking(r.EnvPlainName)
 
 			// change booking status in database
 			changeStatus(tx, r.ID, "expired")

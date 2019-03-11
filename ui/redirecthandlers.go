@@ -58,12 +58,11 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	env, ok := envMap[template.HTMLEscapeString(r.Form.Get("env"))]
-	if !ok {
+	envPlainName := template.HTMLEscapeString(r.Form.Get("env"))
+	if envPlainName == "" {
 		fmt.Fprintf(w, "environment invalid")
 		return
 	}
-	envName := env.Name
 
 	startstring := template.HTMLEscapeString(r.Form.Get("startdate")) + " " + template.HTMLEscapeString(r.Form.Get("starttime"))
 	start, err := time.ParseInLocation(util.TimeLayout, startstring, time.Local)
@@ -83,9 +82,9 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 
 	subject := template.HTMLEscapeString(r.Form.Get("sub"))
 
-	log.Printf("env: %v, start: %v, end: %v, subject: %v\n", env, start, end, subject)
+	log.Printf("envPlainName: %v, start: %v, end: %v, subject: %v\n", envPlainName, start, end, subject)
 
-	err = database.CreateReservation(username, envName, subject, "", start, end)
+	err = database.CreateReservation(username, envPlainName, subject, "", start, end)
 	if err != nil {
 		fmt.Fprint(w, err)
 		return

@@ -67,8 +67,8 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	envReservationsList := []envReservations{}
 
-	for _, env := range envList {
-		upcoming, active, expired := sortReservations(database.GetEnvReservations(env.Name))
+	for _, env := range environments {
+		upcoming, active, expired := sortReservations(database.GetEnvReservations(env.NiceName))
 		envReservationsList = append(envReservationsList, envReservations{env, upcoming, active, expired})
 	}
 
@@ -124,14 +124,14 @@ func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	selectedEnvPlainName := mux.Vars(r)["env"]
-	selectedEnv, ok := envMap[selectedEnvPlainName]
+	envHasSSH, ok := envHasSSHMap[selectedEnvPlainName]
 	if !ok {
 		fmt.Fprint(w, "environment in url does not exist")
 		return
 	}
-	sshMissing := selectedEnv.HasSSH && !database.UserHasSSH(username)
+	sshMissing := envHasSSH && !database.UserHasSSH(username)
 
-	err := reservationformTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": envList, "Selected": selectedEnvPlainName, "SSHmissing": sshMissing})
+	err := reservationformTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": environments, "Selected": selectedEnvPlainName, "SSHmissing": sshMissing})
 	if err != nil {
 		log.Println(err)
 	}

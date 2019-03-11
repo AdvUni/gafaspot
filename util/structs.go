@@ -21,25 +21,25 @@ type EnvironmentConfig struct {
 
 // SecretEngineConfig is a struct to load information about one Secret Engine from config file.
 type SecretEngineConfig struct {
-	Name       string //`yaml:"name"`
+	NiceName   string `mapstructure:"name"`
 	EngineType string `mapstructure:"type"`
 	Role       string //`yaml:"role"`
 }
 
 type Environment struct {
-	Name        string
-	NamePlain   string
+	NiceName    string
+	PlainName   string
 	HasSSH      bool
 	Description string
 }
 
 type Reservation struct {
-	ID      int
-	Status  string
-	User    string
-	EnvName string
-	Start   time.Time
-	End     time.Time
-	Subject string
-	Labels  string
+	ID           int
+	Status       string
+	User         string
+	EnvPlainName string
+	Start        time.Time
+	End          time.Time
+	Subject      string
+	Labels       string
 }

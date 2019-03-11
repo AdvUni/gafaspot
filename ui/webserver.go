@@ -26,8 +26,8 @@ const (
 )
 
 var (
-	envList []util.Environment
-	envMap  map[string]util.Environment
+	environments []util.Environment
+	envHasSSHMap map[string]bool
 
 	loginformTmpl       *template.Template
 	mainviewTmpl        *template.Template
@@ -77,7 +77,7 @@ func init() {
 func RunWebserver(addr string) {
 
 	// fetch static information about environments from database
-	envList, envMap = database.GetEnvironments()
+	environments, envHasSSHMap = database.GetEnvironments()
 
 	// create router and register all paths
 	router := mux.NewRouter()
