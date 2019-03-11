@@ -1,4 +1,4 @@
-package ui
+package database
 
 import (
 	"database/sql"
@@ -19,29 +19,7 @@ func (err ReservationError) Error() string {
 	return fmt.Sprintf("reservation is invalid: %v", string(err))
 }
 
-func userHasSSH(db *sql.DB, username string) bool {
-	_, ok := getUserSSH(db, username)
-	return ok
-}
-
-func getUserSSH(db *sql.DB, username string) (string, bool) {
-	var sshKey sql.NullString
-	stmt, err := db.Prepare("SELECT ssh_pub_key FROM users WHERE (username=?);")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer stmt.Close()
-	err = stmt.QueryRow(username).Scan(&sshKey)
-	if err == sql.ErrNoRows || !sshKey.Valid {
-		return "", false
-	} else if err != nil {
-		log.Println(err)
-		return "", false
-	}
-	return sshKey.String, true
-}
-
-func CreateReservation(db *sql.DB, username, envName, subject, labels string, start, end time.Time) error {
+func CreateReservation(username, envName, subject, labels string, start, end time.Time) error {
 
 	// check, whether reservation is in future
 	if !start.After(time.Now()) {
@@ -54,17 +32,8 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 	}
 
 	// start a transaction
-	tx, err := db.Begin()
-	if err != nil {
-		log.Fatal(err)
-	}
-	// defer the transaction's commit as this function may return an error
-	defer func() {
-		err = tx.Commit()
-		if err != nil {
-			log.Println(err)
-		}
-	}()
+	tx := beginTransaction()
+	defer commitTransaction(tx)
 
 	// check, whether environment exists and determine, whether the reservation needs an ssh key
 	stmt, err := tx.Prepare("SELECT has_ssh FROM environments WHERE (env_name=?);")
@@ -83,7 +52,7 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 
 	// check, whether there is stored an ssh key for the user, if it is needed for the reservation
 	if hasSSH {
-		if !userHasSSH(db, username) {
+		if !UserHasSSH(username) {
 			return ReservationError(fmt.Sprintf("there is no ssh public key stored for user %v, but it is required for booking environment %v", username, envName))
 		}
 	}
@@ -123,19 +92,10 @@ func CreateReservation(db *sql.DB, username, envName, subject, labels string, st
 	return nil
 }
 
-func AbortReservation(db *sql.DB, username string, id int) error {
+func AbortReservation(username string, id int) error {
 	// start a transaction
-	tx, err := db.Begin()
-	if err != nil {
-		log.Fatal(err)
-	}
-	// defer the transaction's commit as this function may return an error
-	defer func() {
-		err = tx.Commit()
-		if err != nil {
-			log.Println(err)
-		}
-	}()
+	tx := beginTransaction()
+	defer commitTransaction(tx)
 
 	// fetch reservation from database
 	stmt, err := tx.Prepare("SELECT status FROM reservations WHERE (username=?) AND (id=?);")
@@ -170,101 +130,4 @@ func AbortReservation(db *sql.DB, username string, id int) error {
 	}
 
 	return nil
-}
-
-func getEnvironments(db *sql.DB) ([]env, map[string]env) {
-	rows, err := db.Query("SELECT env_name, has_ssh, description FROM environments;")
-	if err != nil {
-		log.Println(err)
-	}
-	defer rows.Close()
-
-	envList := []env{}
-	envMap := make(map[string]env)
-	for rows.Next() {
-		e := env{}
-		description := sql.NullString{}
-		err := rows.Scan(&e.Name, &e.HasSSH, &description)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if description.Valid {
-			e.Description = description.String
-		}
-		e.NamePlain = createPlainIdentifier(e.Name)
-
-		envList = append(envList, e)
-		envMap[e.NamePlain] = e
-	}
-	return envList, envMap
-}
-
-func getEnvReservations(db *sql.DB, envName string) []reservation {
-	return getReservations(db, "env_name", envName)
-}
-
-func getUserReservations(db *sql.DB, username string) []reservation {
-	return getReservations(db, "username", username)
-}
-
-func getReservations(db *sql.DB, conditionKey, conditionVal string) []reservation {
-	stmtstring := fmt.Sprintf("SELECT id, status, username, env_name, start, end, subject, labels FROM reservations WHERE %v=?", conditionKey)
-	stmt, err := db.Prepare(stmtstring)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer stmt.Close()
-
-	rows, err := stmt.Query(conditionVal)
-	if err != nil {
-		log.Println(err)
-	}
-	defer rows.Close()
-
-	reservations := []reservation{}
-	for rows.Next() {
-		r := reservation{}
-		var starttime, endtime time.Time
-		var subject, labels sql.NullString
-		err := rows.Scan(&r.ID, &r.Status, &r.User, &r.EnvName, &starttime, &endtime, &subject, &labels)
-		if err != nil {
-			log.Fatal(err)
-		}
-		r.Start = starttime.Format(util.TimeLayout)
-		r.End = endtime.Format(util.TimeLayout)
-		if subject.Valid {
-			r.Subject = subject.String
-		}
-		if labels.Valid {
-			r.Labels = labels.String
-		}
-
-		reservations = append(reservations, r)
-	}
-	return reservations
-}
-
-func getUserActiveReservationEnv(db *sql.DB, username string) []string {
-	stmt, err := db.Prepare("SELECT env_name FROM reservations WHERE (status='active') AND (username=?);")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer stmt.Close()
-
-	rows, err := stmt.Query(username)
-	if err != nil {
-		log.Println(err)
-	}
-	defer rows.Close()
-
-	var envNames []string
-	for rows.Next() {
-		env := ""
-		err := rows.Scan(&env)
-		if err != nil {
-			log.Fatal(err)
-		}
-		envNames = append(envNames, env)
-	}
-	return envNames
 }

@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/database"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
-
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
 
@@ -85,7 +85,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("env: %v, start: %v, end: %v, subject: %v\n", env, start, end, subject)
 
-	err = CreateReservation(db, username, envName, subject, "", start, end)
+	err = database.CreateReservation(username, envName, subject, "", start, end)
 	if err != nil {
 		fmt.Fprint(w, err)
 		return
@@ -111,7 +111,7 @@ func abortreservationHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("abortreservation request passes an id which is not comparable to int: %v\n", template.HTMLEscapeString(r.Form.Get("id")))
 		return
 	}
-	AbortReservation(db, username, reservationID)
+	database.AbortReservation(username, reservationID)
 	// return to personal view
 	http.Redirect(w, r, personalview, http.StatusSeeOther)
 }

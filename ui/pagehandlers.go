@@ -6,27 +6,18 @@ import (
 	"net/http"
 	"sort"
 
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/database"
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 
 	"github.com/gorilla/mux"
 )
 
-type reservation struct {
-	ID      int
-	Status  string
-	User    string
-	EnvName string
-	Start   string
-	End     string
-	Subject string
-	Labels  string
-}
-
 type envReservations struct {
-	Env                  env
-	ReservationsUpcoming []reservation
-	ReservationsActive   []reservation
-	ReservationsExpired  []reservation
+	Env                  util.Environment
+	ReservationsUpcoming []util.Reservation
+	ReservationsActive   []util.Reservation
+	ReservationsExpired  []util.Reservation
 }
 
 func loginPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -45,13 +36,13 @@ func loginPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func sortReservations(reservations []reservation) ([]reservation, []reservation, []reservation) {
+func sortReservations(reservations []util.Reservation) ([]util.Reservation, []util.Reservation, []util.Reservation) {
 	// sort reservation list by start date
 	sort.Slice(reservations, func(i, j int) bool {
-		return reservations[i].Start > reservations[j].Start
+		return reservations[i].Start.Before(reservations[j].Start)
 	})
 	// split list into three sub lists
-	var upcoming, active, expired []reservation
+	var upcoming, active, expired []util.Reservation
 	for _, r := range reservations {
 		switch r.Status {
 		case "upcoming":
@@ -60,6 +51,8 @@ func sortReservations(reservations []reservation) ([]reservation, []reservation,
 			active = append(active, r)
 		case "expired":
 			expired = append(expired, r)
+		case "error":
+			log.Println("reservation with status error is not displayed")
 		}
 	}
 	return upcoming, active, expired
@@ -75,7 +68,7 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 	envReservationsList := []envReservations{}
 
 	for _, env := range envList {
-		upcoming, active, expired := sortReservations(getEnvReservations(db, env.Name))
+		upcoming, active, expired := sortReservations(database.GetEnvReservations(env.Name))
 		envReservationsList = append(envReservationsList, envReservations{env, upcoming, active, expired})
 	}
 
@@ -93,12 +86,12 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sshEntry, ok := getUserSSH(db, username)
+	sshEntry, ok := database.GetUserSSH(username)
 	if !ok {
 		sshEntry = "no key yet"
 	}
 
-	upcoming, active, expired := sortReservations(getUserReservations(db, username))
+	upcoming, active, expired := sortReservations(database.GetUserReservations(username))
 	err := personalviewTmpl.Execute(w, map[string]interface{}{"Username": username, "SSHkey": sshEntry, "ReservationsUpcoming": upcoming, "ReservationsActive": active, "ReservationsExpired": expired})
 	if err != nil {
 		log.Println(err)
@@ -111,7 +104,7 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	envNames := getUserActiveReservationEnv(db, username)
+	envNames := database.GetUserActiveReservationEnv(username)
 	log.Println(envNames)
 
 	for _, env := range envNames {
@@ -136,7 +129,7 @@ func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "environment in url does not exist")
 		return
 	}
-	sshMissing := selectedEnv.HasSSH && !userHasSSH(db, username)
+	sshMissing := selectedEnv.HasSSH && !database.UserHasSSH(username)
 
 	err := reservationformTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": envList, "Selected": selectedEnvPlainName, "SSHmissing": sshMissing})
 	if err != nil {

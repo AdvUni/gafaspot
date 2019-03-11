@@ -20,7 +20,8 @@ func InitVaultParams(config util.GafaspotConfig) {
 // engines, this function needs an ssh key. It also needs the time 'until' to determine the ttl for
 // a possible ssh signature. If there is no ssh secret engine inside
 // the environment, the ssKey parameter will be ignored everywhere.
-func StartBooking(envName string, vaultToken, sshKey string, until time.Time) {
+func StartBooking(envName, sshKey string, until time.Time) {
+	vaultToken := CreateVaultToken()
 	ttl := int(until.Sub(time.Now()).Seconds())
 	environment, ok := environments[envName]
 	if !ok {
@@ -32,7 +33,8 @@ func StartBooking(envName string, vaultToken, sshKey string, until time.Time) {
 }
 
 // EndBooking ends a booking for a whole environment.
-func EndBooking(envName string, vaultToken string) {
+func EndBooking(envName string) {
+	vaultToken := CreateVaultToken()
 	environment, ok := environments[envName]
 	if !ok {
 		log.Fatalf("tried to end booking for environment '%v' but it does not exist", envName)

@@ -2,14 +2,13 @@ package ui
 
 import (
 	"crypto/rand"
-	"database/sql"
 	"html/template"
 	"log"
 	"net/http"
-	"regexp"
-	"strings"
 
 	"github.com/gorilla/mux"
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/database"
+	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 )
 
 const (
@@ -25,22 +24,14 @@ const (
 )
 
 var (
-	db      *sql.DB
-	envList []env
-	envMap  map[string]env
+	envList []util.Environment
+	envMap  map[string]util.Environment
 
 	loginformTmpl       *template.Template
 	mainviewTmpl        *template.Template
 	personalviewTmpl    *template.Template
 	reservationformTmpl *template.Template
 )
-
-type env struct {
-	Name        string
-	NamePlain   string
-	HasSSH      bool
-	Description string
-}
 
 func init() {
 	// generate a random key for signing json web tokens for authentication. Save it to global var (file authentication)
@@ -77,12 +68,10 @@ func init() {
 	}
 }
 
-func RunWebserver(database *sql.DB, addr string) {
-
-	db = database
+func RunWebserver(addr string) {
 
 	// fetch static information about environments from database
-	envList, envMap = getEnvironments(db)
+	envList, envMap = database.GetEnvironments()
 
 	// create router and register all paths
 	router := mux.NewRouter()
@@ -103,10 +92,4 @@ func RunWebserver(database *sql.DB, addr string) {
 	err := http.ListenAndServe(addr, nil)
 	// cause entire program to stop if the server crashes for any reason
 	log.Fatalf("webserver crashed: %v\n", err)
-}
-
-// createPlainIdentifier replaces all characters which are not ascii letters oder numbers through an underscore
-func createPlainIdentifier(name string) string {
-	re := regexp.MustCompile(`[^a-zA-Z0-9]`)
-	return strings.ToLower(re.ReplaceAllString(name, "_"))
 }

@@ -1,5 +1,7 @@
 package util
 
+import "time"
+
 // GafaspotConfig is a struct to load every information from config file.
 type GafaspotConfig struct {
 	VaultAddress      string                       `mapstructure:"vault-address"`
@@ -22,4 +24,22 @@ type SecretEngineConfig struct {
 	Name       string //`yaml:"name"`
 	EngineType string `mapstructure:"type"`
 	Role       string //`yaml:"role"`
+}
+
+type Environment struct {
+	Name        string
+	NamePlain   string
+	HasSSH      bool
+	Description string
+}
+
+type Reservation struct {
+	ID      int
+	Status  string
+	User    string
+	EnvName string
+	Start   time.Time
+	End     time.Time
+	Subject string
+	Labels  string
 }
