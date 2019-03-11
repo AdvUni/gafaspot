@@ -28,8 +28,8 @@
                             <div class="row">
                                 <span class="badge border border-info overflow-hidden col-md-1">upcoming</span>
                                 <span class="col-md-10"><span class="font-weight-bold">{{ .User }}:</span><span
-                                        class="ml-3 mr-2">{{ .Start }}</span>&ndash;<span
-                                        class="ml-2 mr-3">{{ .End }}</span>({{ .Subject }})</span>
+                                        class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
+                                        class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
                             </div>
                         </li>
                         {{ end }}
@@ -39,8 +39,8 @@
                             <div class="row">
                                 <span class="badge border border-success col-md-1">active</span>
                                 <span class="col-md-9"><span class="font-weight-bold">{{ .User }}:</span><span
-                                        class="ml-3 mr-2">{{ .Start }}</span>&ndash;<span
-                                        class="ml-2 mr-3">{{ .End }}</span>({{ .Subject }})</span>
+                                        class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
+                                        class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
                             </div>
                         </li>
                         {{ end }}
@@ -50,8 +50,8 @@
                             <div class="row">
                                 <span class="badge border border-dark col-md-1">expired</span>
                                 <span class="col-md-11"><span class="font-weight-bold">{{ .User }}:</span><span
-                                        class="ml-3 mr-2">{{ .Start }}</span>&ndash;<span
-                                        class="ml-2 mr-3">{{ .End }}</span>({{ .Subject }})</span>
+                                        class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
+                                        class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
                             </div>
                         </li>
                         {{ end }}

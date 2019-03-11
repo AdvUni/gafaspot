@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"path"
+	"time"
 
 	"github.com/gorilla/mux"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/database"
@@ -54,11 +56,15 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	mainviewTmpl, err = template.ParseFiles(mainviewTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	mainviewTmpl, err = template.New(path.Base(mainviewTmplFile)).Funcs(template.FuncMap{
+		"formatDatetime": func(t time.Time) string { return t.Format(util.TimeLayout) },
+	}).ParseFiles(mainviewTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
 	if err != nil {
 		log.Fatal(err)
 	}
-	personalviewTmpl, err = template.ParseFiles(personalviewTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	personalviewTmpl, err = template.New(path.Base(personalviewTmplFile)).Funcs(template.FuncMap{
+		"formatDatetime": func(t time.Time) string { return t.Format(util.TimeLayout) },
+	}).ParseFiles(personalviewTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
 	if err != nil {
 		log.Fatal(err)
 	}
