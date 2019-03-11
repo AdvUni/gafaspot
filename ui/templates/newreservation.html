@@ -17,10 +17,10 @@
                 <select class="form-control col-md-10" id="env" name="env" onChange="window.location.href=this.value">
                     {{ $selected := index .Selected }}
                     {{ range index .Envs }}
-                    {{ if eq .NamePlain $selected }}
-                    <option value="{{ .NamePlain }}" selected>{{ .Name }}</option>
+                    {{ if eq .PlainName $selected }}
+                    <option value="{{ .PlainName }}" selected>{{ .NiceName }}</option>
                     {{ else }}
-                    <option value="{{ .NamePlain }}">{{ .Name }}</option>
+                    <option value="{{ .PlainName }}">{{ .NiceName }}</option>
                     {{ end }}
                     {{ end }}
                 </select>
