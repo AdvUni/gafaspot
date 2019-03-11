@@ -3,8 +3,6 @@ package database
 import (
 	"database/sql"
 	"log"
-	"regexp"
-	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
@@ -46,7 +44,8 @@ func InitDB(config util.GafaspotConfig) {
 
 	// Fill empty table environments with information from configuration file
 	for envNiceName, envConf := range config.Environments {
-		envPlainName := createPlainIdentifier(envNiceName)
+		log.Printf("niceName: %v\n", envNiceName)
+		envPlainName := util.CreatePlainIdentifier(envNiceName)
 		envDescription := envConf.Description
 		envHasSSH := false
 		for _, secEng := range envConf.SecretEngines {
@@ -74,10 +73,4 @@ func commitTransaction(tx *sql.Tx) {
 	if err != nil {
 		log.Println(err)
 	}
-}
-
-// createPlainIdentifier replaces all characters which are not ascii letters oder numbers through an underscore
-func createPlainIdentifier(name string) string {
-	re := regexp.MustCompile(`[^a-zA-Z0-9]`)
-	return strings.ToLower(re.ReplaceAllString(name, "_"))
 }

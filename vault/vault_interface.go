@@ -20,12 +20,12 @@ func InitVaultParams(config util.GafaspotConfig) {
 // engines, this function needs an ssh key. It also needs the time 'until' to determine the ttl for
 // a possible ssh signature. If there is no ssh secret engine inside
 // the environment, the ssKey parameter will be ignored everywhere.
-func StartBooking(envName, sshKey string, until time.Time) {
+func StartBooking(envPlainName, sshKey string, until time.Time) {
 	vaultToken := CreateVaultToken()
 	ttl := int(until.Sub(time.Now()).Seconds())
-	environment, ok := environments[envName]
+	environment, ok := environments[envPlainName]
 	if !ok {
-		log.Fatalf("tried to start booking for environment '%v' but it does not exist", envName)
+		log.Fatalf("tried to start booking for environment '%v' but it does not exist", envPlainName)
 	}
 	for _, secEng := range environment {
 		secEng.startBooking(vaultToken, sshKey, ttl)
@@ -33,21 +33,21 @@ func StartBooking(envName, sshKey string, until time.Time) {
 }
 
 // EndBooking ends a booking for a whole environment.
-func EndBooking(envName string) {
+func EndBooking(envPlainName string) {
 	vaultToken := CreateVaultToken()
-	environment, ok := environments[envName]
+	environment, ok := environments[envPlainName]
 	if !ok {
-		log.Fatalf("tried to end booking for environment '%v' but it does not exist", envName)
+		log.Fatalf("tried to end booking for environment '%v' but it does not exist", envPlainName)
 	}
 	for _, secEng := range environment {
 		secEng.endBooking(vaultToken)
 	}
 }
 
-func ReadCredentials(envName string, vaultToken string) (map[string]interface{}, error) {
-	environment, ok := environments[envName]
+func ReadCredentials(envPlainName string, vaultToken string) (map[string]interface{}, error) {
+	environment, ok := environments[envPlainName]
 	if !ok {
-		return nil, fmt.Errorf("environment '%v' does not exist", envName)
+		return nil, fmt.Errorf("environment '%v' does not exist", envPlainName)
 	}
 
 	credentials := make(map[string]interface{})
