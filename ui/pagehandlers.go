@@ -68,7 +68,7 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 	envReservationsList := []envReservations{}
 
 	for _, env := range environments {
-		upcoming, active, expired := sortReservations(database.GetEnvReservations(env.NiceName))
+		upcoming, active, expired := sortReservations(database.GetEnvReservations(env.PlainName))
 		envReservationsList = append(envReservationsList, envReservations{env, upcoming, active, expired})
 	}
 
