@@ -22,6 +22,11 @@ func redirectShowLoginError(w http.ResponseWriter, r *http.Request, errormessage
 	http.Redirect(w, r, loginpage, http.StatusSeeOther)
 }
 
+func redirectLogoutSuccessful(w http.ResponseWriter, r *http.Request) {
+	setInfoCookie(w, "Successfully logged out")
+	http.Redirect(w, r, loginpage, http.StatusSeeOther)
+}
+
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -46,7 +51,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// redirect to login page
-	http.Redirect(w, r, loginpage, http.StatusSeeOther)
+	redirectLogoutSuccessful(w, r)
 }
 
 func reserveHandler(w http.ResponseWriter, r *http.Request) {

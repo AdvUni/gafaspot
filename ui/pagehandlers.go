@@ -22,8 +22,9 @@ type envReservations struct {
 
 func loginPageHandler(w http.ResponseWriter, r *http.Request) {
 	errormessage := readErrorCookie(w, r)
+	infomessage := readInfoCookie(w, r)
 
-	err := loginformTmpl.Execute(w, map[string]interface{}{"Error": errormessage})
+	err := loginformTmpl.Execute(w, map[string]interface{}{"Error": errormessage, "Info": infomessage})
 	if err != nil {
 		log.Println(err)
 	}
