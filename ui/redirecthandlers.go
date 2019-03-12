@@ -13,6 +13,24 @@ import (
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
 
+const (
+	errorCookieName = "errormessage"
+)
+
+func redirectNotAuthenticated(w http.ResponseWriter, r *http.Request) {
+	redirectShowLoginError(w, r, "You are not (longer) logged in")
+}
+
+func redirectShowLoginError(w http.ResponseWriter, r *http.Request, errormessage string) {
+	cookie := &http.Cookie{
+		Name:   errorCookieName,
+		Value:  errormessage,
+		MaxAge: -1,
+	}
+	http.SetCookie(w, cookie)
+	http.Redirect(w, r, loginpage, http.StatusSeeOther)
+}
+
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -26,7 +44,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		setNewAuthCookie(w, username)
 		http.Redirect(w, r, mainview, http.StatusSeeOther)
 	} else {
-		http.Redirect(w, r, loginpage, http.StatusSeeOther)
+		redirectShowLoginError(w, r, "Invalid credentials")
 	}
 }
 
@@ -49,7 +67,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	username, ok := verifyUser(w, r)
 	if !ok {
-		http.NotFound(w, r)
+		redirectNotAuthenticated(w, r)
 		return
 	}
 	err := r.ParseForm()
@@ -96,7 +114,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 func abortreservationHandler(w http.ResponseWriter, r *http.Request) {
 	username, ok := verifyUser(w, r)
 	if !ok {
-		http.NotFound(w, r)
+		redirectNotAuthenticated(w, r)
 		return
 	}
 	err := r.ParseForm()

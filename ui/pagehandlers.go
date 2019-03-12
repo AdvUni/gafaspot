@@ -21,16 +21,13 @@ type envReservations struct {
 }
 
 func loginPageHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("referer: %v\n", r.Referer())
-	log.Printf("path: %v\n", r.URL.Path)
-	log.Printf("raw path: %v\n", r.URL.RawPath)
-	log.Printf("ur: %v\n", r.RequestURI)
-
-	banner := false
-	if r.Referer() == loginpage {
-		banner = true
+	var errormessage string
+	cookie, err := r.Cookie(errorCookieName)
+	if err == nil {
+		errormessage = cookie.Value
 	}
-	err := loginformTmpl.Execute(w, map[string]interface{}{"ShowBanner": banner})
+
+	err = loginformTmpl.Execute(w, map[string]interface{}{"Error": errormessage})
 	if err != nil {
 		log.Println(err)
 	}
@@ -62,7 +59,7 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("referer: %v\n", r.Referer())
 	username, ok := verifyUser(w, r)
 	if !ok {
-		http.NotFound(w, r)
+		redirectNotAuthenticated(w, r)
 		return
 	}
 	envReservationsList := []envReservations{}
@@ -82,7 +79,7 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("referer: %v\n", r.Referer())
 	username, ok := verifyUser(w, r)
 	if !ok {
-		http.NotFound(w, r)
+		redirectNotAuthenticated(w, r)
 		return
 	}
 
@@ -101,7 +98,7 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 	username, ok := verifyUser(w, r)
 	if !ok {
-		http.NotFound(w, r)
+		redirectNotAuthenticated(w, r)
 		return
 	}
 	envNames := database.GetUserActiveReservationEnv(username)
@@ -119,7 +116,7 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
 	username, ok := verifyUser(w, r)
 	if !ok {
-		http.NotFound(w, r)
+		redirectNotAuthenticated(w, r)
 		return
 	}
 
