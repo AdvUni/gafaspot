@@ -9,8 +9,7 @@ import (
 )
 
 const (
-	authCookieTTL  = 1 * time.Minute
-	authCookieName = "token"
+	authCookieTTL = 1 * time.Minute
 )
 
 var hmacKey = make([]byte, 128)
@@ -36,14 +35,14 @@ func verifyUser(w http.ResponseWriter, r *http.Request) (string, bool) {
 	}
 	if token.Valid {
 		username := tokenContent.Username
-		setNewAuthCookie(w, username)
+		renewJWT(w, username)
 		return username, true
 	}
 	log.Println("authentication failed: jwt is invalid")
 	return "", false
 }
 
-func setNewAuthCookie(w http.ResponseWriter, username string) {
+func renewJWT(w http.ResponseWriter, username string) {
 	timeout := time.Now().Add(authCookieTTL)
 	jwtContent := &claims{username, jwt.StandardClaims{ExpiresAt: timeout.Unix()}}
 
@@ -54,12 +53,5 @@ func setNewAuthCookie(w http.ResponseWriter, username string) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	cookie := &http.Cookie{
-		Name:     authCookieName,
-		Value:    token,
-		Expires:  timeout,
-		HttpOnly: true,
-	}
-	http.SetCookie(w, cookie)
-
+	setAuthCookie(w, token, timeout)
 }

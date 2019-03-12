@@ -21,14 +21,9 @@ type envReservations struct {
 }
 
 func loginPageHandler(w http.ResponseWriter, r *http.Request) {
-	var errormessage string
-	cookie, err := r.Cookie(errorCookieName)
-	if err == nil {
-		errormessage = cookie.Value
-		expireErrorCookie(w)
-	}
+	errormessage := readErrorCookie(w, r)
 
-	err = loginformTmpl.Execute(w, map[string]interface{}{"Error": errormessage})
+	err := loginformTmpl.Execute(w, map[string]interface{}{"Error": errormessage})
 	if err != nil {
 		log.Println(err)
 	}
@@ -57,7 +52,6 @@ func sortReservations(reservations []util.Reservation) ([]util.Reservation, []ut
 }
 
 func mainPageHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("referer: %v\n", r.Referer())
 	username, ok := verifyUser(w, r)
 	if !ok {
 		redirectNotAuthenticated(w, r)
@@ -77,7 +71,6 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func personalPageHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("referer: %v\n", r.Referer())
 	username, ok := verifyUser(w, r)
 	if !ok {
 		redirectNotAuthenticated(w, r)

@@ -13,36 +13,12 @@ import (
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
 
-const (
-	errorCookieName = "errormessage"
-)
-
 func redirectNotAuthenticated(w http.ResponseWriter, r *http.Request) {
 	redirectShowLoginError(w, r, "You are not (longer) logged in")
 }
 
-func expireErrorCookie(w http.ResponseWriter) {
-	expireCookie(w, errorCookieName)
-}
-
-func expireCookie(w http.ResponseWriter, cookieName string) {
-	cookie := &http.Cookie{
-		Name:     cookieName,
-		Value:    "",
-		MaxAge:   -1,
-		HttpOnly: true,
-	}
-	http.SetCookie(w, cookie)
-}
-
 func redirectShowLoginError(w http.ResponseWriter, r *http.Request, errormessage string) {
-	cookie := &http.Cookie{
-		Name:     errorCookieName,
-		Value:    errormessage,
-		MaxAge:   10,
-		HttpOnly: true,
-	}
-	http.SetCookie(w, cookie)
+	setErrorCookie(w, errormessage)
 	http.Redirect(w, r, loginpage, http.StatusSeeOther)
 }
 
@@ -56,7 +32,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	pass := r.Form.Get("pass")
 
 	if vault.DoLdapAuthentication(username, pass) {
-		setNewAuthCookie(w, username)
+		renewJWT(w, username)
 		http.Redirect(w, r, mainview, http.StatusSeeOther)
 	} else {
 		redirectShowLoginError(w, r, "Invalid credentials")
@@ -66,13 +42,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	_, ok := verifyUser(w, r)
 	if ok {
-		// return a new, empty cookie which overwrites previous ones and expires immediately
-		cookie := &http.Cookie{
-			Name:   authCookieName,
-			Value:  "",
-			MaxAge: -1,
-		}
-		http.SetCookie(w, cookie)
+		invalidateCookie(w, authCookieName)
 	}
 
 	// redirect to login page
