@@ -43,9 +43,12 @@ func InitDB(config util.GafaspotConfig) {
 	}
 
 	// Fill empty table environments with information from configuration file
-	for envNiceName, envConf := range config.Environments {
-		log.Printf("niceName: %v\n", envNiceName)
-		envPlainName := util.CreatePlainIdentifier(envNiceName)
+	for envPlainName, envConf := range config.Environments {
+		envPlainName = util.CreatePlainIdentifier(envPlainName)
+		envNiceName := envConf.NiceName
+		if envNiceName == "" {
+			envNiceName = envPlainName
+		}
 		envDescription := envConf.Description
 		envHasSSH := false
 		for _, secEng := range envConf.SecretEngines {

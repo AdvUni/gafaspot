@@ -14,8 +14,10 @@ ldap-group-policy: gafaspot-users
 environments:
 
   demo0:
-  
-    secretEngines:
+    show-name: DEMO 0
+    description: this is demo environment 0
+
+    secret-engines:
     - name: NetApp
       type: ontap
       role: gafaspot
@@ -23,12 +25,11 @@ environments:
     - name: ActiveDirectory
       type: ad
       role: gafaspot
-      
-    description: this is demo environment 0
     
   demo1:
+    show-name: DEMO 1
   
-    secretEngines:
+    secret-engines:
     - name: NetApp
       type: ontap
       role: gafaspot

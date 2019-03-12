@@ -64,8 +64,8 @@ func newSecEng(engineType, vaultAddress, env, name, role string) SecEng {
 
 func initSecEngs(environmentConfigs map[string]util.EnvironmentConfig, vaultAddress string) map[string][]SecEng {
 	environments := make(map[string][]SecEng)
-	for envNiceName, envConf := range environmentConfigs {
-		envPlainName := util.CreatePlainIdentifier(envNiceName)
+	for envPlainName, envConf := range environmentConfigs {
+		envPlainName = util.CreatePlainIdentifier(envPlainName)
 		var secretEngines []SecEng
 		for _, engine := range envConf.SecretEngines {
 			fmt.Printf("name: %v, type: %v, role: %v\n", engine.NiceName, engine.EngineType, engine.Role)

@@ -15,8 +15,9 @@ type GafaspotConfig struct {
 
 // EnvironmentConfig is a struct to load information about one environment from config file.
 type EnvironmentConfig struct {
-	SecretEngines []SecretEngineConfig //`yaml:"secretEngines"`
+	NiceName      string               `mapstructure:"show-name"`
 	Description   string               //`yaml:"description"`
+	SecretEngines []SecretEngineConfig `mapstructure:"secret-engines"`
 }
 
 // SecretEngineConfig is a struct to load information about one Secret Engine from config file.
