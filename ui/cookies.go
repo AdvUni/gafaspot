@@ -26,6 +26,7 @@ func setErrorCookie(w http.ResponseWriter, message string) {
 		Value:    message,
 		MaxAge:   10,
 		HttpOnly: true,
+		Path:     "/",
 	}
 	http.SetCookie(w, cookie)
 }
