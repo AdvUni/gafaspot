@@ -54,6 +54,11 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	redirectLogoutSuccessful(w, r)
 }
 
+func redirectInvalidReservation(w http.ResponseWriter, r *http.Request, errormessage string) {
+	setErrorCookie(w, errormessage)
+	http.Redirect(w, r, reservationform, http.StatusSeeOther)
+}
+
 func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	username, ok := verifyUser(w, r)
 	if !ok {
@@ -68,7 +73,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 
 	envPlainName := template.HTMLEscapeString(r.Form.Get("env"))
 	if envPlainName == "" {
-		fmt.Fprintf(w, "environment invalid")
+		redirectInvalidReservation(w, r, "environment invalid")
 		return
 	}
 
@@ -76,7 +81,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	start, err := time.ParseInLocation(util.TimeLayout, startstring, time.Local)
 	if err != nil {
 		log.Println(err)
-		fmt.Fprint(w, "start date/time malformed")
+		redirectInvalidReservation(w, r, "start date/time malformed")
 		return
 	}
 
@@ -84,7 +89,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	end, err := time.ParseInLocation(util.TimeLayout, endstring, time.Local)
 	if err != nil {
 		log.Println(err)
-		fmt.Fprint(w, "end date/time malformed")
+		redirectInvalidReservation(w, r, "end date/time malformed")
 		return
 	}
 
@@ -94,7 +99,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = database.CreateReservation(username, envPlainName, subject, "", start, end)
 	if err != nil {
-		fmt.Fprint(w, err)
+		redirectInvalidReservation(w, r, err.Error())
 		return
 	}
 

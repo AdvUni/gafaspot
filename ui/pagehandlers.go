@@ -115,6 +115,8 @@ func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	errormessage := readErrorCookie(w, r)
+
 	selectedEnvPlainName := mux.Vars(r)["env"]
 	envHasSSH, ok := envHasSSHMap[selectedEnvPlainName]
 	if !ok {
@@ -123,7 +125,7 @@ func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	sshMissing := envHasSSH && !database.UserHasSSH(username)
 
-	err := reservationformTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": environments, "Selected": selectedEnvPlainName, "SSHmissing": sshMissing})
+	err := reservationformTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": environments, "Selected": selectedEnvPlainName, "SSHmissing": sshMissing, "Error": errormessage})
 	if err != nil {
 		log.Println(err)
 	}
