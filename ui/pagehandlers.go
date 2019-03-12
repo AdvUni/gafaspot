@@ -25,6 +25,7 @@ func loginPageHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(errorCookieName)
 	if err == nil {
 		errormessage = cookie.Value
+		expireErrorCookie(w)
 	}
 
 	err = loginformTmpl.Execute(w, map[string]interface{}{"Error": errormessage})

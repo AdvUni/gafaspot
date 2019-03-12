@@ -55,9 +55,10 @@ func setNewAuthCookie(w http.ResponseWriter, username string) {
 		return
 	}
 	cookie := &http.Cookie{
-		Name:    authCookieName,
-		Value:   token,
-		Expires: timeout,
+		Name:     authCookieName,
+		Value:    token,
+		Expires:  timeout,
+		HttpOnly: true,
 	}
 	http.SetCookie(w, cookie)
 

@@ -21,11 +21,26 @@ func redirectNotAuthenticated(w http.ResponseWriter, r *http.Request) {
 	redirectShowLoginError(w, r, "You are not (longer) logged in")
 }
 
+func expireErrorCookie(w http.ResponseWriter) {
+	expireCookie(w, errorCookieName)
+}
+
+func expireCookie(w http.ResponseWriter, cookieName string) {
+	cookie := &http.Cookie{
+		Name:     cookieName,
+		Value:    "",
+		MaxAge:   -1,
+		HttpOnly: true,
+	}
+	http.SetCookie(w, cookie)
+}
+
 func redirectShowLoginError(w http.ResponseWriter, r *http.Request, errormessage string) {
 	cookie := &http.Cookie{
-		Name:   errorCookieName,
-		Value:  errormessage,
-		MaxAge: -1,
+		Name:     errorCookieName,
+		Value:    errormessage,
+		MaxAge:   10,
+		HttpOnly: true,
 	}
 	http.SetCookie(w, cookie)
 	http.Redirect(w, r, loginpage, http.StatusSeeOther)
