@@ -56,7 +56,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 
 func redirectInvalidReservation(w http.ResponseWriter, r *http.Request, errormessage string) {
 	setErrorCookie(w, errormessage)
-	http.Redirect(w, r, reservationform, http.StatusSeeOther)
+	http.Redirect(w, r, r.Referer(), http.StatusSeeOther)
 }
 
 func reserveHandler(w http.ResponseWriter, r *http.Request) {
