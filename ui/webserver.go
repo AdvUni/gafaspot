@@ -33,6 +33,7 @@ var (
 	mainviewTmpl        *template.Template
 	personalviewTmpl    *template.Template
 	reservationformTmpl *template.Template
+	reservesuccessTmpl  *template.Template
 )
 
 func init() {
@@ -51,6 +52,7 @@ func init() {
 		mainviewTmplFile        = "ui/templates/mainview.html"
 		personalviewTmplFile    = "ui/templates/personalview.html"
 		reservationformTmplFile = "ui/templates/newreservation.html"
+		reservesuccessTmplFile  = "ui/templates/reservesuccess.html"
 	)
 	loginformTmpl, err = template.ParseFiles(loginformTmplFile, topTmplFile, bottomTmplFile)
 	if err != nil {
@@ -69,6 +71,10 @@ func init() {
 		log.Fatal(err)
 	}
 	reservationformTmpl, err = template.ParseFiles(reservationformTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	reservesuccessTmpl, err = template.ParseFiles(reservesuccessTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
 	if err != nil {
 		log.Fatal(err)
 	}

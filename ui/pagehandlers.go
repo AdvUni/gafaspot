@@ -2,15 +2,16 @@ package ui
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"sort"
+	"time"
 
+	"github.com/gorilla/mux"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/database"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
-
-	"github.com/gorilla/mux"
 )
 
 type envReservations struct {
@@ -126,6 +127,58 @@ func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
 	sshMissing := envHasSSH && !database.UserHasSSH(username)
 
 	err := reservationformTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": environments, "Selected": selectedEnvPlainName, "SSHmissing": sshMissing, "Error": errormessage})
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func reserveHandler(w http.ResponseWriter, r *http.Request) {
+	username, ok := verifyUser(w, r)
+	if !ok {
+		redirectNotAuthenticated(w, r)
+		return
+	}
+	err := r.ParseForm()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	var reservation util.Reservation
+
+	reservation.User = username
+
+	reservation.EnvPlainName = template.HTMLEscapeString(r.Form.Get("env"))
+	if reservation.EnvPlainName == "" {
+		redirectInvalidReservation(w, r, "environment invalid")
+		return
+	}
+
+	startstring := template.HTMLEscapeString(r.Form.Get("startdate")) + " " + template.HTMLEscapeString(r.Form.Get("starttime"))
+	reservation.Start, err = time.ParseInLocation(util.TimeLayout, startstring, time.Local)
+	if err != nil {
+		log.Println(err)
+		redirectInvalidReservation(w, r, "start date/time malformed")
+		return
+	}
+
+	endstring := template.HTMLEscapeString(r.Form.Get("enddate")) + " " + template.HTMLEscapeString(r.Form.Get("endtime"))
+	reservation.End, err = time.ParseInLocation(util.TimeLayout, endstring, time.Local)
+	if err != nil {
+		log.Println(err)
+		redirectInvalidReservation(w, r, "end date/time malformed")
+		return
+	}
+
+	reservation.Subject = template.HTMLEscapeString(r.Form.Get("sub"))
+
+	err = database.CreateReservation(reservation)
+	if err != nil {
+		redirectInvalidReservation(w, r, err.Error())
+		return
+	}
+
+	err = reservesuccessTmpl.Execute(w, reservation)
 	if err != nil {
 		log.Println(err)
 	}

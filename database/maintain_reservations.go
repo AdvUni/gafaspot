@@ -19,15 +19,15 @@ func (err ReservationError) Error() string {
 	return fmt.Sprintf("reservation is invalid: %v", string(err))
 }
 
-func CreateReservation(username, envPlainName, subject, labels string, start, end time.Time) error {
+func CreateReservation(r util.Reservation) error {
 
 	// check, whether reservation is in future
-	if !start.After(time.Now()) {
+	if !r.Start.After(time.Now()) {
 		return ReservationError("cannot do reservation for the past")
 	}
 
 	// check whether start < end
-	if !start.Before(end) {
+	if !r.Start.Before(r.End) {
 		return ReservationError("end of reservation must be after start of reservation")
 	}
 
@@ -43,17 +43,17 @@ func CreateReservation(username, envPlainName, subject, labels string, start, en
 	defer stmt.Close()
 
 	var hasSSH bool
-	err = stmt.QueryRow(envPlainName).Scan(&hasSSH)
+	err = stmt.QueryRow(r.EnvPlainName).Scan(&hasSSH)
 	if err == sql.ErrNoRows {
-		return ReservationError(fmt.Sprintf("environment %v does not exist", envPlainName))
+		return ReservationError(fmt.Sprintf("environment %v does not exist", r.EnvPlainName))
 	} else if err != nil {
 		log.Fatal(err)
 	}
 
 	// check, whether there is stored an ssh key for the user, if it is needed for the reservation
 	if hasSSH {
-		if !UserHasSSH(username) {
-			return ReservationError(fmt.Sprintf("there is no ssh public key stored for user %v, but it is required for booking environment %v", username, envPlainName))
+		if !UserHasSSH(r.User) {
+			return ReservationError(fmt.Sprintf("there is no ssh public key stored for user %v, but it is required for booking environment %v", r.User, r.EnvPlainName))
 		}
 	}
 
@@ -66,7 +66,7 @@ func CreateReservation(username, envPlainName, subject, labels string, start, en
 	defer stmt.Close()
 
 	var conflictStart, conflictEnd time.Time
-	err = stmt.QueryRow(envPlainName, end, start).Scan(&conflictStart, &conflictEnd)
+	err = stmt.QueryRow(r.EnvPlainName, r.End, r.Start).Scan(&conflictStart, &conflictEnd)
 	// there is a conflict, if answer is NOT empty; means, if there is NO sql.ErrNoRows
 	if err == nil {
 		return ReservationError(fmt.Sprintf("reservation conflicts with an existing reservation from %v to %v", conflictStart.Format(util.TimeLayout), conflictEnd.Format(util.TimeLayout)))
@@ -76,7 +76,7 @@ func CreateReservation(username, envPlainName, subject, labels string, start, en
 	}
 
 	// generate the deletion date of reservation entry in database
-	reservationDeleteDate := end.AddDate(yearsTTL, 0, 0)
+	reservationDeleteDate := r.End.AddDate(yearsTTL, 0, 0)
 
 	// finally write reservation into database
 	stmt, err = tx.Prepare("INSERT INTO reservations (status, username, env_plain_name, start, end, subject, labels, delete_on) VALUES(?,?,?,?,?,?,?,?);")
@@ -84,7 +84,7 @@ func CreateReservation(username, envPlainName, subject, labels string, start, en
 		log.Fatal(err)
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec("upcoming", username, envPlainName, start, end, subject, labels, reservationDeleteDate)
+	_, err = stmt.Exec("upcoming", r.User, r.EnvPlainName, r.Start, r.End, r.Subject, r.Labels, reservationDeleteDate)
 	if err != nil {
 		log.Fatal(err)
 	}
