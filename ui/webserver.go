@@ -74,7 +74,9 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	reservesuccessTmpl, err = template.ParseFiles(reservesuccessTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	reservesuccessTmpl, err = template.New(path.Base(reservesuccessTmplFile)).Funcs(template.FuncMap{
+		"formatDatetime": func(t time.Time) string { return t.Format(util.TimeLayout) },
+	}).ParseFiles(reservesuccessTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
 	if err != nil {
 		log.Fatal(err)
 	}
