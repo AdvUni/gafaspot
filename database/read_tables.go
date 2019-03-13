@@ -31,7 +31,7 @@ func GetUserSSH(username string) (string, bool) {
 }
 
 func GetEnvironments() ([]util.Environment, map[string]bool, map[string]string) {
-	rows, err := db.Query("SELECT env_plain_name, env_nice_name, has_ssh, description FROM environments;")
+	rows, err := db.Query("SELECT env_plain_name, env_nice_name, has_ssh, description FROM environments ORDER BY env_nice_name;")
 	if err != nil {
 		log.Println(err)
 	}
