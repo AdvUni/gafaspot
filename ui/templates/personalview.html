@@ -31,11 +31,12 @@
 
         <p><b>User:</b> {{ index .Username }}</p>
         <p><b>SSH public key:</b> {{ index .SSHkey }}</p>
+        <a class="btn btn-primary m-2" href="/addkey" role="button">add/change key</a>
 
-        <form method="post" action="/addkey">
-            <button type="submit" class="btn btn-primary m-2">add/change key</button>
-        </form>
+        <hr>
 
+        <a class="btn btn-success m-2" href="/personal/creds" role="button">show all your valid credentials</a>
+        
         <h3>Your reservations:</h3>
         <ul class="list-group">
             <!-- all upcoming reservations -->
