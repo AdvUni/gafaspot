@@ -47,20 +47,10 @@ func newReservationNiceName(r util.Reservation) reservationNiceName {
 	}
 }
 
-func loginPageHandler(w http.ResponseWriter, r *http.Request) {
-	errormessage := readErrorCookie(w, r)
-	infomessage := readInfoCookie(w, r)
-
-	err := loginformTmpl.Execute(w, map[string]interface{}{"Error": errormessage, "Info": infomessage})
-	if err != nil {
-		log.Println(err)
-	}
-}
-
 func sortReservations(reservations []util.Reservation) ([]util.Reservation, []util.Reservation, []util.Reservation) {
 	// sort reservation list by start date
 	sort.Slice(reservations, func(i, j int) bool {
-		return reservations[i].Start.Before(reservations[j].Start)
+		return reservations[i].Start.After(reservations[j].Start)
 	})
 	// split list into three sub lists
 	var upcoming, active, expired []util.Reservation
@@ -77,6 +67,16 @@ func sortReservations(reservations []util.Reservation) ([]util.Reservation, []ut
 		}
 	}
 	return upcoming, active, expired
+}
+
+func loginPageHandler(w http.ResponseWriter, r *http.Request) {
+	errormessage := readErrorCookie(w, r)
+	infomessage := readInfoCookie(w, r)
+
+	err := loginformTmpl.Execute(w, map[string]interface{}{"Error": errormessage, "Info": infomessage})
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func mainPageHandler(w http.ResponseWriter, r *http.Request) {
