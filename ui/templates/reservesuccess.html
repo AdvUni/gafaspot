@@ -7,7 +7,7 @@
                         <p>You did following reservation:</p>
                         <div class="row">
                                 <span class="col-md-9">
-                                        <span class="font-weight-bold">{{ .EnvPlainName }}:</span>
+                                        <span class="font-weight-bold">{{ .EnvNiceName }}:</span>
                                         <span class="ml-3 mr-2">{{ formatDatetime .Start }}</span>
                                         &ndash;
                                         <span class="ml-2 mr-3">{{ formatDatetime .End }}</span>
@@ -17,7 +17,7 @@
                         <hr>
                         <p>The reservation becomes active as soon as its start point is reached. Then you can access the
                                 credentials in the <a href="personal" class="alert-link">personal view</a>.</p>
-                        <a class="btn btn-primary" href="mainview" role="button">back to main view</a>
+                        <a class="btn btn-primary" href="mainview#{{ .EnvNiceName }}" role="button">back to main view</a>
                 </div>
         </div>
 </main>

@@ -30,7 +30,7 @@ func GetUserSSH(username string) (string, bool) {
 	return sshKey.String, true
 }
 
-func GetEnvironments() ([]util.Environment, map[string]bool) {
+func GetEnvironments() ([]util.Environment, map[string]bool, map[string]string) {
 	rows, err := db.Query("SELECT env_plain_name, env_nice_name, has_ssh, description FROM environments;")
 	if err != nil {
 		log.Println(err)
@@ -39,6 +39,7 @@ func GetEnvironments() ([]util.Environment, map[string]bool) {
 
 	envs := []util.Environment{}
 	envHasSSHMap := make(map[string]bool)
+	envNiceNameMap := make(map[string]string)
 	for rows.Next() {
 		e := util.Environment{}
 		description := sql.NullString{}
@@ -52,8 +53,9 @@ func GetEnvironments() ([]util.Environment, map[string]bool) {
 
 		envs = append(envs, e)
 		envHasSSHMap[e.PlainName] = e.HasSSH
+		envNiceNameMap[e.PlainName] = e.NiceName
 	}
-	return envs, envHasSSHMap
+	return envs, envHasSSHMap, envNiceNameMap
 }
 
 func GetEnvReservations(envPlainName string) []util.Reservation {

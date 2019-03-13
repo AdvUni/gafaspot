@@ -26,9 +26,15 @@ const (
 )
 
 var (
+	// This list contains all environment information from database table "environments".
+	// This table shouldn't change during runtime, so the list content can be fetched once at program start.
 	environments []util.Environment
+	// This maps associates the PlainName attribute of each environment with its HasSSH attribute for a fast lookup.
 	envHasSSHMap map[string]bool
+	// This maps associates the PlainName attribute of each environment with its NiceName attribute for a fast lookup.
+	envNiceNameMap map[string]string
 
+	// The following are the parsed templates for all the application's web pages, ready for execution with the right parameters.
 	loginformTmpl       *template.Template
 	mainviewTmpl        *template.Template
 	personalviewTmpl    *template.Template
@@ -85,7 +91,7 @@ func init() {
 func RunWebserver(addr string) {
 
 	// fetch static information about environments from database
-	environments, envHasSSHMap = database.GetEnvironments()
+	environments, envHasSSHMap, envNiceNameMap = database.GetEnvironments()
 
 	// create router and register all paths
 	router := mux.NewRouter()

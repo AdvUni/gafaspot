@@ -3,13 +3,13 @@
   <div class="container">
     {{ if ne (index .Error) ""}}
     <div class="alert alert-danger" role="alert">
-        <h4 class="alert-heading">Error</h4>
-        <p>{{ .Error }}</p>
+      <h4 class="alert-heading">Error</h4>
+      <p>{{ .Error }}</p>
     </div>
     {{ end }}
     {{ if ne (index .Info) ""}}
     <div class="alert alert-success" role="alert">
-        <p>{{ .Info }}</p>
+      <p>{{ .Info }}</p>
     </div>
     {{ end }}
     <h2> Login gafaspot </h2>
