@@ -22,20 +22,24 @@ type envReservations struct {
 }
 
 type reservationNiceName struct {
-	Status      string
-	User        string
-	EnvNiceName string
-	Start       time.Time
-	End         time.Time
-	Subject     string
-	Labels      string
+	EnvNiceName  string
+	ID           int
+	Status       string
+	User         string
+	EnvPlainName string
+	Start        time.Time
+	End          time.Time
+	Subject      string
+	Labels       string
 }
 
 func newReservationNiceName(r util.Reservation) reservationNiceName {
 	return reservationNiceName{
+		envNiceNameMap[r.EnvPlainName],
+		r.ID,
 		r.Status,
 		r.User,
-		envNiceNameMap[r.EnvPlainName],
+		r.EnvPlainName,
 		r.Start,
 		r.End,
 		r.Subject,
