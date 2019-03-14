@@ -51,7 +51,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">no</button>
-                    <a href="/personal/deletekey"><input type=button class="btn btn-primary">yes</a>
+                    <form method="post" action="/personal/deletekey">
+                        <button type="submit" class="btn btn-primary">yes</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -66,14 +68,13 @@
             {{ $noSSH := eq (index .SSHkey) "" }}
             <p class="text-monospace text-break">{{ if $noSSH }}no key yet{{ else }}{{ index .SSHkey }}{{ end }}</p>
         </p>
-        <a class="btn btn-primary m-2" href="personal/addkey" role="button">add/change key</a>
-        <hr>
-
         <div class="d-flex justify-content-end">
             <a class="btn btn-primary m-2" href="personal/addkey" role="button">add/change key</a>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#confirmSSHDeletion"
+            <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#confirmSSHDeletion"
                 {{ if $noSSH }}disabled{{ end }}>remove key</button>
         </div>
+
+        <hr>
 
         <a class="btn btn-success m-2" href="/personal/creds" role="button">show all your valid credentials</a>
 
