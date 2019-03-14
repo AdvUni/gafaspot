@@ -47,7 +47,7 @@ func CreateReservation(r util.Reservation) error {
 	if err == sql.ErrNoRows {
 		return ReservationError(fmt.Sprintf("environment %v does not exist", r.EnvPlainName))
 	} else if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// check, whether there is stored an ssh key for the user, if it is needed for the reservation
@@ -72,7 +72,7 @@ func CreateReservation(r util.Reservation) error {
 		return ReservationError(fmt.Sprintf("reservation conflicts with an existing reservation from %v to %v", conflictStart.Format(util.TimeLayout), conflictEnd.Format(util.TimeLayout)))
 	}
 	if err != sql.ErrNoRows {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// generate the deletion date of reservation entry in database
@@ -86,7 +86,7 @@ func CreateReservation(r util.Reservation) error {
 	defer stmt.Close()
 	_, err = stmt.Exec("upcoming", r.User, r.EnvPlainName, r.Start, r.End, r.Subject, r.Labels, reservationDeleteDate)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return nil
@@ -110,7 +110,7 @@ func AbortReservation(username string, id int) error {
 		return nil
 	}
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// check reservation status (can only abort upcoming reservations)

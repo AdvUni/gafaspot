@@ -101,5 +101,7 @@ func uploadkeyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprint(w, "Key is valid!")
 
+	database.SaveUserSSH(username, sshPubkey)
+
 	log.Println(username)
 }
