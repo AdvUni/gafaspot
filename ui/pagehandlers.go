@@ -256,7 +256,6 @@ func uploadkeyHandler(w http.ResponseWriter, r *http.Request) {
 		redirectInvalidSubmission(w, r, fmt.Sprintf("You did not enter a valid key (%v)", err))
 		return
 	}
-	fmt.Fprint(w, "Key is valid!")
 
 	database.SaveUserSSH(username, sshPubkey)
 
