@@ -114,6 +114,7 @@ func RunWebserver(addr string) {
 	router.HandleFunc(reserve, reserveHandler)
 	router.HandleFunc(abortreservation, abortreservationHandler)
 	router.HandleFunc(addkeyform, addkeyPageHandler)
+	router.HandleFunc(uploadkey, uploadkeyHandler)
 	//router.PathPrefix("/js/").Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("ui/templates/js"))))
 
 	// start web server
