@@ -25,6 +25,7 @@ const (
 	abortreservation = "/abortreservation"
 	addkeyform       = "/personal/addkey"
 	uploadkey        = "/personal/uploadkey"
+	deletekey        = "/personal/deletekey"
 )
 
 var (
@@ -115,6 +116,7 @@ func RunWebserver(addr string) {
 	router.HandleFunc(abortreservation, abortreservationHandler)
 	router.HandleFunc(addkeyform, addkeyPageHandler)
 	router.HandleFunc(uploadkey, uploadkeyHandler)
+	router.HandleFunc(deletekey, deletekeyHandler)
 	//router.PathPrefix("/js/").Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("ui/templates/js"))))
 
 	// start web server

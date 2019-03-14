@@ -107,7 +107,7 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 
 	sshEntry, ok := database.GetUserSSH(username)
 	if !ok {
-		sshEntry = "no key yet"
+		sshEntry = ""
 	}
 
 	upcoming, active, expired := sortReservations(database.GetUserReservations(username))

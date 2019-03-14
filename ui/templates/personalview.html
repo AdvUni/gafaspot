@@ -26,16 +26,54 @@
         </div>
     </div>
 
+    <!-- confirm modal for deleting ssh keys -->
+    <div class="modal fade" id="confirmSSHDeletion" tabindex="-1" role="dialog"
+        aria-labelledby="confirmSSHDeletionTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmSSHDeletionTitle">Want to delete SSH public key?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning" role="alert">
+                        <h4 class="alert-heading">Warning</h4>
+                        <p>
+                            For some environments, the SSH key is necessary to perform reservations. Gafaspot will not
+                            allow you to do create such a reservation without having an SSH key uploaded. But it will
+                            fetch your key for the reservation not until it actually started. So, if you delete your key
+                            after you created a reservation, but before the reservation started, it will cause an error.
+                            The reservation will not be performed.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">no</button>
+                    <a href="/personal/deletekey"><input type=button class="btn btn-primary">yes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <h2> personal data </h2>
 
         <p><b>User:</b> {{ index .Username }}</p>
         <hr>
         <p><b>SSH public key:</b>
-            <p class="text-monospace text-break">{{ index .SSHkey }}</p>
+            {{ $noSSH := eq (index .SSHkey) "" }}
+            <p class="text-monospace text-break">{{ if $noSSH }}no key yet{{ else }}{{ index .SSHkey }}{{ end }}</p>
         </p>
         <a class="btn btn-primary m-2" href="personal/addkey" role="button">add/change key</a>
         <hr>
+
+        <div class="d-flex justify-content-end">
+            <a class="btn btn-primary m-2" href="personal/addkey" role="button">add/change key</a>
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#confirmSSHDeletion"
+                {{ if $noSSH }}disabled{{ end }}>remove key</button>
+        </div>
 
         <a class="btn btn-success m-2" href="/personal/creds" role="button">show all your valid credentials</a>
 
