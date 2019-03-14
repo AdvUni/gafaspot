@@ -36,12 +36,16 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.Form.Get("name")
 	pass := r.Form.Get("pass")
 
-	if vault.DoLdapAuthentication(username, pass) {
-		renewJWT(w, username)
-		http.Redirect(w, r, mainview, http.StatusSeeOther)
-	} else {
+	if !vault.DoLdapAuthentication(username, pass) {
 		redirectShowLoginError(w, r, "Invalid credentials")
+		return
 	}
+
+	// each time a user logs in, update the TTL for his database entry
+	database.RefreshDeletionDate(username)
+
+	renewJWT(w, username)
+	http.Redirect(w, r, mainview, http.StatusSeeOther)
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {

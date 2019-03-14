@@ -23,8 +23,6 @@ func handleReservationScanning() {
 
 func reservationScan() {
 
-	log.Println("startet booking handle procedure")
-
 	now := time.Now()
 
 	// any active bookings which should end?
@@ -36,5 +34,8 @@ func reservationScan() {
 	// any expired bookings which should get deleted?
 	database.DeleteOldReservations(now)
 
-	log.Println("end booking handle procedure")
+	// finally, check if some of the entries in users table reached deletion_date
+	database.DeleteOldUserEntries(now)
+
+	log.Println("finished reservation scan")
 }
