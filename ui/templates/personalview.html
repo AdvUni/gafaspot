@@ -30,9 +30,11 @@
         <h2> personal data </h2>
 
         <p><b>User:</b> {{ index .Username }}</p>
-        <p><b>SSH public key:</b> {{ index .SSHkey }}</p>
+        <hr>
+        <p><b>SSH public key:</b>
+            <p class="text-monospace text-break">{{ index .SSHkey }}</p>
+        </p>
         <a class="btn btn-primary m-2" href="personal/addkey" role="button">add/change key</a>
-
         <hr>
 
         <a class="btn btn-success m-2" href="/personal/creds" role="button">show all your valid credentials</a>
