@@ -8,6 +8,8 @@ import (
 	"sort"
 	"time"
 
+	"golang.org/x/crypto/ssh"
+
 	"github.com/gorilla/mux"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/database"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
@@ -230,6 +232,35 @@ func addkeyPageHandler(w http.ResponseWriter, r *http.Request) {
 	errormessage := readErrorCookie(w, r)
 
 	err := addkeyformTmpl.Execute(w, map[string]interface{}{"Username": username, "Error": errormessage})
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func uploadkeyHandler(w http.ResponseWriter, r *http.Request) {
+	username, ok := verifyUser(w, r)
+	if !ok {
+		redirectNotAuthenticated(w, r)
+		return
+	}
+	err := r.ParseForm()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	sshString := r.Form.Get("ssh-paste-field")
+	sshPubkey := []byte(sshString)
+	_, _, _, _, err = ssh.ParseAuthorizedKey(sshPubkey)
+	if err != nil {
+		redirectInvalidSubmission(w, r, fmt.Sprintf("You did not enter a valid key (%v)", err))
+		return
+	}
+	fmt.Fprint(w, "Key is valid!")
+
+	database.SaveUserSSH(username, sshPubkey)
+
+	err = addkeysuccessTmpl.Execute(w, map[string]interface{}{"Username": username, "SSHkey": sshString})
 	if err != nil {
 		log.Println(err)
 	}
