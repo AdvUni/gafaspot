@@ -186,7 +186,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 
 	reservation.EnvPlainName = template.HTMLEscapeString(r.Form.Get("env"))
 	if reservation.EnvPlainName == "" {
-		redirectInvalidReservation(w, r, "environment invalid")
+		redirectInvalidSubmission(w, r, "environment invalid")
 		return
 	}
 
@@ -194,7 +194,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	reservation.Start, err = time.ParseInLocation(util.TimeLayout, startstring, time.Local)
 	if err != nil {
 		log.Println(err)
-		redirectInvalidReservation(w, r, "start date/time malformed")
+		redirectInvalidSubmission(w, r, "start date/time malformed")
 		return
 	}
 
@@ -202,7 +202,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	reservation.End, err = time.ParseInLocation(util.TimeLayout, endstring, time.Local)
 	if err != nil {
 		log.Println(err)
-		redirectInvalidReservation(w, r, "end date/time malformed")
+		redirectInvalidSubmission(w, r, "end date/time malformed")
 		return
 	}
 
@@ -210,7 +210,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = database.CreateReservation(reservation)
 	if err != nil {
-		redirectInvalidReservation(w, r, err.Error())
+		redirectInvalidSubmission(w, r, err.Error())
 		return
 	}
 

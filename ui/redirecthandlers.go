@@ -1,10 +1,13 @@
 package ui
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
+
+	"golang.org/x/crypto/ssh"
 
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/database"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
@@ -51,7 +54,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	redirectLogoutSuccessful(w, r)
 }
 
-func redirectInvalidReservation(w http.ResponseWriter, r *http.Request, errormessage string) {
+func redirectInvalidSubmission(w http.ResponseWriter, r *http.Request, errormessage string) {
 	setErrorCookie(w, errormessage)
 	http.Redirect(w, r, r.Referer(), http.StatusSeeOther)
 }
@@ -76,4 +79,27 @@ func abortreservationHandler(w http.ResponseWriter, r *http.Request) {
 	database.AbortReservation(username, reservationID)
 	// return to personal view
 	http.Redirect(w, r, personalview, http.StatusSeeOther)
+}
+
+func uploadkeyHandler(w http.ResponseWriter, r *http.Request) {
+	username, ok := verifyUser(w, r)
+	if !ok {
+		redirectNotAuthenticated(w, r)
+		return
+	}
+	err := r.ParseForm()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	sshPubkey := []byte(r.Form.Get("ssh-paste-field"))
+	_, _, _, _, err = ssh.ParseAuthorizedKey(sshPubkey)
+	if err != nil {
+		redirectInvalidSubmission(w, r, fmt.Sprintf("You did not enter a valid key (%v)", err))
+		return
+	}
+	fmt.Fprint(w, "Key is valid!")
+
+	log.Println(username)
 }
