@@ -23,6 +23,8 @@ const (
 	reservationform  = "/newreservation/{env}"
 	reserve          = "/reserve"
 	abortreservation = "/abortreservation"
+	addkeyform       = "/personal/addkey"
+	uploadkey        = "/personal/uploadkey"
 )
 
 var (
@@ -40,6 +42,7 @@ var (
 	personalviewTmpl    *template.Template
 	reservationformTmpl *template.Template
 	reservesuccessTmpl  *template.Template
+	addkeyformTmpl      *template.Template
 )
 
 func init() {
@@ -59,6 +62,7 @@ func init() {
 		personalviewTmplFile    = "ui/templates/personalview.html"
 		reservationformTmplFile = "ui/templates/newreservation.html"
 		reservesuccessTmplFile  = "ui/templates/reservesuccess.html"
+		addkeyformTmplFile      = "ui/templates/addkey.html"
 	)
 	loginformTmpl, err = template.ParseFiles(loginformTmplFile, topTmplFile, bottomTmplFile)
 	if err != nil {
@@ -86,6 +90,10 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	addkeyformTmpl, err = template.ParseFiles(addkeyformTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func RunWebserver(addr string) {
@@ -105,6 +113,7 @@ func RunWebserver(addr string) {
 	router.HandleFunc(reservationform, newreservationPageHandler)
 	router.HandleFunc(reserve, reserveHandler)
 	router.HandleFunc(abortreservation, abortreservationHandler)
+	router.HandleFunc(addkeyform, addkeyPageHandler)
 	//router.PathPrefix("/js/").Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("ui/templates/js"))))
 
 	// start web server

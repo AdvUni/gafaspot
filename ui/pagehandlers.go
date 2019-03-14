@@ -219,3 +219,18 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 }
+
+func addkeyPageHandler(w http.ResponseWriter, r *http.Request) {
+	username, ok := verifyUser(w, r)
+	if !ok {
+		redirectNotAuthenticated(w, r)
+		return
+	}
+
+	errormessage := readErrorCookie(w, r)
+
+	err := addkeyformTmpl.Execute(w, map[string]interface{}{"Username": username, "Error": errormessage})
+	if err != nil {
+		log.Println(err)
+	}
+}
