@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	authCookieTTL = 1 * time.Minute
+	authCookieTTL = 1 * time.Hour
 )
 
 var hmacKey = make([]byte, 128)
