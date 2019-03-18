@@ -9,16 +9,19 @@ import (
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 )
 
-const (
-	yearsTTL = 2
-)
-
+// ReservationError is thrown by the CreateReservation func, if reservation parameters are not
+// valid. In this case, reservation will not be created.
 type ReservationError string
 
 func (err ReservationError) Error() string {
 	return fmt.Sprintf("reservation is invalid: %v", string(err))
 }
 
+// CreateReservation puts a new reservation entry to the database. Bevor writing to database,
+// several checks are performed. Function checks time parameters for plausibility, tests, if
+// user has an ssh key uploaded if nessecary, and checks for possible conlficts with existing
+// reservations. If everything is fine, reservation will be created. Otherwise, function returns
+// a reservation error.
 func CreateReservation(r util.Reservation) error {
 
 	// check, whether reservation is in future
@@ -92,6 +95,11 @@ func CreateReservation(r util.Reservation) error {
 	return nil
 }
 
+// AbortReservation deletes a reservation entry from database. This is only possible, if the
+// reservation is still upcoming and not active yet. This is because an active reservation
+// has to be ended, whereas an upcoming reservation just can be deleted. Further, a reservation
+// is only abortable by the user who created it.
+// Function parameter id is the reservation's database id.
 func AbortReservation(username string, id int) error {
 	// start a transaction
 	tx := beginTransaction()

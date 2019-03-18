@@ -9,9 +9,11 @@ import (
 )
 
 const (
+	// Time, after which a user gets automatically logged out.
 	authCookieTTL = 1 * time.Hour
 )
 
+// HMAC hash key for signing authentication cookies. Is randomly generated at web server start.
 var hmacKey = make([]byte, 128)
 
 type claims struct {

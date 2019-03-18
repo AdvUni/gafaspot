@@ -8,8 +8,17 @@ import (
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 )
 
+const (
+	// General TTL for old database entries in years. Applies to tables users and reservations.
+	yearsTTL = 2
+)
+
 var db *sql.DB
 
+// InitDB prepares the database for gafaspot. Opens the database at the path given in config file.
+// As SQLITE is used, database doesn't even need to exist yet. Prepares all database tables and
+// fills the environments table with the information from config file.
+// Sets the package variable db to enable every function in the package to access the database.
 func InitDB(config util.GafaspotConfig) {
 	log.Println(config.Database)
 	var err error
