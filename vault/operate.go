@@ -12,10 +12,10 @@ const (
 	storeBasicPath   = "store"
 )
 
-// SecEng is a handler for one credential secret engine such as "ad" or "ssh" inside Vault.
-// As the secrets retrieved from a secret engine needs to be saved somewhere, each credential secret
-// engine has an equivalently named kv secret engine as storage which is also obtained by this interface.
-// A SecEng stores the URLs to which the secret engines listen to and provides the functionality which
+// SecEng is a handler for one credential secrets engine such as "ad" or "ssh" inside Vault.
+// As the secrets retrieved from a secrets engine needs to be saved somewhere, each credential secrets
+// engine has an equivalently named kv secrets engine as storage which is also obtained by this interface.
+// A SecEng stores the URLs to which the secrets engines listen to and provides the functionality which
 // is needed to start and end bookings, as changing credentials and storing or deleting them.
 type SecEng interface {
 	getName() string
@@ -26,11 +26,11 @@ type SecEng interface {
 
 // NewSecEng creates a new SecEng. From string engineType, it decides, which implementation of the interface
 // must be instanciated. The path snippets vaultAddress, env, name and role get assembled to the the
-// URLs, to which the vault secret engines listen to.
+// URLs, to which the vault secrets engines listen to.
 func newSecEng(engineType, vaultAddress, env, name, role string) SecEng {
 	switch engineType {
 	case "ad", "ontap":
-		log.Println("adding a creds secret engine")
+		log.Println("adding a creds secrets engine")
 
 		changeCredsURL := joinRequestPath(vaultAddress, operateBasicPath, env, name, userpassCredsPath, role)
 		log.Println("creds path: ", changeCredsURL)
@@ -43,7 +43,7 @@ func newSecEng(engineType, vaultAddress, env, name, role string) SecEng {
 			storeDataURL,
 		}
 	case "ssh":
-		log.Println("adding ssh secret engine")
+		log.Println("adding ssh secrets engine")
 
 		signURL := joinRequestPath(vaultAddress, operateBasicPath, env, name, signPath, role)
 		log.Println("sign path: ", signURL)
@@ -57,7 +57,7 @@ func newSecEng(engineType, vaultAddress, env, name, role string) SecEng {
 		}
 
 	default:
-		log.Println(fmt.Errorf("Unsupported Secret Engine type: %v", engineType))
+		log.Println(fmt.Errorf("Unsupported Secrets Engine type: %v", engineType))
 		return nil
 	}
 }
