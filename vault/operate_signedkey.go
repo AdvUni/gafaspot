@@ -26,6 +26,8 @@ type signedkeySecEng struct {
 func (secEng signedkeySecEng) startBooking(vaultToken, sshKey string, ttl int) {
 
 	data := fmt.Sprintf("{\"signature\": \"%v\"}", secEng.signKey(vaultToken, sshKey, ttl))
+	// remove the line feed from data, which is returned by the ssh secrets engine, as it corrupts the json
+	data = strings.Replace(data, "\n", "", -1)
 	log.Println(data)
 	vaultStorageWrite(vaultToken, secEng.storeDataURL, data)
 }
