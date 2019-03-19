@@ -36,12 +36,12 @@ func CreateReservation(r util.Reservation) error {
 
 	// check whether reservation duration is too long
 	if r.Start.AddDate(0, 0, maxBookingDays).Before(r.End) {
-		return ReservationError(fmt.Sprintf("reservation is too long. You are only allowed to do reservations with a duration up to %v days", maxBookingDays))
+		return ReservationError(fmt.Sprintf("you are only allowed to do reservations with a duration up to %v days", maxBookingDays))
 	}
 
 	// check whether reservation is too far in the future
 	if time.Now().AddDate(0, maxQueuingMonths, 0).Before(r.Start) {
-		return ReservationError(fmt.Sprintf("reservation is too far in the future. You are not allowed to do reservations which start more than %v months int the future", maxQueuingMonths))
+		return ReservationError(fmt.Sprintf("you are not allowed to do reservations which start more than %v months int the future", maxQueuingMonths))
 	}
 
 	// start a transaction
