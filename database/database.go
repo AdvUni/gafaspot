@@ -3,27 +3,35 @@ package database
 import (
 	"database/sql"
 	"log"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 )
 
-const (
-	// General TTL for old database entries in years. Applies to tables users and reservations.
-	yearsTTL = 2
-)
+var (
+	// ttlMonths is the general TTL for old database entries in months. Applies to tables users and reservations.
+	ttlMonths int
 
-var db *sql.DB
+	maxBookingDays   int
+	maxQueuingMonths int
+
+	db *sql.DB
+)
 
 // InitDB prepares the database for gafaspot. Opens the database at the path given in config file.
 // As SQLITE is used, database doesn't even need to exist yet. Prepares all database tables and
 // fills the environments table with the information from config file.
 // Sets the package variable db to enable every function in the package to access the database.
 func InitDB(config util.GafaspotConfig) {
-	log.Println(config.Database)
-	var err error
+
+	// take over some constant values and set them as global vars
+	ttlMonths = config.DBTTLmonths
+	maxBookingDays = config.MaxBookingDays
+	maxQueuingMonths = config.MaxQueuingMonths
 
 	// Open database. SQLITE databases are simple files, and if database doesn't exist yet, a new file will be createt at the specified path
+	var err error
 	db, err = sql.Open("sqlite3", config.Database)
 	if err != nil {
 		log.Fatal("Not able to open database: ", err)
@@ -85,4 +93,8 @@ func commitTransaction(tx *sql.Tx) {
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func addTTL(t time.Time) time.Time {
+	return t.AddDate(0, ttlMonths, 0)
 }

@@ -8,7 +8,7 @@ import (
 // SaveUserSSH takes an ssh key and stores it with the username to database table users.
 // Function does not perform any checks, so make sure you validate the key format earlier.
 func SaveUserSSH(username string, ssh []byte) {
-	deleteOn := time.Now().AddDate(yearsTTL, 0, 0)
+	deleteOn := addTTL(time.Now())
 	stmt, err := db.Prepare("REPLACE INTO users (username, ssh_pub_key, delete_on) VALUES(?,?,?);")
 	if err != nil {
 		log.Fatal(err)
@@ -26,7 +26,7 @@ func SaveUserSSH(username string, ssh []byte) {
 // users, which haven't logged in for a long time. So, each time a user actually logs in, the
 // deletion date has to be refreshed.
 func RefreshDeletionDate(username string) {
-	deleteOn := time.Now().AddDate(yearsTTL, 0, 0)
+	deleteOn := addTTL(time.Now())
 	stmt, err := db.Prepare("UPDATE users SET delete_on=? WHERE username=?;")
 	if err != nil {
 		log.Fatal(err)

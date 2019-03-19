@@ -34,6 +34,16 @@ func CreateReservation(r util.Reservation) error {
 		return ReservationError("end of reservation must be after start of reservation")
 	}
 
+	// check whether reservation duration is too long
+	if r.Start.AddDate(0, 0, maxBookingDays).Before(r.End) {
+		return ReservationError(fmt.Sprintf("reservation is too long. You are only allowed to do reservations with a duration up to %v days", maxBookingDays))
+	}
+
+	// check whether reservation is too far in the future
+	if time.Now().AddDate(0, maxQueuingMonths, 0).Before(r.Start) {
+		return ReservationError(fmt.Sprintf("reservation is too far in the future. You are not allowed to do reservations which start more than %v months int the future", maxQueuingMonths))
+	}
+
 	// start a transaction
 	tx := beginTransaction()
 	defer commitTransaction(tx)
@@ -79,7 +89,7 @@ func CreateReservation(r util.Reservation) error {
 	}
 
 	// generate the deletion date of reservation entry in database
-	reservationDeleteDate := r.End.AddDate(yearsTTL, 0, 0)
+	reservationDeleteDate := addTTL(r.End)
 
 	// finally write reservation into database
 	stmt, err = tx.Prepare("INSERT INTO reservations (status, username, env_plain_name, start, end, subject, labels, delete_on) VALUES(?,?,?,?,?,?,?,?);")
