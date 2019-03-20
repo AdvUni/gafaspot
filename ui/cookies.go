@@ -17,6 +17,7 @@ func setAuthCookie(w http.ResponseWriter, token string, timeout time.Time) {
 		Value:    token,
 		Expires:  timeout,
 		HttpOnly: true,
+		Path:     "/",
 	}
 	http.SetCookie(w, cookie)
 }
@@ -64,6 +65,7 @@ func invalidateCookie(w http.ResponseWriter, cookieName string) {
 		Value:    "",
 		MaxAge:   -1,
 		HttpOnly: true,
+		Path:     "/",
 	}
 	http.SetCookie(w, cookie)
 }
