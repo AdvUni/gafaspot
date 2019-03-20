@@ -32,12 +32,12 @@ func newSecEng(engineType, vaultAddress, env, name, role string) SecEng {
 	case "ad", "ontap":
 		log.Println("adding a creds secrets engine")
 
-		changeCredsURL := joinRequestPath(vaultAddress, operateBasicPath, env, name, userpassCredsPath, role)
+		changeCredsURL := joinRequestPath(vaultAddress, operateBasicPath, env, name, changepassCredsPath, role)
 		log.Println("creds path: ", changeCredsURL)
 		storeDataURL := joinRequestPath(vaultAddress, storeBasicPath, env, name, role, "data")
 		log.Println("kv path: ", storeDataURL)
 
-		return userpassSecEng{
+		return changepassSecEng{
 			name,
 			changeCredsURL,
 			storeDataURL,
