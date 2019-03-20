@@ -2,6 +2,17 @@
 {{ template "nav" index .Username }}
 <main>
     <div class="container">
+        {{ if .Empty }}
+        <div class="alert alert-info" role="alert">
+            <h4 class="alert-heading">No Credentials</h4>
+            <p>Recently you don't have any active reservations, so Gafaspot has no valid credentials for you.</p>
+            <hr>
+            <p>
+                Please note: It may take a few minutes until a reservation becomes active. So, if your reservation
+                should have started just a short while ago, be a little patient.
+            </p>
+        </div>
+        {{ else }}
         {{ range $envName, $secEng := index .Envs }}
         <h3>creds for environment '{{ $envName }}':</h3>
         {{ range $secEngName, $creds :=  $secEng }}
@@ -11,6 +22,7 @@
         {{ end }}
         {{ end}}
         <hr>
+        {{ end }}
         {{ end }}
     </div>
 </main>
