@@ -14,11 +14,11 @@
         </div>
         {{ else }}
         {{ range $envName, $secEng := index .Envs }}
-        <h3>creds for environment '{{ $envName }}':</h3>
+        <h3>{{ $envName }}</h3>
         {{ range $secEngName, $creds :=  $secEng }}
-        <h4>{{ $secEngName }}:</h4>
+        <h5>{{ $secEngName }}:</h5>
         {{ range $key, $value := $creds }}
-        <p><span class="font-weight-bold">{{ $key }}: {{ $value }}</span></p>
+        <p><span class="font-weight-bold">{{ $key }}: </span><span class="text-monospace text-break">{{ $value }}</span></p>
         {{ end }}
         {{ end}}
         <hr>

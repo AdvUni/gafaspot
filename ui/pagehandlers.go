@@ -137,14 +137,14 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	envNames := database.GetUserActiveReservationEnv(username)
 
-	var envCreds map[string]interface{}
+	envCreds := make(map[string]interface{})
 
 	for _, env := range envNames {
 		creds, err := vault.ReadCredentials(env, vault.CreateVaultToken())
 		if err != nil {
 			log.Println(err)
 		}
-		envCreds[env] = creds
+		envCreds[envNiceNameMap[env]] = creds
 		//fmt.Fprintf(w, "creds for environment '%v':\n%v\n", env, creds)
 	}
 	allcredsTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": envCreds})
