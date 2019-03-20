@@ -59,7 +59,7 @@ func (secEng leaseSecEng) revokeLease(vaultToken string) {
 
 func tuneLeaseDuration(tuneLeaseDurationURL string, maxBookingDays int) {
 	hours := maxBookingDays * 24
-	payload := fmt.Sprintf("{\"default_lease_ttl\": \"%v\", \"max_lease_ttl\": \"%v\"}", hours, hours)
+	payload := fmt.Sprintf("{\"default_lease_ttl\": \"%vh\", \"max_lease_ttl\": \"%vh\"}", hours, hours)
 	vaultToken := CreateVaultToken()
 	err := sendVaultRequestEmtpyResponse("POST", tuneLeaseDurationURL, vaultToken, strings.NewReader(payload))
 	if err != nil {
