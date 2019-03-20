@@ -1,0 +1,17 @@
+{{ template "top" }}
+{{ template "nav" index .Username }}
+<main>
+    <div class="container">
+        {{ range $envName, $secEng := index .Envs }}
+        <h3>creds for environment '{{ $envName }}':</h3>
+        {{ range $secEngName, $creds :=  $secEng }}
+        <h4>{{ $secEngName }}:</h4>
+        {{ range $key, $value := $creds }}
+        <p><span class="font-weight-bold">{{ $key }}: {{ $value }}</span></p>
+        {{ end }}
+        {{ end}}
+        <hr>
+        {{ end }}
+    </div>
+</main>
+{{ template "bottom" }}

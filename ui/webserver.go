@@ -43,6 +43,7 @@ var (
 	personalviewTmpl    *template.Template
 	reservationformTmpl *template.Template
 	reservesuccessTmpl  *template.Template
+	allcredsTmpl        *template.Template
 	addkeyformTmpl      *template.Template
 	addkeysuccessTmpl   *template.Template
 )
@@ -64,6 +65,7 @@ func init() {
 		personalviewTmplFile    = "ui/templates/personalview.html"
 		reservationformTmplFile = "ui/templates/newreservation.html"
 		reservesuccessTmplFile  = "ui/templates/reservesuccess.html"
+		allcredsTmplFile        = "ui/templates/allcreds.html"
 		addkeyformTmplFile      = "ui/templates/addkey.html"
 		addkeysuccessTmplFile   = "ui/templates/addkeysuccess.html"
 	)
@@ -93,11 +95,14 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	allcredsTmpl, err = template.ParseFiles(allcredsTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	if err != nil {
+		log.Fatal(err)
+	}
 	addkeyformTmpl, err = template.ParseFiles(addkeyformTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	addkeysuccessTmpl, err = template.ParseFiles(addkeysuccessTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
 	if err != nil {
 		log.Fatal(err)
