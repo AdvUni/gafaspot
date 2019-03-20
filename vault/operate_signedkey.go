@@ -6,12 +6,8 @@ import (
 	"strings"
 )
 
-const (
-	signPath = "sign"
-)
-
 // signedkeySecEng is a SecEng implementation which for Vault's ssh secret engine used with signed certificates.
-// In contrast to most of the other credential secret engines, signing certificates workes under URL
+// In contrast to most of the other credential secret engines, signing certificates workes with endpoint
 // .../sign/rolename. This returnes not a username and a password, but an ssh signature which can be used to
 // log in into machines which are configured for this.
 type signedkeySecEng struct {

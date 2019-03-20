@@ -13,7 +13,7 @@ var environments map[string][]SecEng
 func InitVaultParams(config util.GafaspotConfig) {
 	initApprole(config.ApproleID, config.ApproleSecret, config.VaultAddress)
 	initLDAP(config.UserPolicy, config.VaultAddress)
-	environments = initSecEngs(config.Environments, config.VaultAddress)
+	environments = initSecEngs(config.Environments, config.VaultAddress, config.MaxBookingDays)
 }
 
 // StartBooking starts a booking for a whole environment. As the environment may include ssh secret
