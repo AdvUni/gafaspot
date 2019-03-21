@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"html/template"
 	"log"
 
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
@@ -48,7 +49,7 @@ func GetEnvironments() ([]util.Environment, map[string]bool, map[string]string) 
 			log.Fatal(err)
 		}
 		if description.Valid {
-			e.Description = description.String
+			e.Description = template.HTML(description.String)
 		}
 
 		envs = append(envs, e)

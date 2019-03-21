@@ -1,6 +1,9 @@
 package util
 
-import "time"
+import (
+	"html/template"
+	"time"
+)
 
 // GafaspotConfig is a struct to load every information from config file.
 type GafaspotConfig struct {
@@ -34,7 +37,7 @@ type Environment struct {
 	NiceName    string
 	PlainName   string
 	HasSSH      bool
-	Description string
+	Description template.HTML
 }
 
 type Reservation struct {
