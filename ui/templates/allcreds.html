@@ -2,7 +2,7 @@
 {{ template "nav" index .Username }}
 <main>
     <div class="container">
-        {{ if .Empty }}
+        {{ if not .Envs }}
         <div class="alert alert-info" role="alert">
             <h4 class="alert-heading">No Credentials</h4>
             <p>Recently you don't have any active reservations, so Gafaspot has no valid credentials for you.</p>
@@ -17,8 +17,15 @@
         <h3>{{ $envName }}</h3>
         {{ range $secEngName, $creds :=  $secEng }}
         <h5>{{ $secEngName }}:</h5>
+
+        {{ if index $creds "username" }}
+        <p><span class="font-weight-bold">username: </span><span class="text-monospace text-break">{{ index $creds "username" }}</span></p>
+        {{ end }}
         {{ range $key, $value := $creds }}
+        {{ if ne $key "username" }}
         <p><span class="font-weight-bold">{{ $key }}: </span><span class="text-monospace text-break">{{ $value }}</span></p>
+        {{ end }}
+        
         {{ end }}
         {{ end}}
         <hr>
