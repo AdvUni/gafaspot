@@ -1,19 +1,19 @@
 package vault
 
 import (
+	"bytes"
 	"log"
-	"strings"
 )
 
-func vaultStorageWrite(vaultToken, url, data string) {
+func vaultStorageWrite(vaultToken, url string, data []byte) {
 
-	err := sendVaultRequestEmtpyResponse("POST", url, vaultToken, strings.NewReader(data))
+	err := sendVaultRequestEmtpyResponse("POST", url, vaultToken, bytes.NewReader(data))
 	if err != nil {
 		log.Println(err)
 	}
 }
 
-func vaultStorageRead(vaultToken, url string) (interface{}, error) {
+func vaultStorageRead(vaultToken, url string) (map[string]interface{}, error) {
 	return sendVaultDataRequest("GET", url, vaultToken, nil)
 }
 

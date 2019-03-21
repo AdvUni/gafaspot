@@ -14,7 +14,7 @@ import (
 // ErrAuth is thrown if an authentication against LDAP over Vault fails for any reason.
 var ErrAuth = errors.New("ldap authentication failed")
 
-func sendVaultDataRequest(requestType, url, vaultToken string, body io.Reader) (interface{}, error) {
+func sendVaultDataRequest(requestType, url, vaultToken string, body io.Reader) (map[string]interface{}, error) {
 	res, err := sendVaultRequest(requestType, url, vaultToken, body)
 	if err != nil {
 		return nil, err
@@ -28,7 +28,7 @@ func sendVaultDataRequest(requestType, url, vaultToken string, body io.Reader) (
 		err = fmt.Errorf("json response from vault not has expected content: Tried to fetch field 'data', but it seems to be empty")
 		return nil, err
 	}
-	return data, nil
+	return data.(map[string]interface{}), nil
 }
 
 func sendVaultTokenRequest(url string, body io.Reader) (string, error) {

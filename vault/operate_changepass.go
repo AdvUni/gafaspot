@@ -1,7 +1,7 @@
 package vault
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
 )
 
@@ -22,8 +22,10 @@ func (secEng changepassSecEng) getName() string {
 // startBooking for a changepassSecEng means to change the credentials and store it inside the respective
 // kv secret engine inside Vault.
 func (secEng changepassSecEng) startBooking(vaultToken, _ string, _ int) {
-	data := fmt.Sprintf("{\"data\": \"%v\"}", secEng.changeCreds(vaultToken))
-	log.Println(data)
+	data, err := json.Marshal(secEng.changeCreds(vaultToken))
+	if err != nil {
+		log.Println(err)
+	}
 	vaultStorageWrite(vaultToken, secEng.storeDataURL, data)
 }
 
@@ -34,11 +36,11 @@ func (secEng changepassSecEng) endBooking(vaultToken string) {
 	log.Println(secEng.changeCreds(vaultToken))
 }
 
-func (secEng changepassSecEng) readCreds(vaultToken string) (interface{}, error) {
+func (secEng changepassSecEng) readCreds(vaultToken string) (map[string]interface{}, error) {
 	return vaultStorageRead(vaultToken, secEng.storeDataURL)
 }
 
-func (secEng changepassSecEng) changeCreds(vaultToken string) interface{} {
+func (secEng changepassSecEng) changeCreds(vaultToken string) map[string]interface{} {
 
 	data, err := sendVaultDataRequest("GET", secEng.changeCredsURL, vaultToken, nil)
 	if err != nil {

@@ -24,7 +24,7 @@ type SecEng interface {
 	getName() string
 	startBooking(vaultToken, sshKey string, ttl int)
 	endBooking(vaultToken string)
-	readCreds(vaultToken string) (interface{}, error)
+	readCreds(vaultToken string) (map[string]interface{}, error)
 }
 
 // NewSecEng creates a new SecEng. From string engineType, it decides, which implementation of the interface

@@ -1,6 +1,7 @@
 package vault
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -26,8 +27,10 @@ func (secEng leaseSecEng) getName() string {
 // startBooking for a leaseSecEng means to create a lease in Vault and stores the returned
 // credentialschange the credentials inside the respective kv secret engine.
 func (secEng leaseSecEng) startBooking(vaultToken, _ string, _ int) {
-	data := fmt.Sprintf("{\"data\": \"%v\"}", secEng.createLease(vaultToken))
-	log.Println(data)
+	data, err := json.Marshal(secEng.createLease(vaultToken))
+	if err != nil {
+		log.Println(err)
+	}
 	vaultStorageWrite(vaultToken, secEng.storeDataURL, data)
 }
 
@@ -38,11 +41,11 @@ func (secEng leaseSecEng) endBooking(vaultToken string) {
 	secEng.revokeLease(vaultToken)
 }
 
-func (secEng leaseSecEng) readCreds(vaultToken string) (interface{}, error) {
+func (secEng leaseSecEng) readCreds(vaultToken string) (map[string]interface{}, error) {
 	return vaultStorageRead(vaultToken, secEng.storeDataURL)
 }
 
-func (secEng leaseSecEng) createLease(vaultToken string) interface{} {
+func (secEng leaseSecEng) createLease(vaultToken string) map[string]interface{} {
 	data, err := sendVaultDataRequest("GET", secEng.createLeaseURL, vaultToken, nil)
 	if err != nil {
 		log.Println(err)

@@ -1,6 +1,8 @@
 package vault
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -20,11 +22,12 @@ type signedkeySecEng struct {
 // public key. The signature is valid for a specified duration. As it should expire exactly with the booking's
 // expiration, the ttl in seconds is needed already at the booking's begin.
 func (secEng signedkeySecEng) startBooking(vaultToken, sshKey string, ttl int) {
-
-	data := fmt.Sprintf("{\"signature\": \"%v\"}", secEng.signKey(vaultToken, sshKey, ttl))
+	data, err := json.Marshal(secEng.signKey(vaultToken, sshKey, ttl))
 	// remove the line feed from data, which is returned by the ssh secrets engine, as it corrupts the json
-	data = strings.Replace(data, "\n", "", -1)
-	log.Println(data)
+	bytes.Replace(data, []byte("\n"), nil, -1)
+	if err != nil {
+		log.Println(err)
+	}
 	vaultStorageWrite(vaultToken, secEng.storeDataURL, data)
 }
 
@@ -37,11 +40,11 @@ func (secEng signedkeySecEng) endBooking(vaultToken string) {
 	vaultStorageDelete(vaultToken, secEng.storeDataURL)
 }
 
-func (secEng signedkeySecEng) readCreds(vaultToken string) (interface{}, error) {
+func (secEng signedkeySecEng) readCreds(vaultToken string) (map[string]interface{}, error) {
 	return vaultStorageRead(vaultToken, secEng.storeDataURL)
 }
 
-func (secEng signedkeySecEng) signKey(vaultToken, sshKey string, ttl int) interface{} {
+func (secEng signedkeySecEng) signKey(vaultToken, sshKey string, ttl int) map[string]interface{} {
 
 	payload := fmt.Sprintf("{\"public_key\": \"%v\", \"ttl\": \"%vs\"}", sshKey, ttl)
 
