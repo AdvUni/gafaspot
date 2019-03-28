@@ -110,7 +110,7 @@
                             class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
                     <button type="button" class="btn badge badge-danger col-md-1" data-toggle="modal"
                         data-target="#confirmAbortion" data-id="{{ .ID }}"
-                        data-reservation="{{ .EnvNiceName }}: {{ formatDatetime .Start }} &ndash; {{ formatDatetime .End }} ({{ .Subject }})">Abort
+                        data-reservation="{{ .EnvNiceName }}: {{ formatDatetime .Start }} &ndash; {{ formatDatetime .End }} ({{ .Subject }})">abort
                     </button>
                 </div>
             </li>
@@ -123,7 +123,7 @@
                     <span class="col-md-10"><span class="font-weight-bold">{{ .EnvNiceName }}:</span><span
                             class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
                             class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
-                    <a href="personal/creds" class="badge badge-success col-md-1">Show creds</a>
+                    <a href="personal/creds" class="badge badge-success col-md-1">show creds</a>
                 </div>
             </li>
             {{ end }}
