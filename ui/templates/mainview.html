@@ -38,9 +38,9 @@
                 {{ range index .Envcontent }}
                 <div class="tab-pane" id="{{ .Env.PlainName }}" role="tabpanel" aria-labelledby="{{ .Env.PlainName }}-tab">
                     <h2>{{ .Env.NiceName }}</h2>
-                    <h3>description:</h3>
+                    <h3>Description:</h3>
                     <p>{{ .Env.Description }}</p>
-                    <h3>reservations:</h3>
+                    <h3>Reservations:</h3>
                     <ul class="list-group">
                         <!-- all upcoming reservations -->
                         {{ range .ReservationsUpcoming }}

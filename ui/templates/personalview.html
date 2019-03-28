@@ -80,11 +80,11 @@
     </div>
 
     <div class="container">
-        <h2> personal data </h2>
+        <h2>Personal Data</h2>
 
         <p><b>User:</b> {{ index .Username }}</p>
         <hr>
-        <p><b>SSH public key:</b>
+        <p><b>SSH Public Key:</b>
             {{ $noSSH := eq (index .SSHkey) "" }}
             <p class="text-monospace text-break">{{ if $noSSH }}no key yet{{ else }}{{ index .SSHkey }}{{ end }}</p>
         </p>
@@ -98,7 +98,7 @@
 
         <a class="btn btn-success m-2" href="/personal/creds" role="button">show all your valid credentials</a>
 
-        <h3>Your reservations:</h3>
+        <h3>Your Reservations:</h3>
         <ul class="list-group">
             <!-- all upcoming reservations -->
             {{ range index .ReservationsUpcoming }}
@@ -120,10 +120,10 @@
             <li class="list-group-item list-group-item-success">
                 <div class="row">
                     <span class="badge border border-success col-md-1">active</span>
-                    <span class="col-md-9"><span class="font-weight-bold">{{ .EnvNiceName }}:</span><span
+                    <span class="col-md-10"><span class="font-weight-bold">{{ .EnvNiceName }}:</span><span
                             class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
                             class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
-                    <a href="personal/creds" class="badge badge-success col-md-2">Show credentials</a>
+                    <a href="personal/creds" class="badge badge-success col-md-1">Show creds</a>
                 </div>
             </li>
             {{ end }}
