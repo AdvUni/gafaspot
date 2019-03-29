@@ -22,8 +22,7 @@
 {{ template "nav" index .Username }}
 <main>
     <div class="container w-50">
-        <h2>New Reservation</h2>
-
+        <br>
         {{ if index .SSHmissing }}
         <div class="alert alert-danger" role="alert">
             <h4 class="alert-heading">Error</h4>
@@ -31,6 +30,8 @@
                     href="/personal" class="alert-link">personal view</a> and add a key first.</p>
         </div>
         {{ end }}
+        <h2>New Reservation</h2>
+        <br>
         {{ if ne (index .Error) ""}}
         <div class="alert alert-danger" role="alert">
             <h4 class="alert-heading">Error</h4>

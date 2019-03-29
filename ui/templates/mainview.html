@@ -34,13 +34,21 @@
         </div>
         <!-- contents to the different tabs -->
         <div class="container col-8">
+            <br>
             <div class="tab-content" id="nav-tabContent">
                 {{ range index .Envcontent }}
                 <div class="tab-pane" id="{{ .Env.PlainName }}" role="tabpanel" aria-labelledby="{{ .Env.PlainName }}-tab">
                     <h2>{{ .Env.NiceName }}</h2>
+                    <br>
                     <h3>Description:</h3>
                     <p>{{ .Env.Description }}</p>
+                    <hr>
                     <h3>Reservations:</h3>
+                    <br>
+                    <form method="post" action="/newreservation/{{ .Env.PlainName }}">
+                        <button type="submit" class="btn btn-primary">new reservation</button>
+                    </form>
+                    <br>
                     <ul class="list-group">
                         <!-- all upcoming reservations -->
                         {{ range .ReservationsUpcoming }}
@@ -76,9 +84,7 @@
                         </li>
                         {{ end }}
                     </ul>
-                    <form method="post" action="/newreservation/{{ .Env.PlainName }}">
-                        <button type="submit" class="btn btn-primary">new reservation</button>
-                    </form>
+                    <br>
                 </div>
                 {{ end }}
             </div>

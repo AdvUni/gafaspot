@@ -80,9 +80,10 @@
     </div>
 
     <div class="container">
-        <h2>Personal Data</h2>
-
-        <p><b>User:</b> {{ index .Username }}</p>
+        <br>
+        <h2>Personal View</h2>
+        <br>
+        <a class="btn btn-success" href="/personal/creds" role="button">show all your valid credentials</a>
         <hr>
         <p><b>SSH Public Key:</b>
             {{ $noSSH := eq (index .SSHkey) "" }}
@@ -93,12 +94,10 @@
             <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#confirmSSHDeletion"
                 {{ if $noSSH }}disabled{{ end }}>remove key</button>
         </div>
-
         <hr>
-
-        <a class="btn btn-success m-2" href="/personal/creds" role="button">show all your valid credentials</a>
-
+        <br>
         <h3>Your Reservations:</h3>
+        <br>
         <ul class="list-group">
             <!-- all upcoming reservations -->
             {{ range index .ReservationsUpcoming }}
@@ -139,6 +138,7 @@
             </li>
             {{ end }}
         </ul>
+        <br>
     </div>
 </main>
 
