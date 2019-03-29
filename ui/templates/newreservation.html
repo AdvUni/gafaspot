@@ -23,6 +23,13 @@
 <main>
     <div class="container w-50">
         <br>
+        {{ if ne (index .Error) ""}}
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">Error</h4>
+            <p>{{ .Error }}</p>
+        </div>
+        {{ end }}
+        <h2>New Reservation</h2>
         {{ if index .SSHmissing }}
         <div class="alert alert-danger" role="alert">
             <h4 class="alert-heading">Error</h4>
@@ -30,14 +37,7 @@
                     href="/personal" class="alert-link">personal view</a> and add a key first.</p>
         </div>
         {{ end }}
-        <h2>New Reservation</h2>
         <br>
-        {{ if ne (index .Error) ""}}
-        <div class="alert alert-danger" role="alert">
-            <h4 class="alert-heading">Error</h4>
-            <p>{{ .Error }}</p>
-        </div>
-        {{ end }}
         <form method="POST" , action="/reserve">
             <div class="form-group row">
                 <label for="env" class="col-form-label col-md-2">Environment</label>

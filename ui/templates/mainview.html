@@ -21,76 +21,85 @@
 {{ template "top" }}
 {{ template "nav" index .Username }}
 <main>
-
-    <div class="row">
-        <!-- tab bar for all environments -->
-        <div class="col-2">
-            <div class="list-group" id="list-tab" role="tablist">
-                {{ range index .Envcontent }}
-                <a class="list-group-item list-group-item-action" id="{{ .Env.PlainName }}-tab" data-toggle="list"
-                    href="#{{ .Env.PlainName }}" role="tab" aria-controls="{{ .Env.PlainName }}">{{ .Env.NiceName }}</a>
-                {{ end }}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- tab bar for all environments -->
+            <div class="col-2 fixed-top" style="overflow-y: scroll; height: 100%;">
+                <div class="list-group" id="list-tab" role="tablist">
+                    {{ range index .Envcontent }}
+                    <a class="list-group-item list-group-item-action" id="{{ .Env.PlainName }}-tab" data-toggle="list"
+                        data-target="#{{ .Env.PlainName }}" role="tab"
+                        aria-controls="{{ .Env.PlainName }}">{{ .Env.NiceName }}</a>
+                    {{ end }}
+                </div>
             </div>
         </div>
         <!-- contents to the different tabs -->
-        <div class="container col-8">
-            <br>
-            <div class="tab-content" id="nav-tabContent">
-                {{ range index .Envcontent }}
-                <div class="tab-pane" id="{{ .Env.PlainName }}" role="tabpanel" aria-labelledby="{{ .Env.PlainName }}-tab">
-                    <h2>{{ .Env.NiceName }}</h2>
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-10">
+                <div class="container">
                     <br>
-                    <h3>Description:</h3>
-                    <p>{{ .Env.Description }}</p>
-                    <hr>
-                    <h3>Reservations:</h3>
-                    <br>
-                    <form method="post" action="/newreservation/{{ .Env.PlainName }}">
-                        <button type="submit" class="btn btn-primary">new reservation</button>
-                    </form>
-                    <br>
-                    <ul class="list-group">
-                        <!-- all upcoming reservations -->
-                        {{ range .ReservationsUpcoming }}
-                        <li class="list-group-item list-group-item-info">
-                            <div class="row">
-                                <span class="badge border border-info overflow-hidden col-md-1">upcoming</span>
-                                <span class="col-md-10"><span class="font-weight-bold">{{ .User }}:</span><span
-                                        class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
-                                        class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
-                            </div>
-                        </li>
+                    <div class="tab-content" id="nav-tabContent">
+                        {{ range index .Envcontent }}
+                        <div class="tab-pane" id="{{ .Env.PlainName }}" role="tabpanel"
+                            aria-labelledby="{{ .Env.PlainName }}-tab">
+                            <h2>{{ .Env.NiceName }}</h2>
+                            <br>
+                            <h3>Description:</h3>
+                            <br>
+                            <p>{{ .Env.Description }}</p>
+                            <br>
+                            <hr>
+                            <h3>Reservations:</h3>
+                            <br>
+                            <form method="post" action="/newreservation/{{ .Env.PlainName }}">
+                                <button type="submit" class="btn btn-primary">new reservation</button>
+                            </form>
+                            <br>
+                            <ul class="list-group">
+                                <!-- all upcoming reservations -->
+                                {{ range .ReservationsUpcoming }}
+                                <li class="list-group-item list-group-item-info">
+                                    <div class="row">
+                                        <span class="badge border border-info overflow-hidden col-md-1">upcoming</span>
+                                        <span class="col-md-10"><span class="font-weight-bold">{{ .User }}:</span><span
+                                                class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
+                                                class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
+                                    </div>
+                                </li>
+                                {{ end }}
+                                <!-- all active reservations -->
+                                {{ range .ReservationsActive }}
+                                <li class="list-group-item list-group-item-success">
+                                    <div class="row">
+                                        <span class="badge border border-success col-md-1">active</span>
+                                        <span class="col-md-9"><span class="font-weight-bold">{{ .User }}:</span><span
+                                                class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
+                                                class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
+                                    </div>
+                                </li>
+                                {{ end }}
+                                <!-- all expired reservations -->
+                                {{ range .ReservationsExpired }}
+                                <li class="list-group-item list-group-item-dark">
+                                    <div class="row">
+                                        <span class="badge border border-dark col-md-1">expired</span>
+                                        <span class="col-md-11"><span class="font-weight-bold">{{ .User }}:</span><span
+                                                class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
+                                                class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
+                                    </div>
+                                </li>
+                                {{ end }}
+                            </ul>
+                            <br>
+                        </div>
                         {{ end }}
-                        <!-- all active reservations -->
-                        {{ range .ReservationsActive }}
-                        <li class="list-group-item list-group-item-success">
-                            <div class="row">
-                                <span class="badge border border-success col-md-1">active</span>
-                                <span class="col-md-9"><span class="font-weight-bold">{{ .User }}:</span><span
-                                        class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
-                                        class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
-                            </div>
-                        </li>
-                        {{ end }}
-                        <!-- all expired reservations -->
-                        {{ range .ReservationsExpired }}
-                        <li class="list-group-item list-group-item-dark">
-                            <div class="row">
-                                <span class="badge border border-dark col-md-1">expired</span>
-                                <span class="col-md-11"><span class="font-weight-bold">{{ .User }}:</span><span
-                                        class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
-                                        class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
-                            </div>
-                        </li>
-                        {{ end }}
-                    </ul>
-                    <br>
+                    </div>
                 </div>
-                {{ end }}
             </div>
         </div>
     </div>
-
 </main>
 {{ template "bottom" }}
 
