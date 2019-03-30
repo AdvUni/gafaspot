@@ -26,8 +26,9 @@
             <!-- tab bar for all environments -->
             <div class="col-2 fixed-top" style="overflow-y: scroll; height: 100%;">
                 <br>
+                <p>Available Environments:</p>
+                <br>
                 <div class="list-group" id="list-tab" role="tablist">
-                    <div id="defaulttext">Select an environment from the left.</div>
                     {{ range index .Envcontent }}
                     <a class="list-group-item list-group-item-action" id="{{ .Env.PlainName }}-tab" data-toggle="list"
                         href="#{{ .Env.PlainName }}" role="tab"
@@ -110,7 +111,6 @@
     var url = document.location.toString();
     if (url.match('#')) {
         $('.list-group a[href="#' + url.split('#')[1] + '"]').tab('show');
-        $("#defaulttext").hide();
     }
     $('.list-group a').on('shown.bs.tab', function (e) {
         window.location.hash = e.target.hash;
