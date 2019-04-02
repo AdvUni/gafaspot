@@ -52,6 +52,7 @@ The respective config file for Gafaspot gafaspot_config.yaml, which must follow 
 
         demo0:
             show-name: DEMO 0
+            description: "this is demo environment 0."
             secret-engines:
               - name: ActiveDirectory
                 type: ad
@@ -65,10 +66,9 @@ The respective config file for Gafaspot gafaspot_config.yaml, which must follow 
                 type: ssh
                 role: gafaspot
 
-            description: "this is demo environment 0."
-
         demo1:
             show-name: DEMO 1
+            description: "this is demo environment 1."
             secret-engines:
               - name: ActiveDirectory
                 type: ad
@@ -78,4 +78,8 @@ The respective config file for Gafaspot gafaspot_config.yaml, which must follow 
                 type: ontap
                 role: gafaspot
 
-"role" is an attribute which you have to configure for each credential-changing secrets engine. More about this and other configuration at the repective pages:
+"role" is an attribute which you have to configure for each credential-changing secrets engine. More about this and other configuration at the respective pages:
+
+* [Active Directory Secrets Engine](secengs_ad.md)
+* [SSH Secrets Engine (Signed Certificates)](secengs_ssh.md)
+* [Database Secrets Engine](database_ssh.md)

@@ -1,0 +1,5 @@
+{
+    "url":"https://127.0.0.1/servlets/netapp.servlets.admin.XMLrequest_filer",
+    "vaultUser": "admin_vault",
+    "vaultUserPass": "Password123"
+}

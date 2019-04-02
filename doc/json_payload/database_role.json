@@ -1,0 +1,4 @@
+{
+    "db_name": "mysql",
+    "creation_statements": ["CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'", "GRANT ALL ON *.* TO '{{name}}'@'%' WITH GRANT OPTION"]
+}
