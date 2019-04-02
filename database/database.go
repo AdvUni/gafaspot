@@ -79,7 +79,7 @@ func InitDB(config util.GafaspotConfig) {
 
 	// Fill empty table environments with information from configuration file
 	for envPlainName, envConf := range config.Environments {
-		envPlainName = util.CreatePlainIdentifier(envPlainName)
+		envPlainName = util.CreatePlainLowercaseIdentifier(envPlainName)
 		envNiceName := envConf.NiceName
 		if envNiceName == "" {
 			envNiceName = envPlainName
