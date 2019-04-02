@@ -23,14 +23,8 @@ import (
 	"strings"
 )
 
-// CreatePlainLowercaseIdentifier calls CreatePlainIdentifier and additionally replaces upper case
-// letters through lower case.
-func CreatePlainLowercaseIdentifier(name string) string {
-	return strings.ToLower(CreatePlainIdentifier(name))
-}
-
 // CreatePlainIdentifier replaces all characters which are not ascii letters oder numbers through an underscore
 func CreatePlainIdentifier(name string) string {
 	re := regexp.MustCompile(`[^a-zA-Z0-9]`)
-	return re.ReplaceAllString(name, "_")
+	return strings.ToLower(re.ReplaceAllString(name, "_"))
 }
