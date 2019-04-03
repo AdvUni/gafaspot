@@ -1,5 +1,5 @@
 {
-    "url": "ldaps://127.0.0.11",
+    "url": "ldaps://127.0.0.11:636",
     "binddn": "cn=Administrator,cn=Users,dc=example,dc=com",
     "bindpass": "Password123",
     "userdn": "ou=Users,dc=example,dc=com",

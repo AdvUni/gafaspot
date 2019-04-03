@@ -13,7 +13,11 @@ Where the contents of `vault_init.json` are:
         "secret_threshold": 1
     }
 
-This will return you a single unseal key together with a root token. Gafaspot is not meant to manage super sensible secrets, so there is probably no need to split the responsibility for the unsealing process to several persons. You will need the unseal key to unlock Vault each time you restart it. The root key is necessary to supply yourself with access rights to Vault, which are needed to perform any configuration. So, note both values down and keep them somewhere.
+This will return you a single unseal key together with a root token. Gafaspot is not meant to manage super sensible secrets, so there is probably no need to split the responsibility for the unsealing process to several persons. You will need the unseal key to unlock Vault each time you restart it. The root token is necessary to supply yourself with access rights to Vault, which are needed to perform any configuration. So, note both values down and keep them somewhere.
+
+You can save the root token to the environment variable `$VAULT_TOKEN` to simplify the copying of further commands from this guide:
+
+    export VAULT_TOKEN='s.3eX...'
 
 Unseal Vault with:
 

@@ -38,7 +38,7 @@ You upload a configuration with following command:
 An appropriate config would be something like:
 
     {
-        "url": "ldaps://127.0.0.11",
+        "url": "ldaps://127.0.0.11:636",
         "binddn": "cn=Administrator,cn=Users,dc=example,dc=com",
         "bindpass": "Password123",
         "userdn": "ou=Users,dc=example,dc=com",
@@ -46,7 +46,8 @@ An appropriate config would be something like:
         "max_ttl": "1"
     }
 
-"url" should be of course your Active Directory's network address. For "binddn" and "bindpass" you have to fill in username and password of an AD user which can be used by Vault to perform password changes for other users. Make sure, the user has all required permissions inside the AD. "userdn" is the base DN under which to perform user search -- determine here, where the accounts can be found, for which the password changes should be performed later. The TTL parameters must be set to a very short time as discussed above.
+"url" should be of course your Active Directory's network address. You will need `ldaps` instead of only `ldap`, because the Active Directory denies credential changing over a not secured connection. Make sure to upload the Active Directories certificate to the machine running Vault. Otherwise, you can use the `insecure_tls` flag within the configuration. See the [API documentation](https://www.vaultproject.io/api/secret/ad/index.html) for more information.
+For "binddn" and "bindpass" you have to fill in username and password of an AD user which can be used by Vault to perform password changes for other users. Make sure, the user has all required permissions inside the AD. "userdn" is the base DN under which to perform user search -- determine here, where the accounts can be found, for which the password changes should be performed later. The TTL parameters must be set to a very short time as discussed above.
 
 Be aware, that the AD Secrets Engine will not give you any feedback about whether the configuration is valid after uploading it.
 

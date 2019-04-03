@@ -1,0 +1,7 @@
+{
+    "url": "ldaps://127.0.0.11:636",
+    "userdn": "ou=Users,dc=example,dc=com",
+    "groupdn": "ou=Groups,dc=example,dc=com",
+    "groupfilter": "(&(objectClass=group)(member:1.2.840.113556.1.4.1941:={{.UserDN}}))",
+    "upndomain": "example.com"
+}

@@ -76,7 +76,7 @@ approle-secretID: someSecret
 # important), configure the LDAP auth method in a way that this policy is
 # assigned to members of an LDAP group of users meant to use gafaspot and paste
 # the policy name here.
-ldap-group-policy: gafaspot-users
+ldap-group-policy: gafaspot-user-ldap
 
 environments:
 
