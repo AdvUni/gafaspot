@@ -34,13 +34,13 @@ You upload a configuration with following command:
     
     curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @ssh_config.json http://127.0.0.1:8200/v1/operate/<environment_name>/SSH/config/ca
 
-Use following config:
+As you see, the last part of the request path is `ca`. This defines that the SSH Secrets Engine will be used with the Signed Certificates Mode. Further, use following config:
 
     {
         "generate_signing_key": true
     }
 
-The Secrets Engine will generate a new ssh key pair and return the public key to you. It is your job to register it in all your environment's devices as Certificate Authority. You can also call it later with
+The Secrets Engine will generate a new ssh key pair and return the public key to you. It is your job to register it in all your environment's devices as Certificate Authority. Later, you can retrieve the key again with:
 
     curl http://127.0.0.1:8200/v1/operate/<environment_name>/SSH/public_key
 

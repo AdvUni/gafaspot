@@ -40,7 +40,7 @@ Therefore, a new policy must be created:
 where the last part of the request path is the policy's name inside Vault. Also write this name into `gafaspot_config.yaml`. The policy's content does not really matter. You can upload following payload to create an empty policy, only containing a comment:
 
     {
-        "policy": "# This is an empty policy. Its purpose is to be mapped to legitime Gafaspot users when authenticating with LDAP Auth Method."
+        "policy": "# This is an empty policy. Its i assigned to legitime Gafaspot users when authenticating with LDAP Auth Method. So, Gafaspot can recognize them by the policy name"
     }
 
 Now, the policy needs to be mapped to the right LDAP group. This is done with following command:
