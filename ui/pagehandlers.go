@@ -130,7 +130,18 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 		sshEntry = ""
 	}
 
-	upcoming, active, expired := sortReservations(database.GetUserReservations(username))
+	reservations := database.GetUserReservations(username)
+	// sort reservations
+	sort.Slice(reservations, func(i, j int) bool {
+		return reservations[i].Start.Before(reservations[j].Start)
+	})
+	resNice [] reservationNiceName
+	for _, r := range reservations {
+		resNice = append(resNice, newReservationNiceName(r))
+	}
+
+
+	/*upcoming, active, expired := sortReservations(database.GetUserReservations(username))
 	var u, a, e []reservationNiceName
 	for _, r := range upcoming {
 		u = append(u, newReservationNiceName(r))
@@ -140,8 +151,8 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	for _, r := range expired {
 		e = append(e, newReservationNiceName(r))
-	}
-	err := personalviewTmpl.Execute(w, map[string]interface{}{"Username": username, "SSHkey": sshEntry, "ReservationsUpcoming": u, "ReservationsActive": a, "ReservationsExpired": e})
+	}*/
+	err := personalviewTmpl.Execute(w, map[string]interface{}{"Username": username, "SSHkey": sshEntry, "Reservations": r})
 	if err != nil {
 		log.Println(err)
 	}

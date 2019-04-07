@@ -93,12 +93,14 @@ func init() {
 	}
 	mainviewTmpl, err = template.New(path.Base(mainviewTmplFile)).Funcs(template.FuncMap{
 		"formatDatetime": func(t time.Time) string { return t.Format(util.TimeLayout) },
+		"past":           func(r util.Reservation) bool { return r.End.Before(time.Now()) },
 	}).ParseFiles(mainviewTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 	personalviewTmpl, err = template.New(path.Base(personalviewTmplFile)).Funcs(template.FuncMap{
 		"formatDatetime": func(t time.Time) string { return t.Format(util.TimeLayout) },
+		"past":           func(r util.Reservation) bool { return r.End.Before(time.Now()) },
 	}).ParseFiles(personalviewTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
 	if err != nil {
 		log.Fatal(err)

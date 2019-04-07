@@ -99,41 +99,27 @@
         <h3>Your Reservations:</h3>
         <br>
         <ul class="list-group">
-            <!-- all upcoming reservations -->
-            {{ range index .ReservationsUpcoming }}
-            <li class="list-group-item list-group-item-info">
+            {{ range index .Reservations}}
+            {{ $color := "" }}
+            {{ if (eq .Status "upcoming") }}{{ $color = "info" }}
+            {{ else if (eq .Status "active")}}{{ $color = "success" }}
+            {{ else if (eq .Status "expired")}}{{ $color = "dark" }}
+            {{ else if (eq .Status "error")}}{{ $color = "error" }}
+            {{ end }}
+            <li class="list-group-item list-group-item-{{ $color }}">
                 <div class="row">
-                    <span class="badge border border-info overflow-hidden col-md-1">upcoming</span>
-                    <span class="col-md-10"><span class="font-weight-bold">{{ .EnvNiceName }}:</span><span
-                            class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
+                    <span class="badge border border-{{ $color }} overflow-hidden col-md-1">{{ .Status }}</span>
+                    <span class="col-md-10"><span class="font-weight-bold">{{ .EnvNiceName }}:</span>
+                        <span class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
                             class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
+                    {{ if (eq .Status "upcoming") }}
                     <button type="button" class="btn badge badge-danger col-md-1" data-toggle="modal"
                         data-target="#confirmAbortion" data-id="{{ .ID }}"
                         data-reservation="{{ .EnvNiceName }}: {{ formatDatetime .Start }} &ndash; {{ formatDatetime .End }} ({{ .Subject }})">abort
                     </button>
-                </div>
-            </li>
-            {{ end }}
-            <!-- all active reservations -->
-            {{ range index .ReservationsActive }}
-            <li class="list-group-item list-group-item-success">
-                <div class="row">
-                    <span class="badge border border-success col-md-1">active</span>
-                    <span class="col-md-10"><span class="font-weight-bold">{{ .EnvNiceName }}:</span><span
-                            class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
-                            class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
+                    {{ if (eq .Status "active") }}
                     <a href="personal/creds" class="badge badge-success col-md-1">show creds</a>
-                </div>
-            </li>
-            {{ end }}
-            <!-- all expired reservations -->
-            {{ range index .ReservationsExpired }}
-            <li class="list-group-item list-group-item-dark">
-                <div class="row">
-                    <span class="badge border border-dark col-md-1">expired</span>
-                    <span class="col-md-11"><span class="font-weight-bold">{{ .EnvNiceName }}:</span><span
-                            class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
-                            class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
+                    {{ end }}
                 </div>
             </li>
             {{ end }}
