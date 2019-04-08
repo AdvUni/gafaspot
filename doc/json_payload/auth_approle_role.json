@@ -1,0 +1,7 @@
+{
+    "policies": ["gafaspot-approle"],
+    "secret_id_num_uses": 0,
+    "secret_id_ttl": "",
+    "token_num_uses": 0,
+    "token_ttl": "1m"
+}

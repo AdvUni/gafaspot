@@ -1,3 +1,3 @@
 {
-    "policy": "path \"policy_gafaspot_approle.hcl\""
+    "policy": "# Path operate/ holds all credential changing secrets engines\npath \"operate/*\" {\n  capabilities = [\"create\", \"read\", \"update\", \"delete\"]\n}\n# Path store/ holds all KV secrets engines which store credentials from secrets engines at path operate/\npath \"store/*\" {\n capabilities = [\"create\", \"read\", \"update\", \"delete\"]\n}\n# Gafaspot uses this path to overwrite the default ttl for leases\npath \"sys/mounts/operate/*\" {\n capabilities = [\"create\", \"read\", \"update\", \"delete\"]\n}\n# Access to this path is needed to revoke leases created from secrets engines at path operate/\npath \"sys/leases/revoke-prefix/operate/*\" {\n  capabilities = [\"create\", \"read\", \"update\", \"delete\"]\n}"
 }
