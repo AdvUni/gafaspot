@@ -34,4 +34,5 @@ From now on, Vault is up and ready for interaction. To be used with Gafaspot, yo
  * [Secrets Engines General](secengs_general.md)
     * [Active Directory Secrets Engine](secengs_ad.md)
     * [SSH Secrets Engine (Signed Certificates)](secengs_ssh.md)
-    * [Database Secrets Engine](database_ssh.md)
+    * [Database Secrets Engine](secengs_database.md)
+    * [Ontap Secrets Engine](secengs_ontap.md)

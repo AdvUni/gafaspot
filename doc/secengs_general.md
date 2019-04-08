@@ -82,4 +82,5 @@ The respective config file for Gafaspot gafaspot_config.yaml, which must follow 
 
 * [Active Directory Secrets Engine](secengs_ad.md)
 * [SSH Secrets Engine (Signed Certificates)](secengs_ssh.md)
-* [Database Secrets Engine](database_ssh.md)
+* [Database Secrets Engine](secengs_database.md)
+* [Ontap Secrets Engine](secengs_ontap.md)
