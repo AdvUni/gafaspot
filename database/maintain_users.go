@@ -29,8 +29,8 @@ import (
 func SaveUserSSH(username string, ssh []byte) {
 
 	// remove line breaks from ssh key
-	bytes.Replace(ssh, []byte("\n"), nil, -1)
-	bytes.Replace(ssh, []byte("\r"), nil, -1)
+	ssh = bytes.Replace(ssh, []byte("\n"), nil, -1)
+	ssh = bytes.Replace(ssh, []byte("\r"), nil, -1)
 
 	deleteOn := addTTL(time.Now())
 	stmt, err := db.Prepare("REPLACE INTO users (username, ssh_pub_key, delete_on) VALUES(?,?,?);")

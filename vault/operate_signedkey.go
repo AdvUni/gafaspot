@@ -45,7 +45,7 @@ func (secEng signedkeySecEng) startBooking(vaultToken, sshKey string, ttl int) {
 		log.Println(err)
 	}
 	// remove the line feed from data, which is returned by the ssh secrets engine, as it corrupts the json
-	bytes.Replace(data, []byte("\n"), nil, -1)
+	data = bytes.Replace(data, []byte("\n"), nil, -1)
 
 	vaultStorageWrite(vaultToken, secEng.storeDataURL, data)
 }
