@@ -41,11 +41,12 @@ type signedkeySecEng struct {
 // expiration, the ttl in seconds is needed already at the booking's begin.
 func (secEng signedkeySecEng) startBooking(vaultToken, sshKey string, ttl int) {
 	data, err := json.Marshal(secEng.signKey(vaultToken, sshKey, ttl))
-	// remove the line feed from data, which is returned by the ssh secrets engine, as it corrupts the json
-	bytes.Replace(data, []byte("\n"), nil, -1)
 	if err != nil {
 		log.Println(err)
 	}
+	// remove the line feed from data, which is returned by the ssh secrets engine, as it corrupts the json
+	bytes.Replace(data, []byte("\n"), nil, -1)
+
 	vaultStorageWrite(vaultToken, secEng.storeDataURL, data)
 }
 

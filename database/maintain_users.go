@@ -19,6 +19,7 @@
 package database
 
 import (
+	"bytes"
 	"log"
 	"time"
 )
@@ -26,6 +27,11 @@ import (
 // SaveUserSSH takes an ssh key and stores it with the username to database table users.
 // Function does not perform any checks, so make sure you validate the key format earlier.
 func SaveUserSSH(username string, ssh []byte) {
+
+	// remove line breaks from ssh key
+	bytes.Replace(ssh, []byte("\n"), nil, -1)
+	bytes.Replace(ssh, []byte("\r"), nil, -1)
+
 	deleteOn := addTTL(time.Now())
 	stmt, err := db.Prepare("REPLACE INTO users (username, ssh_pub_key, delete_on) VALUES(?,?,?);")
 	if err != nil {
