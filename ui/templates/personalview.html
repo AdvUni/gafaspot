@@ -100,15 +100,25 @@
         <br>
         <ul class="list-group">
             {{ range index .Reservations}}
-            {{ $color := "" }}
-            {{ if (eq .Status "upcoming") }}{{ $color = "info" }}
-            {{ else if (eq .Status "active")}}{{ $color = "success" }}
-            {{ else if (eq .Status "expired")}}{{ $color = "dark" }}
-            {{ else if (eq .Status "error")}}{{ $color = "error" }}
-            {{ end }}
-            <li class="list-group-item list-group-item-{{ $color }}">
+            {{ if (eq .Status "upcoming") }}
+            <li class="list-group-item list-group-item-info">
+                {{ else if (eq .Status "active") }}
+            <li class="list-group-item list-group-item-success">
+                {{ else if (eq .Status "expired") }}
+            <li class="list-group-item list-group-item-dark">
+                {{ else if (eq .Status "error") }}
+            <li class="list-group-item list-group-item-error">
+                {{ end }}
                 <div class="row">
-                    <span class="badge border border-{{ $color }} overflow-hidden col-md-1">{{ .Status }}</span>
+                    {{ if (eq .Status "upcoming") }}
+                    <span class="badge border border-info overflow-hidden col-md-1">{{ .Status }}</span>
+                    {{ else if (eq .Status "active") }}
+                    <span class="badge border border-success overflow-hidden col-md-1">{{ .Status }}</span>
+                    {{ else if (eq .Status "expired") }}
+                    <span class="badge border border-dark overflow-hidden col-md-1">{{ .Status }}</span>
+                    {{ else if (eq .Status "error") }}
+                    <span class="badge border border-error overflow-hidden col-md-1">{{ .Status }}</span>
+                    {{ end }}
                     <span class="col-md-10"><span class="font-weight-bold">{{ .EnvNiceName }}:</span>
                         <span class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
                             class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
@@ -117,7 +127,7 @@
                         data-target="#confirmAbortion" data-id="{{ .ID }}"
                         data-reservation="{{ .EnvNiceName }}: {{ formatDatetime .Start }} &ndash; {{ formatDatetime .End }} ({{ .Subject }})">abort
                     </button>
-                    {{ if (eq .Status "active") }}
+                    {{ else if (eq .Status "active") }}
                     <a href="personal/creds" class="badge badge-success col-md-1">show creds</a>
                     {{ end }}
                 </div>
