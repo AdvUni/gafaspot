@@ -86,7 +86,7 @@ func InitDB(config util.GafaspotConfig) {
 		}
 		envDescription := envConf.Description
 		envHasSSH := false
-		for _, secEng := range envConf.SecretEngines {
+		for _, secEng := range envConf.SecretsEngines {
 			if secEng.EngineType == "ssh" {
 				envHasSSH = true
 			}

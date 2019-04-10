@@ -17,6 +17,8 @@
 # along with Gafaspot.  If not, see <https://www.gnu.org/licenses/>.
 
 # example config
+# copy this file to gafaspot_config.yaml and adapt it.
+# For further explanations, see doc/config_explanation.md
 
 #######################################
 #
@@ -25,11 +27,8 @@
 
 webservice-address: 127.0.0.1:8080
 
-# max-reservation-duration defines, how long one reservation for an environment
-# is allowed to be in days
+# maximum values for new reservations
 max-reservation-duration-days: 30
-# max-queuing-time defines, how far a reservation's start can be in the future
-# in months
 max-queuing-time-months: 2
 
 
@@ -38,16 +37,10 @@ max-queuing-time-months: 2
 # config concerning database
 ######################################
 
-# db-path specifies the file path of the SQLITE database file gafaspot will use.
-# If database file doesn't yet exist, it will be created with starting gafaspot.
+# file path of Gafaspot's SQLite database
 db-path: ./gafaspot.db
 
-# database-ttl-months defines, how long a database entry is usually kept in 
-# database, after it is not used anymore. Currently, this ttl applies to table
-# users, meaning, a user's table entry gets deleted if he haven't logged in for
-# this time, and for table reservations, meaning, a reservation gets deleted,
-# when this time has elapsed after the reservation's expiring date.
-# Value is given in months.
+# ttl for 'delete_on' columns in database
 database-ttl-months: 12
 
 ######################################
@@ -57,25 +50,11 @@ database-ttl-months: 12
 
 vault-address: http://127.0.0.1:8200/v1
 
-# approle-roleID and approle-secretID are the credentials, gafaspot uses to
-# authenticate against Vault. They are kind of like user name and password.
-# You have to enable the approle auth method and create such credentials inside
-# Vault.
+# credentials for AppRole Auth Method
 approle-roleID: someID
 approle-secretID: someSecret
 
-# ldap-group-policy is the name of the Vault policy, which is associated to
-# legitime users of gafaspot. When Gafaspot uses the LDAP auth method to verify
-# its users, Vault requests over LDAP
-#       * if the user credentials are valid at all and
-#       * in case they are, to which groups the user belongs to.
-# Depending on the group, Vault associates preconfigured policies to the user
-# and returns the policy names to gafaspot. Based on this policy name, gafaspot
-# decides, whether the user is allowed to use gafaspot or not. To make this
-# process work, define a Vault policy (it can be empty, only the name is
-# important), configure the LDAP auth method in a way that this policy is
-# assigned to members of an LDAP group of users meant to use gafaspot and paste
-# the policy name here.
+# policy name belonging to LDAP Auth Method
 ldap-group-policy: gafaspot-user-ldap
 
 environments:
@@ -90,7 +69,7 @@ environments:
     # how the credentials map to the environments.
     description: this is demo environment 0
 
-    # for each environment exist the secret-engines section listing all Secrets
+    # for each environment exist the secrets-engines section listing all Secrets
     # engines you want to associate with the environment. All Secrets Engines
     # must exist and be configured correctly to work together with your
     # environment components. Equally, for each Secrets Engine with the given
@@ -102,7 +81,7 @@ environments:
     #       * store/<environment name>/<secrets engine name>
     #           => Secrets Engine of type kv (version 1)
     # Their will follow a more concrete example for this
-    secret-engines:
+    secrets-engines:
     
       # name is the Secrets Engine's name under which you enable it in Vault.
       # chose a descriptive one to be understood by the users, but without
@@ -125,7 +104,7 @@ environments:
   demo1:
     show-name: DEMO 1
   
-    secret-engines:
+    secrets-engines:
     - name: NetApp
       type: ontap
       role: gafaspot
