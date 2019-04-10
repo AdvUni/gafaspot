@@ -24,12 +24,6 @@ import (
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
 
-const (
-	sshKey   = ""
-	username = ""
-	password = ""
-)
-
 func main() {
 
 	// get all config

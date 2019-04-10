@@ -156,7 +156,7 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 	envCreds := make(map[string]interface{})
 
 	for _, env := range envNames {
-		creds, err := vault.ReadCredentials(env, vault.CreateVaultToken())
+		creds, err := vault.ReadCredentials(env)
 		if err != nil {
 			log.Println(err)
 		}

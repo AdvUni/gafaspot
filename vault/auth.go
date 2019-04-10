@@ -47,7 +47,7 @@ func initApprole(approleID, approleSecret, vaultAddress string) {
 	}
 }
 
-func CreateVaultToken() string {
+func createVaultToken() string {
 	payload := fmt.Sprintf("{\"role_id\": \"%v\", \"secret_id\": \"%v\"}", apprl.roleID, apprl.secretID)
 	token, err := sendVaultTokenRequest(apprl.getTokenURL, strings.NewReader(payload))
 	if err != nil {

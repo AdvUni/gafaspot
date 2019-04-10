@@ -148,7 +148,7 @@ func ExpireActiveReservations(now time.Time, endBooking endBookingFunc) {
 
 	reservations := getApplicableReservations(tx, now, "active", "end")
 	for _, r := range reservations {
-		// check, if enironment in reservation exists (and fill in the information has_ssh, which is not needed)
+		// check, if environment in reservation exists (and fill in the information has_ssh, which is not needed)
 		ok := check(tx, r, new(bool))
 		if ok {
 			// trigger the end of the booking
