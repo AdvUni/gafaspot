@@ -16,9 +16,15 @@
 # You should have received a copy of the GNU General Public License
 # along with Gafaspot.  If not, see <https://www.gnu.org/licenses/>.
 
+
+
+
 # example config
 # copy this file to gafaspot_config.yaml and adapt it.
 # For further explanations, see doc/config_explanation.md
+
+
+
 
 #######################################
 #
@@ -32,6 +38,8 @@ max-reservation-duration-days: 30
 max-queuing-time-months: 2
 
 
+
+
 ######################################
 #
 # config concerning database
@@ -42,6 +50,9 @@ db-path: ./gafaspot.db
 
 # ttl for 'delete_on' columns in database
 database-ttl-months: 12
+
+
+
 
 ######################################
 #
@@ -57,40 +68,21 @@ approle-secretID: someSecret
 # policy name belonging to LDAP Auth Method
 ldap-group-policy: gafaspot-user-ldap
 
+
+
+
+# define composition of environments through secrets engines
 environments:
 
   demo0:
-    # show-name is the environments name shown in the web interface. It is
-    # allowed to contain blank spaces, upper case letters and special chars
     show-name: DEMO 0
-    # description is an environments description, which is shown in the web
-    # interface. Consider to explain in detail, which components are inside the
-    # environment, which credentials are to expect from the Secret Engines, and
-    # how the credentials map to the environments.
-    description: this is demo environment 0
+    description: "Some description for DEMO 0;
+                  can use multiple lines and
+                  HTML tags <br> for formatting."
 
-    # for each environment exist the secrets-engines section listing all Secrets
-    # engines you want to associate with the environment. All Secrets Engines
-    # must exist and be configured correctly to work together with your
-    # environment components. Equally, for each Secrets Engine with the given
-    # type, there must exist another Secrets Engine having the same name, but
-    # is of type kv (version 1). Gafaspot expects you to enable the Secrets 
-    # Engines under following paths inside Vault:
-    #       * operate/<environment name>/<secrets engine name>
-    #           => Secrets Engine of specified type
-    #       * store/<environment name>/<secrets engine name>
-    #           => Secrets Engine of type kv (version 1)
-    # Their will follow a more concrete example for this
     secrets-engines:
-    
-      # name is the Secrets Engine's name under which you enable it in Vault.
-      # chose a descriptive one to be understood by the users, but without
-      # white spaces or special characters.
     - name: NetApp
-      # type is the Secrets Engine's type, like it is called in Vault
       type: ontap
-      # For each Secrets Engine, you have to create and configure one role to
-      # be used with Vault. Paste the role name here.
       role: gafaspot
       
     - name: ActiveDirectory
@@ -103,7 +95,6 @@ environments:
     
   demo1:
     show-name: DEMO 1
-  
     secrets-engines:
     - name: NetApp
       type: ontap
@@ -116,3 +107,15 @@ environments:
     - name: otherDatabase
       type: database
       role: gafaspot
+  
+  demo2:
+    show-name: DEMO 2
+    description: this is demo environment 2
+    secrets-engines:
+      - name: SSH
+        type: ssh
+        role: gafaspot
+
+      - name: MySQL
+        type: database
+        role: gafaspot
