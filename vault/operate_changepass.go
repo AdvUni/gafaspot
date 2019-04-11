@@ -20,7 +20,6 @@ package vault
 
 import (
 	"encoding/json"
-	"log"
 )
 
 // changepassSecEng is a SecEng implementation which works for Vault secrets engines listening to
@@ -42,7 +41,7 @@ func (secEng changepassSecEng) getName() string {
 func (secEng changepassSecEng) startBooking(vaultToken, _ string, _ int) {
 	data, err := json.Marshal(secEng.changeCreds(vaultToken))
 	if err != nil {
-		log.Println(err)
+		logger.Errorf("not able to marshal new creds: %v", err)
 	}
 	vaultStorageWrite(vaultToken, secEng.storeDataURL, data)
 }
@@ -51,7 +50,7 @@ func (secEng changepassSecEng) startBooking(vaultToken, _ string, _ int) {
 // change the credentials again for them to become unknown.
 func (secEng changepassSecEng) endBooking(vaultToken string) {
 	vaultStorageDelete(vaultToken, secEng.storeDataURL)
-	log.Println(secEng.changeCreds(vaultToken))
+	secEng.changeCreds(vaultToken)
 }
 
 func (secEng changepassSecEng) readCreds(vaultToken string) (map[string]interface{}, error) {
@@ -59,10 +58,9 @@ func (secEng changepassSecEng) readCreds(vaultToken string) (map[string]interfac
 }
 
 func (secEng changepassSecEng) changeCreds(vaultToken string) map[string]interface{} {
-
 	data, err := sendVaultDataRequest("GET", secEng.changeCredsURL, vaultToken, nil)
 	if err != nil {
-		log.Println(err)
+		logger.Errorf("not able to change Creds: %v", err)
 	}
 	return data
 }

@@ -19,9 +19,9 @@
 package main
 
 import (
-	"log"
 	"time"
 
+	logging "github.com/alexcesaro/log"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/database"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
@@ -30,12 +30,19 @@ const (
 	scanningInterval = 5 * time.Minute
 )
 
-func handleReservationScanning() {
+var (
+	logger logging.Logger
+)
+
+func handleReservationScanning(l logging.Logger) {
+	logger = l
+
 	// endless loop, triggered each 5 minutes
 	tick := time.NewTicker(scanningInterval).C
 	for {
 		<-tick
 		reservationScan()
+		logger.Info("executed reservation scan")
 	}
 }
 
@@ -54,6 +61,4 @@ func reservationScan() {
 
 	// finally, check if some of the entries in users table reached deletion_date
 	database.DeleteOldUserEntries(now)
-
-	log.Println("finished reservation scan")
 }

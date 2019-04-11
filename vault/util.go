@@ -23,9 +23,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
 )
 
@@ -125,7 +125,7 @@ func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (map[
 	// Build request
 	req, err := http.NewRequest(requestType, url, body)
 	if err != nil {
-		log.Println(err)
+		logger.Errorf("not able to build vault request correctly: %v", err)
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -133,16 +133,16 @@ func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (map[
 	if vaultToken != "" {
 		req.Header.Set("X-Vault-Token", vaultToken)
 	}
-	log.Println(req)
+	logger.Debugf("vault request: %v", req)
 
 	// Send request
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Println(err)
+		logger.Errorf("vault request returned error: %v", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
-	log.Println(resp)
+	logger.Debugf("response to vault request: %v", resp)
 
 	// Parse json output to an unstructured map
 	var result map[string]interface{}
@@ -169,7 +169,8 @@ func sendVaultRequest(requestType, url, vaultToken string, body io.Reader) (map[
 func joinRequestPath(addressStart string, subpaths ...string) string {
 	url, err := url.Parse(addressStart)
 	if err != nil {
-		log.Println(err)
+		logger.Emergency("malformed parameters for request path")
+		os.Exit(1)
 	}
 
 	for _, item := range subpaths {

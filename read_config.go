@@ -19,27 +19,30 @@
 package main
 
 import (
-	"log"
+	"os"
 
+	logging "github.com/alexcesaro/log"
 	"github.com/spf13/viper"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 )
 
 // readConfig unmarshals the config file into a GafaspotConfig struct.
-func readConfig() util.GafaspotConfig {
+func readConfig(logger logging.Logger) util.GafaspotConfig {
 	viper.SetConfigName("gafaspot_config")
 	viper.AddConfigPath(".")
 	viper.SetConfigType("yaml")
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		log.Fatalf("can't read config file: %s", err)
+		logger.Emergencyf("failed to read config file: %s", err)
+		os.Exit(1)
 	}
 
 	config := util.GafaspotConfig{}
 	err = viper.Unmarshal(&config)
 	if err != nil {
-		log.Fatalf("unable to decode into struct: %v", err)
+		logger.Emergencyf("unable to decode config into GafaspotConfig struct: %v", err)
+		os.Exit(1)
 	}
 	return config
 }

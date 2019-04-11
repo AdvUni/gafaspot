@@ -19,21 +19,30 @@
 package main
 
 import (
+	"github.com/alexcesaro/log/stdlog"
+
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/database"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/ui"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
 )
 
 func main() {
+	// init logger
+	logger := stdlog.GetFromFlags()
+	logger.Info("Welcome to Gafaspot!")
 
 	// get all config
-	config := readConfig()
+	logger.Info("Reading config...")
+	config := readConfig(logger)
 
 	// do initialization with config values
-	vault.InitVaultParams(config)
-	database.InitDB(config)
+	logger.Info("Initialization...")
+	vault.InitVaultParams(logger, config)
+	database.InitDB(logger, config)
 
 	// start webserver and routine for processing reservations
-	go handleReservationScanning()
-	ui.RunWebserver(config.WebserviceAddress)
+	logger.Info("Starting reservation scanning routine...")
+	go handleReservationScanning(logger)
+	logger.Info("Starting web server...")
+	ui.RunWebserver(logger, config.WebserviceAddress)
 }

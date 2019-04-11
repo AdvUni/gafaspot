@@ -22,7 +22,7 @@ import (
 	"database/sql"
 	"fmt"
 	"html/template"
-	"log"
+	"os"
 
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 )
@@ -36,14 +36,15 @@ func GetUserSSH(username string) (string, bool) {
 	var sshKey sql.NullString
 	stmt, err := db.Prepare("SELECT ssh_pub_key FROM users WHERE (username=?);")
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 	defer stmt.Close()
 	err = stmt.QueryRow(username).Scan(&sshKey)
 	if err == sql.ErrNoRows || !sshKey.Valid {
 		return "", false
 	} else if err != nil {
-		log.Println(err)
+		logger.Error(err)
 		return "", false
 	}
 	return sshKey.String, true
@@ -52,7 +53,8 @@ func GetUserSSH(username string) (string, bool) {
 func GetEnvironments() ([]util.Environment, map[string]bool, map[string]string) {
 	rows, err := db.Query("SELECT env_plain_name, env_nice_name, has_ssh, description FROM environments ORDER BY env_nice_name;")
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
+		return nil, nil, nil
 	}
 	defer rows.Close()
 
@@ -64,7 +66,8 @@ func GetEnvironments() ([]util.Environment, map[string]bool, map[string]string) 
 		description := sql.NullString{}
 		err := rows.Scan(&e.PlainName, &e.NiceName, &e.HasSSH, &description)
 		if err != nil {
-			log.Fatal(err)
+			logger.Emergency(err)
+			os.Exit(1)
 		}
 		if description.Valid {
 			e.Description = template.HTML(description.String)
@@ -89,13 +92,15 @@ func getReservations(conditionKey, conditionVal string) []util.Reservation {
 	stmtstring := fmt.Sprintf("SELECT id, status, username, env_plain_name, start, end, subject, labels FROM reservations WHERE %v=?", conditionKey)
 	stmt, err := db.Prepare(stmtstring)
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(conditionVal)
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
+		return nil
 	}
 	defer rows.Close()
 
@@ -105,7 +110,8 @@ func getReservations(conditionKey, conditionVal string) []util.Reservation {
 		var subject, labels sql.NullString
 		err := rows.Scan(&r.ID, &r.Status, &r.User, &r.EnvPlainName, &r.Start, &r.End, &subject, &labels)
 		if err != nil {
-			log.Fatal(err)
+			logger.Emergency(err)
+			os.Exit(1)
 		}
 		if subject.Valid {
 			r.Subject = subject.String
@@ -122,13 +128,14 @@ func getReservations(conditionKey, conditionVal string) []util.Reservation {
 func GetUserActiveReservationEnv(username string) []string {
 	stmt, err := db.Prepare("SELECT env_plain_name FROM reservations WHERE (status='active') AND (username=?);")
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(username)
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 	defer rows.Close()
 
@@ -137,7 +144,8 @@ func GetUserActiveReservationEnv(username string) []string {
 		env := ""
 		err := rows.Scan(&env)
 		if err != nil {
-			log.Fatal(err)
+			logger.Emergency(err)
+			os.Exit(1)
 		}
 		envNames = append(envNames, env)
 	}

@@ -20,15 +20,21 @@ package vault
 
 import (
 	"fmt"
-	"log"
 	"time"
 
+	logging "github.com/alexcesaro/log"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 )
 
-var environments map[string][]SecEng
+var (
+	logger       logging.Logger
+	environments map[string][]SecEng
+)
 
-func InitVaultParams(config util.GafaspotConfig) {
+func InitVaultParams(l logging.Logger, config util.GafaspotConfig) {
+
+	logger = l
+
 	initApprole(config.ApproleID, config.ApproleSecret, config.VaultAddress)
 	initLDAP(config.UserPolicy, config.VaultAddress)
 	environments = initSecEngs(config.Environments, config.VaultAddress, config.MaxBookingDays)
@@ -43,7 +49,8 @@ func StartBooking(envPlainName, sshKey string, until time.Time) {
 	ttl := int(until.Sub(time.Now()).Seconds())
 	environment, ok := environments[envPlainName]
 	if !ok {
-		log.Fatalf("tried to start booking for environment '%v' but it does not exist", envPlainName)
+		logger.Errorf("tried to start booking for environment '%v' but it does not exist", envPlainName)
+		return
 	}
 	for _, secEng := range environment {
 		secEng.startBooking(vaultToken, sshKey, ttl)
@@ -55,13 +62,17 @@ func EndBooking(envPlainName string) {
 	vaultToken := createVaultToken()
 	environment, ok := environments[envPlainName]
 	if !ok {
-		log.Fatalf("tried to end booking for environment '%v' but it does not exist", envPlainName)
+		logger.Errorf("tried to end booking for environment '%v' but it does not exist", envPlainName)
+		return
 	}
 	for _, secEng := range environment {
 		secEng.endBooking(vaultToken)
 	}
 }
 
+// ReadCredentials reads the credentials from all KV Secrets Engine related to the environment
+// envPlainName and returns them as map. Map keys are the Secrets Engine's names. Throws an
+// error if environment does not exist or if one of the KV Secrets Engines returns an error.
 func ReadCredentials(envPlainName string) (map[string]interface{}, error) {
 	environment, ok := environments[envPlainName]
 	if !ok {

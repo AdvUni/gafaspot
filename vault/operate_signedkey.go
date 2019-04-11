@@ -22,7 +22,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -42,7 +41,7 @@ type signedkeySecEng struct {
 func (secEng signedkeySecEng) startBooking(vaultToken, sshKey string, ttl int) {
 	data, err := json.Marshal(secEng.signKey(vaultToken, sshKey, ttl))
 	if err != nil {
-		log.Println(err)
+		logger.Errorf("not able to marshal new signature: %v", err)
 	}
 	// remove the line feed from data, which is returned by the ssh secrets engine, as it corrupts the json
 	data = bytes.Replace(data, []byte("\n"), nil, -1)
@@ -69,7 +68,7 @@ func (secEng signedkeySecEng) signKey(vaultToken, sshKey string, ttl int) map[st
 
 	data, err := sendVaultDataRequest("POST", secEng.signURL, vaultToken, strings.NewReader(payload))
 	if err != nil {
-		log.Println(err)
+		logger.Errorf("not able to sign key: %v", err)
 	}
 	return data
 }

@@ -20,7 +20,6 @@ package ui
 
 import (
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -45,7 +44,7 @@ func redirectLogoutSuccessful(w http.ResponseWriter, r *http.Request) {
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		log.Println(err)
+		logger.Warning(err)
 		return
 	}
 	username := r.Form.Get("name")
@@ -86,13 +85,13 @@ func abortreservationHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err := r.ParseForm()
 	if err != nil {
-		log.Printf("could not get parameter id from abort reservation request: %v\n", err)
+		logger.Warningf("could not get parameter id from abort reservation request: %v\n", err)
 		return
 	}
 
 	reservationID, err := strconv.Atoi(template.HTMLEscapeString(r.Form.Get("id")))
 	if err != nil {
-		log.Printf("abortreservation request passes an id which is not comparable to int: %v\n", template.HTMLEscapeString(r.Form.Get("id")))
+		logger.Warningf("abortreservation request passes an id which is not comparable to int: %v\n", template.HTMLEscapeString(r.Form.Get("id")))
 		return
 	}
 	database.AbortReservation(username, reservationID)

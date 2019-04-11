@@ -21,7 +21,6 @@ package ui
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"sort"
 	"time"
@@ -83,7 +82,7 @@ func sortReservations(reservations []util.Reservation) ([]util.Reservation, []ut
 		case "expired":
 			expired = append(expired, r)
 		case "error":
-			log.Println("reservation with status error is not displayed")
+			logger.Debug("reservation with status error is not displayed")
 		}
 	}
 	return upcoming, active, expired
@@ -95,7 +94,7 @@ func loginPageHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := loginformTmpl.Execute(w, map[string]interface{}{"Error": errormessage, "Info": infomessage})
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 }
 
@@ -114,7 +113,7 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := mainviewTmpl.Execute(w, map[string]interface{}{"Username": username, "Envcontent": envReservationsList})
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 }
 
@@ -141,7 +140,7 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err := personalviewTmpl.Execute(w, map[string]interface{}{"Username": username, "SSHkey": sshEntry, "Reservations": resNice})
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 }
 
@@ -158,10 +157,9 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 	for _, env := range envNames {
 		creds, err := vault.ReadCredentials(env)
 		if err != nil {
-			log.Println(err)
+			logger.Error(err)
 		}
 		envCreds[envNiceNameMap[env]] = creds
-		//fmt.Fprintf(w, "creds for environment '%v':\n%v\n", env, creds)
 	}
 	allcredsTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": envCreds})
 }
@@ -185,7 +183,7 @@ func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := reservationformTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": environments, "Selected": selectedEnvPlainName, "SSHmissing": sshMissing, "Error": errormessage})
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 }
 
@@ -197,7 +195,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err := r.ParseForm()
 	if err != nil {
-		log.Println(err)
+		logger.Warning(err)
 		return
 	}
 
@@ -207,6 +205,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 
 	reservation.EnvPlainName = template.HTMLEscapeString(r.Form.Get("env"))
 	if reservation.EnvPlainName == "" {
+		logger.Debugf("reserve handler received reservation with invalid environment: %v", err)
 		redirectInvalidSubmission(w, r, "environment invalid")
 		return
 	}
@@ -214,7 +213,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	startstring := template.HTMLEscapeString(r.Form.Get("startdate")) + " " + template.HTMLEscapeString(r.Form.Get("starttime"))
 	reservation.Start, err = time.ParseInLocation(util.TimeLayout, startstring, time.Local)
 	if err != nil {
-		log.Println(err)
+		logger.Debugf("reserve handler received reservation with malformed date/time submission: %v", err)
 		redirectInvalidSubmission(w, r, "start date/time malformed")
 		return
 	}
@@ -222,7 +221,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	endstring := template.HTMLEscapeString(r.Form.Get("enddate")) + " " + template.HTMLEscapeString(r.Form.Get("endtime"))
 	reservation.End, err = time.ParseInLocation(util.TimeLayout, endstring, time.Local)
 	if err != nil {
-		log.Println(err)
+		logger.Debugf("reserve handler received reservation with malformed date/time submission: %v", err)
 		redirectInvalidSubmission(w, r, "end date/time malformed")
 		return
 	}
@@ -231,13 +230,14 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = database.CreateReservation(reservation)
 	if err != nil {
+		logger.Debugf("reserve handler received invalid reservation: %v", err)
 		redirectInvalidSubmission(w, r, err.Error())
 		return
 	}
 
 	err = reservesuccessTmpl.Execute(w, newReservationNiceName(reservation))
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 }
 
@@ -252,7 +252,7 @@ func addkeyPageHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := addkeyformTmpl.Execute(w, map[string]interface{}{"Username": username, "Error": errormessage})
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 }
 
@@ -264,7 +264,7 @@ func uploadkeyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err := r.ParseForm()
 	if err != nil {
-		log.Println(err)
+		logger.Warning(err)
 		return
 	}
 
@@ -280,6 +280,6 @@ func uploadkeyHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = addkeysuccessTmpl.Execute(w, map[string]interface{}{"Username": username, "SSHkey": sshString})
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 }

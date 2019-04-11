@@ -21,7 +21,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	"os"
 	"time"
 
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
@@ -69,7 +69,8 @@ func CreateReservation(r util.Reservation) error {
 	// check, whether environment exists and determine, whether the reservation needs an ssh key
 	stmt, err := tx.Prepare("SELECT has_ssh FROM environments WHERE (env_plain_name=?);")
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 	defer stmt.Close()
 
@@ -78,7 +79,8 @@ func CreateReservation(r util.Reservation) error {
 	if err == sql.ErrNoRows {
 		return ReservationError(fmt.Sprintf("environment %v does not exist", r.EnvPlainName))
 	} else if err != nil {
-		log.Println(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 
 	// check, whether there is stored an ssh key for the user, if it is needed for the reservation
@@ -92,7 +94,8 @@ func CreateReservation(r util.Reservation) error {
 	// a conflict occurs iff ((start1 <= end2) && (end1 >= start2))
 	stmt, err = tx.Prepare("SELECT start, end FROM reservations WHERE (env_plain_name=?) AND (start<=?) AND (end>=?);")
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 	defer stmt.Close()
 
@@ -103,7 +106,7 @@ func CreateReservation(r util.Reservation) error {
 		return ReservationError(fmt.Sprintf("reservation conflicts with an existing reservation from %v to %v", conflictStart.Format(util.TimeLayout), conflictEnd.Format(util.TimeLayout)))
 	}
 	if err != sql.ErrNoRows {
-		log.Println(err)
+		logger.Error(err)
 	}
 
 	// generate the deletion date of reservation entry in database
@@ -112,12 +115,13 @@ func CreateReservation(r util.Reservation) error {
 	// finally write reservation into database
 	stmt, err = tx.Prepare("INSERT INTO reservations (status, username, env_plain_name, start, end, subject, labels, delete_on) VALUES(?,?,?,?,?,?,?,?);")
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 	defer stmt.Close()
 	_, err = stmt.Exec("upcoming", r.User, r.EnvPlainName, r.Start, r.End, r.Subject, r.Labels, reservationDeleteDate)
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 
 	return nil
@@ -136,17 +140,18 @@ func AbortReservation(username string, id int) error {
 	// fetch reservation from database
 	stmt, err := tx.Prepare("SELECT status FROM reservations WHERE (username=?) AND (id=?);")
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 	defer stmt.Close()
 	status := ""
 	err = stmt.QueryRow(username, id).Scan(&status)
 	if err == sql.ErrNoRows {
-		log.Println(fmt.Errorf("tried to abort reservation which does not exist or not belongs to specified user; id '%v', user '%v'", id, username))
+		logger.Warning(fmt.Errorf("tried to abort reservation which does not exist or not belongs to specified user; id '%v', user '%v'", id, username))
 		return nil
 	}
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 
 	// check reservation status (can only abort upcoming reservations)

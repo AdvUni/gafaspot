@@ -23,9 +23,11 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"path"
 	"time"
 
+	logging "github.com/alexcesaro/log"
 	"github.com/gorilla/mux"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/database"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
@@ -47,6 +49,8 @@ const (
 )
 
 var (
+	logger logging.Logger
+
 	// This list contains all environment information from database table "environments".
 	// This table shouldn't change during runtime, so the list content can be fetched once at program start.
 	environments []util.Environment
@@ -66,8 +70,10 @@ var (
 	addkeysuccessTmpl   *template.Template
 )
 
+// all initialization which does not need parameters from main routine.
 func init() {
-	// generate a random key for signing json web tokens for authentication. Save it to global var (file authentication)
+	// generate a random key for signing json web tokens for authentication.
+	// Save it to global var (file authentication)
 	_, err := rand.Read(hmacKey)
 	if err != nil {
 		log.Fatalf("could not create key for jwt signing: %v\n", err)
@@ -129,7 +135,9 @@ func init() {
 	}
 }
 
-func RunWebserver(addr string) {
+// RunWebserver registers all page handlers to a router and then starts the web server.
+func RunWebserver(l logging.Logger, addr string) {
+	logger = l
 
 	// fetch static information about environments from database
 	environments, envHasSSHMap, envNiceNameMap = database.GetEnvironments()
@@ -149,11 +157,11 @@ func RunWebserver(addr string) {
 	router.HandleFunc(addkeyform, addkeyPageHandler)
 	router.HandleFunc(uploadkey, uploadkeyHandler)
 	router.HandleFunc(deletekey, deletekeyHandler)
-	//router.PathPrefix("/js/").Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("ui/templates/js"))))
 
 	// start web server
 	http.Handle(loginpage, router)
 	err := http.ListenAndServe(addr, nil)
 	// cause entire program to stop if the server crashes for any reason
-	log.Fatalf("webserver crashed: %v\n", err)
+	logger.Emergencyf("webserver crashed: %v\n", err)
+	os.Exit(1)
 }

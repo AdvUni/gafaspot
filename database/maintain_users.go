@@ -20,7 +20,7 @@ package database
 
 import (
 	"bytes"
-	"log"
+	"os"
 	"time"
 )
 
@@ -35,13 +35,14 @@ func SaveUserSSH(username string, ssh []byte) {
 	deleteOn := addTTL(time.Now())
 	stmt, err := db.Prepare("REPLACE INTO users (username, ssh_pub_key, delete_on) VALUES(?,?,?);")
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(username, ssh, deleteOn)
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 }
 
@@ -53,13 +54,14 @@ func RefreshDeletionDate(username string) {
 	deleteOn := addTTL(time.Now())
 	stmt, err := db.Prepare("UPDATE users SET delete_on=? WHERE username=?;")
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(deleteOn, username)
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 }
 
@@ -70,13 +72,14 @@ func RefreshDeletionDate(username string) {
 func DeleteUser(username string) {
 	stmt, err := db.Prepare("DELETE FROM users WHERE username=?;")
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(username)
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 }
 
@@ -87,12 +90,13 @@ func DeleteUser(username string) {
 func DeleteOldUserEntries(now time.Time) {
 	stmt, err := db.Prepare("DELETE FROM users WHERE delete_on<=?")
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(now)
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 }

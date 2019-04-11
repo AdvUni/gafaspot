@@ -20,9 +20,10 @@ package database
 
 import (
 	"database/sql"
-	"log"
+	"os"
 	"time"
 
+	logging "github.com/alexcesaro/log"
 	_ "github.com/mattn/go-sqlite3"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 )
@@ -34,14 +35,17 @@ var (
 	maxBookingDays   int
 	maxQueuingMonths int
 
-	db *sql.DB
+	db     *sql.DB
+	logger logging.Logger
 )
 
 // InitDB prepares the database for gafaspot. Opens the database at the path given in config file.
 // As SQLITE is used, database doesn't even need to exist yet. Prepares all database tables and
 // fills the environments table with the information from config file.
 // Sets the package variable db to enable every function in the package to access the database.
-func InitDB(config util.GafaspotConfig) {
+func InitDB(l logging.Logger, config util.GafaspotConfig) {
+	logger = l
+	logger.Debugf("Database path is: %v", config.Database)
 
 	// take over some constant values and set them as global vars
 	ttlMonths = config.DBTTLmonths
@@ -52,29 +56,34 @@ func InitDB(config util.GafaspotConfig) {
 	var err error
 	db, err = sql.Open("sqlite3", config.Database)
 	if err != nil {
-		log.Fatal("Not able to open database: ", err)
+		logger.Emergency("Not able to open database: ", err)
+		os.Exit(1)
 	}
 
 	// Create table reservations. If it already exists, don't overwrite
 	_, err = db.Exec("CREATE TABLE IF NOT EXISTS reservations (id INTEGER PRIMARY KEY, status TEXT NOT NULL, username TEXT NOT NULL, env_plain_name TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME NOT NULL, subject TEXT, labels TEXT, delete_on DATE NOT NULL);")
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 
 	// Create table users. If it already exists, don't overwrite
 	_, err = db.Exec("CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE NOT NULL, ssh_pub_key BLOB, delete_on DATE NOT NULL);")
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 
 	// Create table environments. If it already exist, deltete it first. Someone might have updated the environment configurations before system restart. So this table should be created from scratch.
 	_, err = db.Exec("DROP TABLE IF EXISTS environments;")
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 	_, err = db.Exec("CREATE TABLE environments (env_plain_name TEXT UNIQUE NOT NULL, env_nice_name TEXT NOT NULL, has_ssh BOOLEAN NOT NULL, description TEXT);")
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 
 	// Fill empty table environments with information from configuration file
@@ -93,7 +102,8 @@ func InitDB(config util.GafaspotConfig) {
 		}
 		_, err = db.Exec("INSERT INTO environments VALUES (?, ?, ?, ?);", envPlainName, envNiceName, envHasSSH, envDescription)
 		if err != nil {
-			log.Fatal(err)
+			logger.Emergency(err)
+			os.Exit(1)
 		}
 	}
 }
@@ -101,7 +111,8 @@ func InitDB(config util.GafaspotConfig) {
 func beginTransaction() *sql.Tx {
 	tx, err := db.Begin()
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 	return tx
 }
@@ -109,7 +120,7 @@ func beginTransaction() *sql.Tx {
 func commitTransaction(tx *sql.Tx) {
 	err := tx.Commit()
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 }
 

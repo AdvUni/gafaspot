@@ -21,7 +21,6 @@ package vault
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -47,7 +46,7 @@ func (secEng leaseSecEng) getName() string {
 func (secEng leaseSecEng) startBooking(vaultToken, _ string, _ int) {
 	data, err := json.Marshal(secEng.createLease(vaultToken))
 	if err != nil {
-		log.Println(err)
+		logger.Errorf("not able to marshal new lease: %v", err)
 	}
 	vaultStorageWrite(vaultToken, secEng.storeDataURL, data)
 }
@@ -66,7 +65,7 @@ func (secEng leaseSecEng) readCreds(vaultToken string) (map[string]interface{}, 
 func (secEng leaseSecEng) createLease(vaultToken string) map[string]interface{} {
 	data, err := sendVaultDataRequest("GET", secEng.createLeaseURL, vaultToken, nil)
 	if err != nil {
-		log.Println(err)
+		logger.Errorf("not able to create new lease: %v", err)
 	}
 	return data
 }
@@ -74,7 +73,7 @@ func (secEng leaseSecEng) createLease(vaultToken string) map[string]interface{} 
 func (secEng leaseSecEng) revokeLease(vaultToken string) {
 	err := sendVaultRequestEmtpyResponse("POST", secEng.revokeLeaseURL, vaultToken, nil)
 	if err != nil {
-		log.Println(err)
+		logger.Errorf("not able to revoke lease: %v", err)
 	}
 }
 
@@ -84,6 +83,6 @@ func tuneLeaseDuration(tuneLeaseDurationURL string, maxBookingDays int) {
 	vaultToken := createVaultToken()
 	err := sendVaultRequestEmtpyResponse("POST", tuneLeaseDurationURL, vaultToken, strings.NewReader(payload))
 	if err != nil {
-		log.Println(err)
+		logger.Errorf("not able to tune lease duration: %v", err)
 	}
 }

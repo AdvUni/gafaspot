@@ -21,7 +21,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	"os"
 	"time"
 
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
@@ -31,14 +31,14 @@ import (
 func changeStatus(tx *sql.Tx, id int, status string) {
 	_, err := tx.Exec("UPDATE reservations SET status=? WHERE id=?;", status, id)
 	if err != nil {
-		log.Printf("did not change status due to following error: %v\n", err)
+		logger.Error("did not change status due to following error: %v\n", err)
 	}
 }
 
 func deleteReservation(tx *sql.Tx, reservationID int) {
 	_, err := tx.Exec("DELETE FROM reservations WHERE id=?;", reservationID)
 	if err != nil {
-		log.Printf("did not delete database entry due to following error: %v\n", err)
+		logger.Error("did not delete database entry due to following error: %v\n", err)
 	}
 }
 
@@ -51,13 +51,14 @@ func deleteReservation(tx *sql.Tx, reservationID int) {
 func getApplicableReservations(tx *sql.Tx, now time.Time, status, timeCol string) []util.Reservation {
 	stmt, err := tx.Prepare("SELECT id, username, env_plain_name, end FROM reservations WHERE (status=?) AND (" + timeCol + "<=?);")
 	if err != nil {
-		log.Fatal(err)
+		logger.Emergency(err)
+		os.Exit(1)
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(status, now)
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 	defer rows.Close()
 
@@ -68,7 +69,7 @@ func getApplicableReservations(tx *sql.Tx, now time.Time, status, timeCol string
 
 		err := rows.Scan(&r.ID, &r.User, &r.EnvPlainName, &r.End)
 		if err != nil {
-			log.Fatal(err)
+			logger.Error(err)
 		}
 		reservations = append(reservations, r)
 		fmt.Printf("Values from matching query: id - %v, username - %v, env_plain_name %v\n", r.ID, r.User, r.EnvPlainName)
@@ -91,7 +92,7 @@ func check(tx *sql.Tx, r util.Reservation, hasSSH *bool) bool {
 	if err == sql.ErrNoRows {
 		return false
 	} else if err != nil {
-		log.Fatal(err)
+		logger.Error(err)
 	}
 	return true
 }
@@ -115,7 +116,7 @@ func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 		var hasSSH bool
 		ok := check(tx, r, &hasSSH)
 		if !ok {
-			log.Printf("environment %v does not exis; mark reservation with id=%v for user=%v as error", r.EnvPlainName, r.ID, r.User)
+			logger.Warningf("environment %v does not exis; mark reservation with id=%v for user=%v as error", r.EnvPlainName, r.ID, r.User)
 			changeStatus(tx, r.ID, "error")
 			return
 		}
@@ -125,7 +126,8 @@ func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 			// retrieve ssh key from user table
 			sshKey, ok = GetUserSSH(r.User)
 			if !ok {
-				log.Printf("there is no ssh public key stored for user %v, but it is required for booking environment %v", r.User, r.EnvPlainName)
+				logger.Warningf("there is no ssh public key stored for user %v, but it is required for booking environment %v. Mark reservation with error",
+					r.User, r.EnvPlainName)
 				changeStatus(tx, r.ID, "error")
 				return
 			}

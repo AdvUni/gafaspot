@@ -20,7 +20,6 @@ package vault
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -51,7 +50,7 @@ func createVaultToken() string {
 	payload := fmt.Sprintf("{\"role_id\": \"%v\", \"secret_id\": \"%v\"}", apprl.roleID, apprl.secretID)
 	token, err := sendVaultTokenRequest(apprl.getTokenURL, strings.NewReader(payload))
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 	}
 	return token
 }
@@ -69,7 +68,7 @@ func DoLdapAuthentication(username, password string) bool {
 	if err == ErrAuth {
 		return false
 	} else if err != nil {
-		log.Println(err)
+		logger.Error(err)
 		return false
 	}
 

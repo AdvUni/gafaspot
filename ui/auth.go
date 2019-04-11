@@ -19,7 +19,6 @@
 package ui
 
 import (
-	"log"
 	"net/http"
 	"time"
 
@@ -42,7 +41,7 @@ type claims struct {
 func verifyUser(w http.ResponseWriter, r *http.Request) (string, bool) {
 	cookie, err := r.Cookie(authCookieName)
 	if err != nil {
-		log.Printf("authentication failed: %v\n", err)
+		logger.Debugf("authentication failed: %v\n", err)
 		return "", false
 	}
 
@@ -50,7 +49,7 @@ func verifyUser(w http.ResponseWriter, r *http.Request) (string, bool) {
 
 	token, err := jwt.ParseWithClaims(cookie.Value, tokenContent, func(t *jwt.Token) (interface{}, error) { return hmacKey, nil })
 	if err != nil {
-		log.Printf("authentication failed: %v\n", err)
+		logger.Debug("authentication failed: %v\n", err)
 		return "", false
 	}
 	if token.Valid {
@@ -58,7 +57,7 @@ func verifyUser(w http.ResponseWriter, r *http.Request) (string, bool) {
 		renewJWT(w, username)
 		return username, true
 	}
-	log.Println("authentication failed: jwt is invalid")
+	logger.Debug("authentication failed: jwt is invalid")
 	return "", false
 }
 
@@ -69,7 +68,7 @@ func renewJWT(w http.ResponseWriter, username string) {
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS512, jwtContent).SignedString(hmacKey)
 
 	if err != nil {
-		log.Printf("creation of json web token not possible: %v\n", err)
+		logger.Error("creation of json web token not possible: %v\n", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

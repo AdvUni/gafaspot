@@ -20,7 +20,6 @@ package vault
 
 import (
 	"fmt"
-	"log"
 
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 )
@@ -76,7 +75,7 @@ func newSecEng(engineType, vaultAddress, env, name, role string, maxBookingDays 
 		return secEng
 
 	default:
-		log.Println(fmt.Errorf("Unsupported Secrets Engine type: %v", engineType))
+		logger.Warning(fmt.Errorf("Unsupported Secrets Engine type: %v", engineType))
 		return nil
 	}
 }
