@@ -122,6 +122,8 @@ func CreateReservation(r util.Reservation) error {
 	_, err = stmt.Exec("upcoming", r.User, r.EnvPlainName, r.Start, r.End, r.Subject, r.Labels, reservationDeleteDate)
 	if err != nil {
 		logger.Error(err)
+	} else {
+		logger.Info("user '%v' created new reservation for environment '%v' from %v to %v", r.User, r.EnvPlainName, r.Start, r.End)
 	}
 
 	return nil
