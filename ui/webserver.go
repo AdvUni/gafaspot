@@ -84,6 +84,7 @@ func init() {
 		topTmplFile             = "ui/templates/top.html"
 		bottomTmplFile          = "ui/templates/bottom.html"
 		navTmplFile             = "ui/templates/nav.html"
+		wordbreakTmplFile       = "ui/templates/wordbreak.html"
 		loginformTmplFile       = "ui/templates/login.html"
 		mainviewTmplFile        = "ui/templates/mainview.html"
 		personalviewTmplFile    = "ui/templates/personalview.html"
@@ -107,7 +108,7 @@ func init() {
 	personalviewTmpl, err = template.New(path.Base(personalviewTmplFile)).Funcs(template.FuncMap{
 		"formatDatetime": func(t time.Time) string { return t.Format(util.TimeLayout) },
 		"past":           func(r util.Reservation) bool { return r.End.Before(time.Now()) },
-	}).ParseFiles(personalviewTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	}).ParseFiles(personalviewTmplFile, topTmplFile, bottomTmplFile, navTmplFile, wordbreakTmplFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -121,7 +122,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	allcredsTmpl, err = template.ParseFiles(allcredsTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	allcredsTmpl, err = template.ParseFiles(allcredsTmplFile, topTmplFile, bottomTmplFile, navTmplFile, wordbreakTmplFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -129,7 +130,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	addkeysuccessTmpl, err = template.ParseFiles(addkeysuccessTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	addkeysuccessTmpl, err = template.ParseFiles(addkeysuccessTmplFile, topTmplFile, bottomTmplFile, navTmplFile, wordbreakTmplFile)
 	if err != nil {
 		log.Fatal(err)
 	}

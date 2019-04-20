@@ -41,11 +41,11 @@
 
         {{ if index $creds "username" }}
         <p><span class="font-weight-bold">username: </span><span
-                class="text-monospace text-break">{{ index $creds "username" }}</span></p>
+                class="text-monospace breakall">{{ index $creds "username" }}</span></p>
         {{ end }}
         {{ range $key, $value := $creds }}
         {{ if ne $key "username" }}
-        <p><span class="font-weight-bold">{{ $key }}: </span><span class="text-monospace text-break">{{ $value }}</span>
+        <p><span class="font-weight-bold">{{ $key }}: </span><span class="text-monospace breakall">{{ $value }}</span>
         </p>
         {{ end }}
 
@@ -60,3 +60,4 @@
     <br>
 </main>
 {{ template "bottom" }}
+{{ template "wordbreak" }}

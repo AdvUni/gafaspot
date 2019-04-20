@@ -87,7 +87,7 @@
         <hr>
         <p><b>SSH Public Key:</b>
             {{ $noSSH := eq (index .SSHkey) "" }}
-            <p class="text-monospace text-break">{{ if $noSSH }}no key yet{{ else }}{{ index .SSHkey }}{{ end }}</p>
+            <p class="text-monospace breakall">{{ if $noSSH }}no key yet{{ else }}{{ index .SSHkey }}{{ end }}</p>
         </p>
         <div class="d-flex justify-content-end">
             <a class="btn btn-primary m-2" href="personal/addkey" role="button">add/change key</a>
@@ -139,6 +139,7 @@
 </main>
 
 {{ template "bottom" }}
+{{ template "wordbreak" }}
 
 <!-- functionality for passing the right data to the confirm-abortion-modal when clicking an abort button -->
 <script type="text/javascript">
