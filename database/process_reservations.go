@@ -20,7 +20,6 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 	"time"
 
@@ -46,7 +45,7 @@ func deleteReservation(tx *sql.Tx, reservationID int) {
 // concerned is specified by the reservation status and by the exceeding of a specific time column.
 // For example, if you give the parameters status="upcoming" and timeCol="start", the function will
 // return all upcoming reservation, which have a start date lieing in the past. Herefore, the
-// reference time "now" has to be explicitely passed. tx is the transaction, in which the database
+// reference time "now" has to be explicitly passed. tx is the transaction, in which the database
 // request should be executed.
 func getApplicableReservations(tx *sql.Tx, now time.Time, status, timeCol string) []util.Reservation {
 	stmt, err := tx.Prepare("SELECT id, username, env_plain_name, end FROM reservations WHERE (status=?) AND (" + timeCol + "<=?);")
@@ -72,7 +71,7 @@ func getApplicableReservations(tx *sql.Tx, now time.Time, status, timeCol string
 			logger.Error(err)
 		}
 		reservations = append(reservations, r)
-		fmt.Printf("Values from matching query: id - %v, username - %v, env_plain_name %v\n", r.ID, r.User, r.EnvPlainName)
+		logger.Debugf("Values from matching query: id - %v, username - %v, env_plain_name %v\n", r.ID, r.User, r.EnvPlainName)
 	}
 	return reservations
 }
@@ -99,6 +98,13 @@ func check(tx *sql.Tx, r util.Reservation, hasSSH *bool) bool {
 
 type startBookingFunc func(envPlainName, sshKey string, until time.Time)
 
+// StartUpcomingReservations selects all upcoming reservations from database, wich have a start
+// time smaller than now. It applies the startBooking function to all environments which are
+// affected by those reservations. After, it changes the reservation's status in database.
+// The reason, why the startBooking function is passed as parameter
+// here is the ambition to preserve the separation of database and vault package. The time now is
+// passed because an unchanging reference is needed over several function calls to avoid
+// inconsistencies.
 func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 	tx := beginTransaction()
 	defer commitTransaction(tx)
@@ -112,11 +118,11 @@ func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 			return
 		}
 
-		// check, if enironment in reservation exists and fill in the information has_ssh
+		// check, if environment in reservation exists and fill in the information has_ssh
 		var hasSSH bool
 		ok := check(tx, r, &hasSSH)
 		if !ok {
-			logger.Warningf("environment %v does not exis; mark reservation with id=%v for user=%v as error", r.EnvPlainName, r.ID, r.User)
+			logger.Warningf("environment %v does not exist; mark reservation with id=%v for user=%v as error", r.EnvPlainName, r.ID, r.User)
 			changeStatus(tx, r.ID, "error")
 			return
 		}
@@ -144,6 +150,13 @@ func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 
 type endBookingFunc func(envPlainName string)
 
+// ExpireActiveReservations selects all active reservations from database, wich have an end
+// time smaller than now. It applies the endBooking function to all environments which are
+// affected by those reservations. After, it changes the reservation's status in database.
+// The reason, why the endBooking function is passed as parameter
+// here is the ambition to preserve the separation of database and vault package. The time now is
+// passed because an unchanging reference is needed over several function calls to avoid
+// inconsistencies.
 func ExpireActiveReservations(now time.Time, endBooking endBookingFunc) {
 	tx := beginTransaction()
 	defer commitTransaction(tx)
@@ -162,6 +175,8 @@ func ExpireActiveReservations(now time.Time, endBooking endBookingFunc) {
 	}
 }
 
+// DeleteOldReservations selects all expired reservations from database, which have a delete_on time
+// smaller than now. It deletes all those reservations from database.
 func DeleteOldReservations(now time.Time) {
 	tx := beginTransaction()
 	defer commitTransaction(tx)

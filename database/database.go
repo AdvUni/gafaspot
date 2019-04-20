@@ -24,6 +24,9 @@ import (
 	"time"
 
 	logging "github.com/alexcesaro/log"
+
+	// Gafaspot uses a SQLite database. Therefore, the go-sqlite3 package is used, as it is a
+	// database driver for SQLite for Go's database/sql package
 	_ "github.com/mattn/go-sqlite3"
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 )
@@ -40,7 +43,7 @@ var (
 )
 
 // InitDB prepares the database for gafaspot. Opens the database at the path given in config file.
-// As SQLITE is used, database doesn't even need to exist yet. Prepares all database tables and
+// As SQLite is used, database doesn't even need to exist yet. Prepares all database tables and
 // fills the environments table with the information from config file.
 // Sets the package variable db to enable every function in the package to access the database.
 func InitDB(l logging.Logger, config util.GafaspotConfig) {
@@ -52,7 +55,7 @@ func InitDB(l logging.Logger, config util.GafaspotConfig) {
 	maxBookingDays = config.MaxBookingDays
 	maxQueuingMonths = config.MaxQueuingMonths
 
-	// Open database. SQLITE databases are simple files, and if database doesn't exist yet, a new file will be createt at the specified path
+	// Open database. SQLite databases are simple files, and if database doesn't exist yet, a new file will be created at the specified path
 	var err error
 	db, err = sql.Open("sqlite3", config.Database)
 	if err != nil {
@@ -74,7 +77,7 @@ func InitDB(l logging.Logger, config util.GafaspotConfig) {
 		os.Exit(1)
 	}
 
-	// Create table environments. If it already exist, deltete it first. Someone might have updated the environment configurations before system restart. So this table should be created from scratch.
+	// Create table environments. If it already exist, delete it first. Someone might have updated the environment configurations before system restart. So this table should be created from scratch.
 	_, err = db.Exec("DROP TABLE IF EXISTS environments;")
 	if err != nil {
 		logger.Emergency(err)

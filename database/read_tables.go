@@ -27,11 +27,14 @@ import (
 	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
 )
 
+// UserHasSSH determines, whether an SSH public key is stored in database for a given username
 func UserHasSSH(username string) bool {
 	_, ok := GetUserSSH(username)
 	return ok
 }
 
+// GetUserSSH returns the SSH public key for a given user from database if present. If not, an
+// empty string will be returned, together with the second return value saying false.
 func GetUserSSH(username string) (string, bool) {
 	var sshKey sql.NullString
 	stmt, err := db.Prepare("SELECT ssh_pub_key FROM users WHERE (username=?);")
@@ -50,6 +53,10 @@ func GetUserSSH(username string) (string, bool) {
 	return sshKey.String, true
 }
 
+// GetEnvironments reads all environments from database and returns them in a slice, ordered by
+// NiceName. Further, it returns two maps to simply access some environment attributes:
+// envHasSSHMap allocates each environment's HasSSH attribute to the PlainName,
+// envNiceNameMap allocates the NiceName attribute to the PlainName.
 func GetEnvironments() ([]util.Environment, map[string]bool, map[string]string) {
 	rows, err := db.Query("SELECT env_plain_name, env_nice_name, has_ssh, description FROM environments ORDER BY env_nice_name;")
 	if err != nil {
@@ -80,14 +87,19 @@ func GetEnvironments() ([]util.Environment, map[string]bool, map[string]string) 
 	return envs, envHasSSHMap, envNiceNameMap
 }
 
+// GetEnvReservations returns all reservations stored in database for a specific environment.
 func GetEnvReservations(envPlainName string) []util.Reservation {
 	return getReservations("env_plain_name", envPlainName)
 }
 
+// GetUserReservations returns all reservations stored in database for a specific username.
 func GetUserReservations(username string) []util.Reservation {
 	return getReservations("username", username)
 }
 
+// getReservations allows to select all reservations from database by one specific condition. The
+// condition is: 'WHERE conditionKey=conditionVal', where conditionKey and conditionVal are
+// function parameters.
 func getReservations(conditionKey, conditionVal string) []util.Reservation {
 	stmtstring := fmt.Sprintf("SELECT id, status, username, env_plain_name, start, end, subject, labels FROM reservations WHERE %v=?", conditionKey)
 	stmt, err := db.Prepare(stmtstring)
@@ -125,6 +137,8 @@ func getReservations(conditionKey, conditionVal string) []util.Reservation {
 	return reservations
 }
 
+// GetUserActiveReservationEnv returns all environment's PlainNames, which are stored for a
+// specific username and have status 'active'.
 func GetUserActiveReservationEnv(username string) []string {
 	stmt, err := db.Prepare("SELECT env_plain_name FROM reservations WHERE (status='active') AND (username=?);")
 	if err != nil {
