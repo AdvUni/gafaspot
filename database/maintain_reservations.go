@@ -123,7 +123,7 @@ func CreateReservation(r util.Reservation) error {
 	if err != nil {
 		logger.Error(err)
 	} else {
-		logger.Info("new reservation created: '%+v'", r)
+		logger.Infof("new reservation created: %+v", r)
 	}
 
 	return nil

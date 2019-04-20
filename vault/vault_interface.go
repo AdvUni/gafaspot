@@ -19,7 +19,6 @@
 package vault
 
 import (
-	"fmt"
 	"time"
 
 	logging "github.com/alexcesaro/log"
@@ -71,12 +70,11 @@ func EndBooking(envPlainName string) {
 }
 
 // ReadCredentials reads the credentials from all KV Secrets Engine related to the environment
-// envPlainName and returns them as map. Map keys are the Secrets Engine's names. Throws an
-// error if environment does not exist or if one of the KV Secrets Engines returns an error.
-func ReadCredentials(envPlainName string) (map[string]interface{}, error) {
+// envPlainName and returns them as map. Map keys are the Secrets Engine's names.
+func ReadCredentials(envPlainName string) map[string]interface{} {
 	environment, ok := environments[envPlainName]
 	if !ok {
-		return nil, fmt.Errorf("environment '%v' does not exist", envPlainName)
+		logger.Warningf("tried to read creds for environment '%v' which does not exist", envPlainName)
 	}
 
 	vaultToken := createVaultToken()
@@ -85,9 +83,11 @@ func ReadCredentials(envPlainName string) (map[string]interface{}, error) {
 	for _, secEng := range environment {
 		c, err := secEng.readCreds(vaultToken)
 		if err != nil {
-			return nil, err
+			logger.Warningf("failed to read creds from Secrets Engine '%v' in environment '%v': %v", secEng.getName(), envPlainName, err)
+			credentials[secEng.getName()] = map[string]string{"error": "not possible to provide credentials"}
+		} else {
+			credentials[secEng.getName()] = c
 		}
-		credentials[secEng.getName()] = c
 	}
-	return credentials, nil
+	return credentials
 }

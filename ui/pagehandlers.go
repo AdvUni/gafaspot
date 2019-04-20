@@ -155,12 +155,12 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 	envCreds := make(map[string]interface{})
 
 	for _, env := range envNames {
-		creds, err := vault.ReadCredentials(env)
-		if err != nil {
-			logger.Error(err)
+		creds := vault.ReadCredentials(env)
+		if creds != nil {
+			envCreds[envNiceNameMap[env]] = creds
 		}
-		envCreds[envNiceNameMap[env]] = creds
 	}
+
 	allcredsTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": envCreds})
 }
 
