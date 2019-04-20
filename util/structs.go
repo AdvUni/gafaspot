@@ -51,6 +51,10 @@ type SecretsEngineConfig struct {
 	Role       string //`yaml:"role"`
 }
 
+// Environment is a struct to store the information of one row from database table environments.
+// The Description is of type template.HTML, as this type will not be escaped when served with a
+// golang http.Template. This enables the gafaspot config writer to put some HTML code inside the
+// descriptions for the environments.
 type Environment struct {
 	NiceName    string
 	PlainName   string
@@ -58,6 +62,8 @@ type Environment struct {
 	Description template.HTML
 }
 
+// Reservation is a struct to store the information of one row from database table reservations.
+// (only database column delete_on is not included).
 type Reservation struct {
 	ID           int
 	Status       string

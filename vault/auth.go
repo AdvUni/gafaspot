@@ -60,6 +60,11 @@ func initLDAP(authPolicy, vaultAddress string) {
 	ldapAuthPolicy = authPolicy
 }
 
+// DoLdapAuthentication performs an LDAP authentication against a Vault LDAP Auth Method.
+// It checks, whether username and password are accepted by the configured ldap server at all.
+// If so, it checks whether Vault assigns the ldap-group-policy given in gafaspot_config.yaml
+// to the login data. This is the case if the user is member of the correct LDAP group (and the
+// vault auth method is configured correctly).
 func DoLdapAuthentication(username, password string) bool {
 	url := ldapAuthBasicURL + "/" + username
 	payload := strings.NewReader(fmt.Sprintf("{\"password\": \"%v\"}", password))

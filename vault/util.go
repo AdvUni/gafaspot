@@ -103,7 +103,7 @@ func sendVaultLdapRequest(url string, body io.Reader) ([]interface{}, error) {
 	return policySlice, nil
 }
 
-func sendVaultRequestEmtpyResponse(requestType, url, vaultToken string, body io.Reader) error {
+func sendVaultRequestEmptyResponse(requestType, url, vaultToken string, body io.Reader) error {
 	res, err := sendVaultRequest(requestType, url, vaultToken, body)
 	if err != nil {
 		return err

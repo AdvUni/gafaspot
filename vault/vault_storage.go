@@ -24,7 +24,7 @@ import (
 
 func vaultStorageWrite(vaultToken, url string, data []byte) {
 
-	err := sendVaultRequestEmtpyResponse("POST", url, vaultToken, bytes.NewReader(data))
+	err := sendVaultRequestEmptyResponse("POST", url, vaultToken, bytes.NewReader(data))
 	if err != nil {
 		logger.Errorf("failed to write to KV Secrets Engine: %v", err)
 	}
@@ -35,7 +35,7 @@ func vaultStorageRead(vaultToken, url string) (map[string]interface{}, error) {
 }
 
 func vaultStorageDelete(vaultToken, url string) {
-	err := sendVaultRequestEmtpyResponse("DELETE", url, vaultToken, nil)
+	err := sendVaultRequestEmptyResponse("DELETE", url, vaultToken, nil)
 	if err != nil {
 		logger.Warningf("failed to delete from KV Secrets Engine: %v", err)
 	}

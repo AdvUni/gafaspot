@@ -37,7 +37,7 @@ func (err ReservationError) Error() string {
 
 // CreateReservation puts a new reservation entry to the database. Bevor writing to database,
 // several checks are performed. Function checks time parameters for plausibility, tests, if
-// user has an ssh key uploaded if nessecary, and checks for possible conlficts with existing
+// user has an ssh key uploaded if necessary, and checks for possible conflicts with existing
 // reservations. If everything is fine, reservation will be created. Otherwise, function returns
 // a reservation error.
 func CreateReservation(r util.Reservation) error {

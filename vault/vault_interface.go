@@ -30,6 +30,10 @@ var (
 	environments map[string][]SecEng
 )
 
+// InitVaultParams initializes the vault package from gafaspot. Besides setting the logger, it
+// reads several values from config and readies gafaspot to communicate with the vault
+// Auth Methods. Further, it creates several SecEng objects to communicate with vault secrets
+// engines.
 func InitVaultParams(l logging.Logger, config util.GafaspotConfig) {
 
 	logger = l

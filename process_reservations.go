@@ -34,6 +34,8 @@ var (
 	logger logging.Logger
 )
 
+// handleReservationScanning is an endless loop which repetitively calls reservationScan. This is
+// keeping the reservations table in database up-to-date.
 func handleReservationScanning(l logging.Logger) {
 	logger = l
 
@@ -46,6 +48,8 @@ func handleReservationScanning(l logging.Logger) {
 	}
 }
 
+// reservationScan reads through all reservations in database and checks if there must be performed
+// an action as starting or ending them.
 func reservationScan() {
 
 	now := time.Now()

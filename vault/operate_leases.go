@@ -71,7 +71,7 @@ func (secEng leaseSecEng) createLease(vaultToken string) map[string]interface{} 
 }
 
 func (secEng leaseSecEng) revokeLease(vaultToken string) {
-	err := sendVaultRequestEmtpyResponse("POST", secEng.revokeLeaseURL, vaultToken, nil)
+	err := sendVaultRequestEmptyResponse("POST", secEng.revokeLeaseURL, vaultToken, nil)
 	if err != nil {
 		logger.Errorf("not able to revoke lease: %v", err)
 	}
@@ -81,7 +81,7 @@ func tuneLeaseDuration(tuneLeaseDurationURL string, maxBookingDays int) {
 	hours := maxBookingDays * 24
 	payload := fmt.Sprintf("{\"default_lease_ttl\": \"%vh\", \"max_lease_ttl\": \"%vh\"}", hours, hours)
 	vaultToken := createVaultToken()
-	err := sendVaultRequestEmtpyResponse("POST", tuneLeaseDurationURL, vaultToken, strings.NewReader(payload))
+	err := sendVaultRequestEmptyResponse("POST", tuneLeaseDurationURL, vaultToken, strings.NewReader(payload))
 	if err != nil {
 		logger.Errorf("not able to tune lease duration: %v", err)
 	}
