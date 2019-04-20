@@ -140,6 +140,7 @@ func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 		}
 
 		// trigger the start of the booking
+		logger.Infof("Starting reservation %+v...", r)
 		startBooking(r.EnvPlainName, sshKey, r.End)
 
 		// change booking status in database
@@ -167,6 +168,7 @@ func ExpireActiveReservations(now time.Time, endBooking endBookingFunc) {
 		ok := check(tx, r, new(bool))
 		if ok {
 			// trigger the end of the booking
+			logger.Infof("Ending reservation %+v...", r)
 			endBooking(r.EnvPlainName)
 
 			// change booking status in database

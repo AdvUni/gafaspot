@@ -123,7 +123,7 @@ func CreateReservation(r util.Reservation) error {
 	if err != nil {
 		logger.Error(err)
 	} else {
-		logger.Info("user '%v' created new reservation for environment '%v' from %v to %v", r.User, r.EnvPlainName, r.Start, r.End)
+		logger.Info("new reservation created: '%+v'", r)
 	}
 
 	return nil
