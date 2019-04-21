@@ -34,10 +34,8 @@ import (
 )
 
 type envReservations struct {
-	Env                  util.Environment
-	ReservationsUpcoming []util.Reservation
-	ReservationsActive   []util.Reservation
-	ReservationsExpired  []util.Reservation
+	Env          util.Environment
+	reservations []util.Reservation
 }
 
 type reservationNiceName struct {
@@ -104,11 +102,17 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 		redirectNotAuthenticated(w, r)
 		return
 	}
-	envReservationsList := []envReservations{}
+	var envReservationsList []envReservations
 
 	for _, env := range environments {
-		upcoming, active, expired := sortReservations(database.GetEnvReservations(env.PlainName))
-		envReservationsList = append(envReservationsList, envReservations{env, upcoming, active, expired})
+
+		reservations := database.GetUserReservations(username)
+		// sort reservations
+		sort.Slice(reservations, func(i, j int) bool {
+			return reservations[i].Start.Before(reservations[j].Start)
+		})
+
+		envReservationsList = append(envReservationsList, envReservations{env, reservations})
 	}
 
 	err := mainviewTmpl.Execute(w, map[string]interface{}{"Username": username, "Envcontent": envReservationsList})

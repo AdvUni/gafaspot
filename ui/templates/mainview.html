@@ -25,7 +25,7 @@
         <div class="row">
             <!-- tab bar for all environments -->
             <div class="col-2 fixed-top" style="overflow-y: scroll; height: 100%;">
-                <p  class="nav-item nav-link">Available Environments:</p>
+                <p class="nav-item nav-link">Available Environments:</p>
                 <div class="list-group" id="list-tab" role="tablist">
                     {{ range index .Envcontent }}
                     <a class="list-group-item list-group-item-action" id="{{ .Env.PlainName }}-tab" data-toggle="list"
@@ -35,7 +35,7 @@
                 </div>
             </div>
         </div>
-        <!-- contents to the different tabs -->
+        <!-- contents of the different tabs -->
         <div class="row">
             <div class="col-2"></div>
             <div class="col-10">
@@ -54,43 +54,48 @@
                             <hr>
                             <h3>Reservations:</h3>
                             <br>
-                            <form method="post" action="/newreservation/{{ .Env.PlainName }}">
-                                <button type="submit" class="btn btn-primary">new reservation</button>
-                            </form>
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="togglePast"
+                                    data-toggle="collapse" data-target=".past">
+                                <label class="custom-control-label" for="togglePast">Show expired reservations</label>
+                            </div>
                             <br>
                             <ul class="list-group">
-                                <!-- all upcoming reservations -->
-                                {{ range .ReservationsUpcoming }}
-                                <li class="list-group-item list-group-item-info">
-                                    <div class="row">
-                                        <span class="badge border border-info overflow-hidden col-md-1">upcoming</span>
-                                        <span class="col-md-10"><span class="font-weight-bold">{{ .User }}:</span><span
-                                                class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
-                                                class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
-                                    </div>
-                                </li>
-                                {{ end }}
-                                <!-- all active reservations -->
-                                {{ range .ReservationsActive }}
-                                <li class="list-group-item list-group-item-success">
-                                    <div class="row">
-                                        <span class="badge border border-success col-md-1">active</span>
-                                        <span class="col-md-9"><span class="font-weight-bold">{{ .User }}:</span><span
-                                                class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
-                                                class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
-                                    </div>
-                                </li>
-                                {{ end }}
-                                <!-- all expired reservations -->
-                                {{ range .ReservationsExpired }}
-                                <li class="list-group-item list-group-item-dark">
-                                    <div class="row">
-                                        <span class="badge border border-dark col-md-1">expired</span>
-                                        <span class="col-md-11"><span class="font-weight-bold">{{ .User }}:</span><span
-                                                class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
-                                                class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
-                                    </div>
-                                </li>
+                                {{ range index .Reservations}}
+                                {{ if (eq .Status "upcoming") }}
+                                <div>
+                                    <li class="list-group-item list-group-item-info">
+                                        {{ else if (eq .Status "active") }}
+                                        <div>
+                                    <li class="list-group-item list-group-item-success">
+                                        {{ else if (eq .Status "expired") }}
+                                        <div class="past collapse">
+                                    <li class="list-group-item list-group-item-dark">
+                                        {{ else if (eq .Status "error") }}
+                                        <div{{ if (past .) }} class="past collapse" {{ end }}>
+                                    <li class="list-group-item list-group-item-danger">
+                                        {{ end }}
+
+                                        <div class="row">
+                                            {{ if (eq .Status "upcoming") }}
+                                            <span
+                                                class="badge border border-info overflow-hidden col-md-1">{{ .Status }}</span>
+                                            {{ else if (eq .Status "active") }}
+                                            <span
+                                                class="badge border border-success overflow-hidden col-md-1">{{ .Status }}</span>
+                                            {{ else if (eq .Status "expired") }}
+                                            <span
+                                                class="badge border border-dark overflow-hidden col-md-1">{{ .Status }}</span>
+                                            {{ else if (eq .Status "error") }}
+                                            <span
+                                                class="badge border border-danger overflow-hidden col-md-1">{{ .Status }}</span>
+                                            {{ end }}
+                                            <span class="col-md-10"><span class="font-weight-bold">{{ .User }}:</span>
+                                                <span class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
+                                                    class="ml-2 mr-3">{{ formatDatetime .End }}</span>({{ .Subject }})</span>
+                                        </div>
+                                    </li>
+                                </div>
                                 {{ end }}
                             </ul>
                             <br>
@@ -112,9 +117,9 @@
     }
     $('.list-group a').on('shown.bs.tab', function (e) {
         window.location.hash = e.target.hash;
-        window.scrollTo(0,0);
+        window.scrollTo(0, 0);
     })
-    $(document).ready(function(){
-    window.scrollTo(0,0);
-});
+    $(document).ready(function () {
+        window.scrollTo(0, 0);
+    });
 </script>
