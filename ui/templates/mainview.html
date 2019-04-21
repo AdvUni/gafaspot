@@ -56,9 +56,11 @@
                             <h3>Reservations:</h3>
                             <br>
                             <div class="custom-control custom-switch">
-                                <input type="checkbox" class="custom-control-input toggle-past" id="togglePast-{{ $PlainName }}"
-                                    data-toggle="collapse" data-target=".past-{{ $PlainName }}">
-                                <label class="custom-control-label" for="togglePast-{{ $PlainName }}">Show expired reservations</label>
+                                <input type="checkbox" class="custom-control-input toggle-past"
+                                    id="togglePast-{{ $PlainName }}" data-toggle="collapse"
+                                    data-target=".past-{{ $PlainName }}">
+                                <label class="custom-control-label" for="togglePast-{{ $PlainName }}">Show expired
+                                    reservations</label>
                             </div>
                             <br>
                             <ul class="list-group">
@@ -75,8 +77,11 @@
                                         {{ else if (eq .Status "error") }}
                                         <div{{ if (past .) }} class="past-{{ $PlainName }} collapse" {{ end }}>
                                     <li class="list-group-item list-group-item-danger">
+                                        {{ else }}
+                                        <div
+                                            class="font-italic{{ if (past .) }} past-{{ $PlainName }} collapse {{ end }}">
+                                    <li class="list-group-item list-group-item-light">
                                         {{ end }}
-
                                         <div class="row">
                                             {{ if (eq .Status "upcoming") }}
                                             <span
@@ -90,6 +95,9 @@
                                             {{ else if (eq .Status "error") }}
                                             <span
                                                 class="badge border border-danger overflow-hidden col-md-1">{{ .Status }}</span>
+                                            {{ else }}
+                                            <span
+                                                class="badge border border-light overflow-hidden col-md-1">invalid</span>
                                             {{ end }}
                                             <span class="col-md-10"><span class="font-weight-bold">{{ .User }}:</span>
                                                 <span class="ml-3 mr-2">{{ formatDatetime .Start }}</span>&ndash;<span
