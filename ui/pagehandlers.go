@@ -35,7 +35,7 @@ import (
 
 type envReservations struct {
 	Env          util.Environment
-	reservations []util.Reservation
+	Reservations []util.Reservation
 }
 
 type reservationNiceName struct {
@@ -64,28 +64,6 @@ func newReservationNiceName(r util.Reservation) reservationNiceName {
 	}
 }
 
-func sortReservations(reservations []util.Reservation) ([]util.Reservation, []util.Reservation, []util.Reservation) {
-	// sort reservation list by start date
-	sort.Slice(reservations, func(i, j int) bool {
-		return reservations[i].Start.After(reservations[j].Start)
-	})
-	// split list into three sub lists
-	var upcoming, active, expired []util.Reservation
-	for _, r := range reservations {
-		switch r.Status {
-		case "upcoming":
-			upcoming = append(upcoming, r)
-		case "active":
-			active = append(active, r)
-		case "expired":
-			expired = append(expired, r)
-		case "error":
-			logger.Debug("reservation with status error is not displayed")
-		}
-	}
-	return upcoming, active, expired
-}
-
 func loginPageHandler(w http.ResponseWriter, r *http.Request) {
 	errormessage := readErrorCookie(w, r)
 	infomessage := readInfoCookie(w, r)
@@ -106,7 +84,7 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, env := range environments {
 
-		reservations := database.GetUserReservations(username)
+		reservations := database.GetEnvReservations(env.PlainName)
 		// sort reservations
 		sort.Slice(reservations, func(i, j int) bool {
 			return reservations[i].Start.Before(reservations[j].Start)
