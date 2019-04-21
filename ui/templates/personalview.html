@@ -99,13 +99,10 @@
         <h3>Your Reservations:</h3>
         <br>
         <div class="custom-control custom-switch">
-                <input type="checkbox" class="custom-control-input" id="togglePast" data-toggle="collapse" data-target=".past" checked>
+                <input type="checkbox" class="custom-control-input" id="togglePast" data-toggle="collapse" data-target=".past">
                 <label class="custom-control-label" for="togglePast">Show expired reservations </label>
               </div>
         <br>
-        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target=".past">
-            show/hide expired reservations
-        </button>
         <ul class="list-group">
             {{ range index .Reservations}}
             {{ if (eq .Status "upcoming") }}
