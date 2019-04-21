@@ -43,8 +43,9 @@
                     <br>
                     <div class="tab-content" id="nav-tabContent">
                         {{ range index .Envcontent }}
-                        <div class="tab-pane" id="{{ .Env.PlainName }}" role="tabpanel"
-                            aria-labelledby="{{ .Env.PlainName }}-tab">
+                        {{ $PlainName := .Env.PlainName }}
+                        <div class="tab-pane" id="{{ $PlainName }}" role="tabpanel"
+                            aria-labelledby="{{ $PlainName }}-tab">
                             <h2>{{ .Env.NiceName }}</h2>
                             <br>
                             <h3>Description:</h3>
@@ -55,9 +56,9 @@
                             <h3>Reservations:</h3>
                             <br>
                             <div class="custom-control custom-switch">
-                                <input type="checkbox" class="custom-control-input" id="togglePast"
-                                    data-toggle="collapse" data-target=".past">
-                                <label class="custom-control-label" for="togglePast">Show expired reservations</label>
+                                <input type="checkbox" class="custom-control-input toggle-past" id="togglePast-{{ $PlainName }}"
+                                    data-toggle="collapse" data-target=".past-{{ $PlainName }}">
+                                <label class="custom-control-label" for="togglePast-{{ $PlainName }}">Show expired reservations</label>
                             </div>
                             <br>
                             <ul class="list-group">
@@ -69,10 +70,10 @@
                                         <div>
                                     <li class="list-group-item list-group-item-success">
                                         {{ else if (eq .Status "expired") }}
-                                        <div class="past collapse">
+                                        <div class="past-{{ $PlainName }} collapse">
                                     <li class="list-group-item list-group-item-dark">
                                         {{ else if (eq .Status "error") }}
-                                        <div{{ if (past .) }} class="past collapse" {{ end }}>
+                                        <div{{ if (past .) }} class="past-{{ $PlainName }} collapse" {{ end }}>
                                     <li class="list-group-item list-group-item-danger">
                                         {{ end }}
 
@@ -108,9 +109,9 @@
     </div>
 </main>
 {{ template "bottom" }}
-
-<!-- functionality for accessing specified tabs when linking from another site -->
 <script type="text/javascript">
+    $('.togglePast').prop('checked', false);
+    //functionality for accessing specified tabs when linking from another site
     var url = document.location.toString();
     if (url.match('#')) {
         $('.list-group a[href="#' + url.split('#')[1] + '"]').tab('show');
