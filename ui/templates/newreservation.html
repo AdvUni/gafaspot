@@ -39,37 +39,41 @@
         {{ end }}
         <br>
         <form method="POST" , action="/reserve">
-            <div class="form-group row">
-                <label for="env" class="col-form-label col-md-2">Environment</label>
-                <select class="form-control col-md-10" id="env" name="env" onChange="window.location.href=this.value">
+            <div class="form-group">
+                <label for="env">Environment</label>
+                <select class="form-control" id="env" name="env" onChange="window.location.href=this.value">
                     {{ $selected := index .Selected }}
                     {{ range index .Envs }}
-                    {{ if eq .PlainName $selected }}
-                    <option value="{{ .PlainName }}" selected>{{ .NiceName }}</option>
-                    {{ else }}
-                    <option value="{{ .PlainName }}">{{ .NiceName }}</option>
-                    {{ end }}
+                    {{ if eq .PlainName $selected }}<option value="{{ .PlainName }}" selected>{{ .NiceName }}</option>
+                    {{ else }}<option value="{{ .PlainName }}">{{ .NiceName }}</option>{{ end }}
                     {{ end }}
                 </select>
             </div>
-            <div class="row">
-                <label for="start" class="col-form-label col-md-2">Start Reservation</label>
-                <div class="form-group row col-md-10" id="start">
-                    <input type="date" class="form-control col-md" id="startdate" name="startdate" required>
-                    <input type="time" class="form-control col-md" id="starttime" name="starttime" value="00:00"
-                        required>
+            <div class="form-group">
+                <label for="start">Start Reservation</label>
+                <div class="form-row" id="start">
+                    <div class="col">
+                        <input type="date" class="form-control" id="startdate" name="startdate" required>
+                    </div>
+                    <div class="col">
+                        <input type="time" class="form-control" id="starttime" name="starttime" value="00:00" required>
+                    </div>
                 </div>
             </div>
-            <div class="row">
-                <label for="end" class="col-form-label col-md-2">End Reservation</label>
-                <div class="form-group row col-md-10" id="end">
-                    <input type="date" class="form-control col-md" id="enddate" name="enddate" required>
-                    <input type="time" class="form-control col-md" id="endtime" name="endtime" value="23:59" required>
+            <div class="form-group">
+                <label for="end">End Reservation</label>
+                <div class="form-row" id="end">
+                    <div class="col">
+                        <input type="date" class="form-control" id="enddate" name="enddate" required>
+                    </div>
+                    <div class="col">
+                        <input type="time" class="form-control" id="endtime" name="endtime" value="23:59" required>
+                    </div>
                 </div>
             </div>
-            <div class="form-group row">
-                <label for="sub" class="col-form-label col-md-2">Subject</label>
-                <input type="text" class="form-control col-md-10" id="sub" name="sub">
+            <div class="form-group">
+                <label for="sub">Subject</label>
+                <input type="text" class="form-control" id="sub" name="sub">
             </div>
             <div class="d-flex justify-content-end">
                 <a href="/mainview#{{ $selected }}"><input type=button class="btn btn-secondary m-2" value="cancel"></a>
