@@ -6,7 +6,8 @@ After starting the server, initialize it with following command:
 
     curl --request PUT --data @vault_init.json http://127.0.0.1:8200/v1/sys/init
 
-Where the contents of `vault_init.json` are:
+The file `vault_init.json` can be found together with many other JSON payload snippets in the sub directory [`json_payload/`](json_payload).
+The contents of `vault_init.json` are:
 
     {
         "secret_shares": 1,
