@@ -31,7 +31,9 @@ Unseal Vault with:
 
 From now on, Vault is up and ready for interaction. To be used with Gafaspot, you need to enable and configure some Auth Methods and many Secrets Engines. Therefore, view the respective pages:
 
- * [Secrets Engines General](secengs_general.md)
+* [LDAP Auth Method](auth_ldap.md)
+* [AppRole Auth Method](auth_approle.md)
+ * [Secrets Engines](secengs_general.md)
     * [Active Directory Secrets Engine](secengs_ad.md)
     * [SSH Secrets Engine (Signed Certificates)](secengs_ssh.md)
     * [Database Secrets Engine](secengs_database.md)

@@ -63,7 +63,7 @@ The end of Gafaspot config is for describing the composition of the different en
 
         ...
 The environment's names are only allowed to contain **lowercase** ASCII letters, numbers and underscores. Don't use uppercase letters and blanks!  
-Each environment has further attributes: 
+Each environment has following attributes: 
 
         demo0:
             show-name: DEMO 0
