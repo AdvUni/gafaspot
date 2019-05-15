@@ -69,3 +69,6 @@ Change the service_account_name to the name of an AD user which you want to mana
 As Vault might not have tell you if some of the configuration did fail, better perform a `creds` request to test whether your setup works as expected:
 
     curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' http://127.0.0.1:8200/v1/operate/<environment_name>/ActiveDirectory/creds/gafaspot
+
+---
+*Go back to [table of contents](README.md)...*

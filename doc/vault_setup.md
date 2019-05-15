@@ -29,7 +29,7 @@ Unseal Vault with:
         "key": "abcd1234..."
     }
 
-From now on, Vault is up and ready for interaction. To be used with Gafaspot, you need to enable and configure some Auth Methods and many Secrets Engines. Therefore, view the respective pages:
+From now on, Vault is up and ready for interaction. To be used with Gafaspot, you need to enable and configure some Auth Methods and many Secrets Engines. Therefore, see the respective pages:
 
 * [LDAP Auth Method](auth_ldap.md)
 * [AppRole Auth Method](auth_approle.md)
@@ -38,3 +38,6 @@ From now on, Vault is up and ready for interaction. To be used with Gafaspot, yo
     * [SSH Secrets Engine (Signed Certificates)](secengs_ssh.md)
     * [Database Secrets Engine](secengs_database.md)
     * [Ontap Secrets Engine](secengs_ontap.md)
+
+---
+*Go back to [table of contents](README.md)...*

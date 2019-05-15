@@ -55,3 +55,6 @@ Then, generate a `secret-id`:
 It has to be a POST request, but its payload can be empty.
 
 Copy `role-id` and `secret-id` from the request's answers to gafaspot_config.yaml
+
+---
+*Go back to [table of contents](README.md)...*

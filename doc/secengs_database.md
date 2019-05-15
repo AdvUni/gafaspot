@@ -62,3 +62,6 @@ The following payload should work:
     }
 
 "db_name" defines again, for which kind of database this role is made. "creation_statements" is a list of statements which the Secrets Engines executes when creating the new user. This needs to be set explicitly, because this is the only point, where it is possible to determine, which permissions the new user will have inside the database. The statement `GRANT ALL ON *.* TO '{{name}}'@'%' WITH GRANT OPTION` should give all permissions to users created with the Secrets Engine. It is also possible to define "revocation_statements", but this is not required. It defaults to just deleting the user without any further actions.
+
+---
+*Go back to [table of contents](README.md)...*
