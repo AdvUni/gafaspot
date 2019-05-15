@@ -1,7 +1,9 @@
 # Explanations for Gafaspot Configuration
+Besides setting up a Vault server, Gafaspot itself has to be configured.
+
 All configuration for Gafaspot is read from one single config file: `gafapot_config.yaml`.
 This file must be located in the same directory from which you run Gafaspot.
-Create such a file by copying `example_config.yaml` which you find withing Gafaspot source code. Then adapt the file to your setting.
+Create such a file by copying `example_config.yaml` which you find with the Gafaspot source code. Then adapt the file to your setting.
 
 ## Strutcure of config file
 `gafapot_config.yaml` consists of three parts:
@@ -74,7 +76,7 @@ Each environment has following attributes:
                 ...
 As you can see, you are able to provide an attribute `show-name` which is allowed to contain every character. This name will be displayed in web interface. Additionally, the web interface shows every instruction you write into `description`. Use HTML syntax for formatting. For example, you can include hyperlinks. Consider to explain in detail, which components are inside the environment, which credentials are to expect from the Secret Engines, and how the credentials map to the environments. `show-name` and `description` are optional.
 
-Finally, you need to list all Secrets Engines at the third level. Therefore, enable as many Secrets Engines in Vault as you need to perform credential changing for all devices in your environment. In parallel, enable one KV Secrets Engine for each credential-changing secrets engine. You have to enable the Secrets Engines at following paths:
+Finally, you need to list all Secrets Engines at the third level. Therefore, enable as many Secrets Engines in Vault as you need to perform credential changing for all devices in your environment. In parallel, enable one KV Secrets Engine for each credential-changing secrets engine. The Secrets Engines have to be enabled at following paths:
 
     operate/<environment_name>/<secrets_engine_name>    => Some Secrets Engine offering new credentials
     store/<environment_name>/<secrets_engine_name>      => KV Secrets Engine which stores the credentials for the other Secrets Engine

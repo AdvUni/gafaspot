@@ -1,10 +1,9 @@
 # SSH Secrets Engine
-
 The [SSH Secrets Engine](https://www.vaultproject.io/docs/secrets/ssh/index.html) is available in three different modes. Gafaspot only supports the [Signed Certificates Mode](https://www.vaultproject.io/docs/secrets/ssh/signed-ssh-certificates.html). In this mode, the Secrets Engine does not interact directly with any external device, which makes configuration relatively easy. On the other hand, you will have to do some configuration on the target machines to make them accept the Secrets Engine's certificates. 
 
 The Secrets Engine is applicable to manage access for all accounts allowing ssh login under authentication with a signed private key. This will apply primarily to unix-like operating systems. If you have several of such devices in one environment, you can configure them all to accept certificates of the same instance, so you will need only one SSH Secrets Engine per environment.
 
-The signing process works like this: When reserving a environment with an SSH Secrets Engine, Gafaspot performs a `sign` request towards the Secrets Engine, containing the user's public ssh key. Therefore, the user must have uploaded such a key in the Gafaspot web interface previously. The Secrets Engine has an own ssh key pair and signs the user key, meaning it returns a certificate confirming the users key for a specified validity period. The user can retrieve the certificate in the web interface. Now he can login with his own private key and the certificate to every SSH machine which is configured to trust the Secrets Engines certificates.
+The signing process works like this: When reserving a environment with an SSH Secrets Engine, Gafaspot performs a `sign` request towards the Secrets Engine, containing the user's public ssh key. Therefore, the user must have uploaded such a key in the Gafaspot web interface previously. The Secrets Engine has an own ssh key pair and signs the user key, meaning it returns a certificate confirming the user key for a specified validity period. The user can retrieve the certificate in the web interface of Gafaspot. Now he can login with his own private key and the certificate to every SSH machine which is configured to trust the Secrets Engines certificates.
 
 ## Enable
 You enable the Secrets Engine like this:
