@@ -96,4 +96,5 @@ The respective config file for Gafaspot gafaspot_config.yaml, which must follow 
 
 
 ---
-*Go back to [table of contents](README.md)...*
+*Go to [next page](secengs_ad.md)...*  
+*Go to [table of contents](README.md)...*

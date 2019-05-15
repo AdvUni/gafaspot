@@ -56,4 +56,5 @@ where the last part of the request path is the LDAP group's name, in which you w
 
 
 ---
-*Go back to [table of contents](README.md)...*
+*Go to [next page](secengs_general.md)...*  
+*Go to [table of contents](README.md)...*

@@ -56,4 +56,5 @@ The command's payload looks like this:
 Change ontap_name to the user name of any local ONTAP account which you want to manage with Gafaspot.
 
 ---
-*Go back to [table of contents](README.md)...*
+*Go to [next page](config_explanation.md)...*  
+*Go to [table of contents](README.md)...*
