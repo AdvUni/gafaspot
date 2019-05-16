@@ -104,7 +104,7 @@ The Secrets Engine's name may only contain ASCII letters, numbers and underscore
 
 You don't need to explicitly mention KV Secrets Engines in the config file, as they are always related to another Secrets Engine.
 
-`role` is the name of the role you configure with the respective Secrets Engine. How you create the role is described in the respective Instructions about the Secrets Engine type.
+`role` is the name of the role you configure with the respective Secrets Engine. How you create the role is described in the respective instructions about the Secrets Engine type.
 
 ---
 *Go to [next page](database_scheme.md)...*  
