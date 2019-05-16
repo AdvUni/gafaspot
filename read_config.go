@@ -23,7 +23,7 @@ import (
 
 	logging "github.com/alexcesaro/log"
 	"github.com/spf13/viper"
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
+	"github.com/AdvUni/gafaspot/util"
 )
 
 // readConfig unmarshals the config file into a GafaspotConfig struct.

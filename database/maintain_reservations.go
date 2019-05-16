@@ -24,7 +24,7 @@ import (
 	"os"
 	"time"
 
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
+	"github.com/AdvUni/gafaspot/util"
 )
 
 // ReservationError is thrown by the CreateReservation func, if reservation parameters are not

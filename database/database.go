@@ -28,7 +28,7 @@ import (
 	// Gafaspot uses a SQLite database. Therefore, the go-sqlite3 package is used, as it is a
 	// database driver for SQLite for Go's database/sql package
 	_ "github.com/mattn/go-sqlite3"
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
+	"github.com/AdvUni/gafaspot/util"
 )
 
 var (

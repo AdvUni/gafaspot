@@ -23,8 +23,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/database"
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
+	"github.com/AdvUni/gafaspot/database"
+	"github.com/AdvUni/gafaspot/vault"
 )
 
 func redirectNotAuthenticated(w http.ResponseWriter, r *http.Request) {

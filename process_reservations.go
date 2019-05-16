@@ -22,8 +22,8 @@ import (
 	"time"
 
 	logging "github.com/alexcesaro/log"
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/database"
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
+	"github.com/AdvUni/gafaspot/database"
+	"github.com/AdvUni/gafaspot/vault"
 )
 
 const (

@@ -22,7 +22,7 @@ import (
 	"time"
 
 	logging "github.com/alexcesaro/log"
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
+	"github.com/AdvUni/gafaspot/util"
 )
 
 var (

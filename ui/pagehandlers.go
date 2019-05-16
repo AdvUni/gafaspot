@@ -28,9 +28,9 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/gorilla/mux"
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/database"
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
+	"github.com/AdvUni/gafaspot/database"
+	"github.com/AdvUni/gafaspot/util"
+	"github.com/AdvUni/gafaspot/vault"
 )
 
 type envReservations struct {

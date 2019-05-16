@@ -23,7 +23,7 @@ import (
 	"os"
 	"time"
 
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
+	"github.com/AdvUni/gafaspot/util"
 )
 
 // changeStatus sets the status column of the reservation with the given id to the given status string.

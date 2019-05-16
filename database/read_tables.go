@@ -24,7 +24,7 @@ import (
 	"html/template"
 	"os"
 
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
+	"github.com/AdvUni/gafaspot/util"
 )
 
 // UserHasSSH determines, whether an SSH public key is stored in database for a given username

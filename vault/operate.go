@@ -21,7 +21,7 @@ package vault
 import (
 	"fmt"
 
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/util"
+	"github.com/AdvUni/gafaspot/util"
 )
 
 const (

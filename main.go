@@ -21,9 +21,9 @@ package main
 import (
 	"github.com/alexcesaro/log/stdlog"
 
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/database"
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/ui"
-	"gitlab-vs.informatik.uni-ulm.de/gafaspot/vault"
+	"github.com/AdvUni/gafaspot/database"
+	"github.com/AdvUni/gafaspot/ui"
+	"github.com/AdvUni/gafaspot/vault"
 )
 
 func main() {
