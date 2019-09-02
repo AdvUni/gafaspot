@@ -33,11 +33,20 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// envCreds is a struct used for passing data to creds view
+type envCreds struct {
+	EnvName     string
+	EnvNiceName string
+	EnvCreds    interface{}
+}
+
+// envReservations is a struct used for passing data to main view
 type envReservations struct {
 	Env          util.Environment
 	Reservations []util.Reservation
 }
 
+// reservationNiceName is a struct used for passing reservation data to personal view
 type reservationNiceName struct {
 	EnvNiceName  string
 	ID           int
@@ -124,12 +133,6 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Error(err)
 	}
-}
-
-type envCreds struct {
-	EnvName     string
-	EnvNiceName string
-	EnvCreds    interface{}
 }
 
 func credsPageHandler(w http.ResponseWriter, r *http.Request) {
