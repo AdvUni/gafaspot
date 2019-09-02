@@ -27,10 +27,10 @@ import (
 
 	"golang.org/x/crypto/ssh"
 
-	"github.com/gorilla/mux"
 	"github.com/AdvUni/gafaspot/database"
 	"github.com/AdvUni/gafaspot/util"
 	"github.com/AdvUni/gafaspot/vault"
+	"github.com/gorilla/mux"
 )
 
 type envReservations struct {
@@ -126,24 +126,40 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type envCreds struct {
+	EnvName     string
+	EnvNiceName string
+	EnvCreds    interface{}
+}
+
 func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 	username, ok := verifyUser(w, r)
 	if !ok {
 		redirectNotAuthenticated(w, r)
 		return
 	}
-	envNames := database.GetUserActiveReservationEnv(username)
 
-	envCreds := make(map[string]interface{})
+	environments := database.GetUserActiveReservationEnv(username)
+	sort.Strings(environments)
 
-	for _, env := range envNames {
+	var credsData []envCreds
+
+	for _, env := range environments {
+
+		var envNiceName string
+		if val, ok := envNiceNameMap[env]; ok {
+			envNiceName = val
+		} else {
+			envNiceName = env
+		}
+
 		creds := vault.ReadCredentials(env)
 		if creds != nil {
-			envCreds[envNiceNameMap[env]] = creds
+			credsData = append(credsData, envCreds{env, envNiceName, creds})
 		}
 	}
 
-	allcredsTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": envCreds})
+	allcredsTmpl.Execute(w, map[string]interface{}{"Username": username, "CredsData": credsData})
 }
 
 func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {

@@ -23,7 +23,7 @@
 <main>
     <div class="container">
         <br>
-        {{ if not .Envs }}
+        {{ if not .CredsData }}
         <div class="alert alert-info" role="alert">
             <h4 class="alert-heading">No Credentials</h4>
             <p>You don't have any active reservations, so Gafaspot has no valid credentials for you.</p>
@@ -34,9 +34,9 @@
             </p>
         </div>
         {{ else }}
-        {{ range $envName, $secEng := index .Envs }}
-        <h3>{{ $envName }}</h3>
-        {{ range $secEngName, $creds :=  $secEng }}
+        {{ range index .CredsData}}
+        <h3 id="{{ .EnvName }}">{{ .EnvNiceName }}</h3>
+        {{ range $secEngName, $creds := .EnvCreds }}
         <h5>{{ $secEngName }}:</h5>
 
         {{ if index $creds "username" }}
