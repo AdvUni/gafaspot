@@ -143,7 +143,7 @@
                             data-reservation="{{ .EnvNiceName }}: {{ formatDatetime .Start }} &ndash; {{ formatDatetime .End }} ({{ .Subject }})">abort
                         </button>
                         {{ else if (eq .Status "active") }}
-                        <a href="personal/creds" class="badge badge-success col-md-1">show creds</a>
+                        <a href="personal/creds#{{ .EnvPlainName }}" class="badge badge-success col-md-1">show creds</a>
                         {{ end }}
                     </div>
                 </li>
