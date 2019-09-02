@@ -159,7 +159,7 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	allcredsTmpl.Execute(w, map[string]interface{}{"Username": username, "CredsData": credsData})
+	credsviewTmpl.Execute(w, map[string]interface{}{"Username": username, "CredsData": credsData})
 }
 
 func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {

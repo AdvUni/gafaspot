@@ -27,10 +27,10 @@ import (
 	"path"
 	"time"
 
-	logging "github.com/alexcesaro/log"
-	"github.com/gorilla/mux"
 	"github.com/AdvUni/gafaspot/database"
 	"github.com/AdvUni/gafaspot/util"
+	logging "github.com/alexcesaro/log"
+	"github.com/gorilla/mux"
 )
 
 const (
@@ -65,7 +65,7 @@ var (
 	personalviewTmpl    *template.Template
 	reservationformTmpl *template.Template
 	reservesuccessTmpl  *template.Template
-	allcredsTmpl        *template.Template
+	credsviewTmpl       *template.Template
 	addkeyformTmpl      *template.Template
 	addkeysuccessTmpl   *template.Template
 )
@@ -90,7 +90,7 @@ func init() {
 		personalviewTmplFile    = "ui/templates/personalview.html"
 		reservationformTmplFile = "ui/templates/newreservation.html"
 		reservesuccessTmplFile  = "ui/templates/reservesuccess.html"
-		allcredsTmplFile        = "ui/templates/allcreds.html"
+		credsviewTmplFile       = "ui/templates/credsview.html"
 		addkeyformTmplFile      = "ui/templates/addkey.html"
 		addkeysuccessTmplFile   = "ui/templates/addkeysuccess.html"
 	)
@@ -122,7 +122,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	allcredsTmpl, err = template.ParseFiles(allcredsTmplFile, topTmplFile, bottomTmplFile, navTmplFile, wordbreakTmplFile)
+	credsviewTmpl, err = template.ParseFiles(credsviewTmplFile, topTmplFile, bottomTmplFile, navTmplFile, wordbreakTmplFile)
 	if err != nil {
 		log.Fatal(err)
 	}
