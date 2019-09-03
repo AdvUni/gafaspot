@@ -48,11 +48,13 @@
                             aria-labelledby="{{ $PlainName }}-tab">
                             <h2>{{ .Env.NiceName }}</h2>
                             <br>
+                            {{ if .Env.Description }}
                             <h3>Description:</h3>
                             <br>
                             <p>{{ .Env.Description }}</p>
                             <br>
                             <hr>
+                            {{ end }}
                             <h3>Reservations:</h3>
                             <br>
                             <form method="post" action="/newreservation/{{ .Env.PlainName }}">
