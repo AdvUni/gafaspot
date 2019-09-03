@@ -35,15 +35,18 @@
         </div>
         {{ else }}
         {{ range index .CredsData}}
+        <div class="card">
+        <div class="card-header">
         <h3 id="{{ .Env.PlainName }}"><span class="mr-3">{{ .Env.NiceName }}</span>
         {{ if .Env.Description }}
         <a class="btn btn-outline-secondary btn-sm" data-toggle="collapse" href="#description_{{ .Env.PlainName }}" role="button" aria-expanded="false"
             aria-controls="description_{{ .Env.PlainName }}">description</a></h3>
         <div class="collapse" id="description_{{ .Env.PlainName }}">
-            <div class="card card-body bg-light">{{ .Env.Description }}</div>
-        <br>
-        </div>
+            <br>
+            {{ .Env.Description }}</div>
         {{ end }}
+        </div>
+        <div class="card-body">
         {{ if .Failure }}
         <div class="alert alert-danger" role="alert">
             <strong>Error:</strong> not possible to provide credentials for this environment
@@ -69,7 +72,8 @@
         {{ end }}
         {{ end }}
         <a class="btn btn-primary" href="/personal" role="button">back to personal view</a>
-        <hr>
+        </div></div>
+        <br>
         {{ end }}
         {{ end }}
         <br>
