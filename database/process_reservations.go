@@ -170,10 +170,11 @@ func ExpireActiveReservations(now time.Time, endBooking endBookingFunc) {
 			// trigger the end of the booking
 			logger.Infof("Ending reservation... %+v", r)
 			endBooking(r.EnvPlainName)
-
-			// change booking status in database
-			changeStatus(tx, r.ID, "expired")
+		} else {
+			logger.Infof("Ended reservation for an environment, which does not seam to exist (anymore): %+v", r)
 		}
+		// change booking status in database
+		changeStatus(tx, r.ID, "expired")
 	}
 }
 
