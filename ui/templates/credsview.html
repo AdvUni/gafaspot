@@ -35,7 +35,7 @@
         </div>
         {{ else }}
         {{ range index .CredsData}}
-        <h3 id="{{ .EnvName }}">{{ .EnvNiceName }}</h3>
+        <h3 id="{{ .Env.PlainName }}">{{ .Env.NiceName }}</h3>
         {{ if .Failure }}
         <div class="alert alert-danger" role="alert">
             <strong>Error:</strong> not possible to provide credentials for this environment

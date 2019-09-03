@@ -54,20 +54,17 @@ func GetUserSSH(username string) (string, bool) {
 }
 
 // GetEnvironments reads all environments from database and returns them in a slice, ordered by
-// NiceName. Further, it returns two maps to simply access some environment attributes:
-// envHasSSHMap allocates each environment's HasSSH attribute to the PlainName,
-// envNiceNameMap allocates the NiceName attribute to the PlainName.
-func GetEnvironments() ([]util.Environment, map[string]bool, map[string]string) {
+// NiceName. Further, it returns a map to access the environments by PlainName.
+func GetEnvironments() ([]util.Environment, map[string]util.Environment) {
 	rows, err := db.Query("SELECT env_plain_name, env_nice_name, has_ssh, description FROM environments ORDER BY env_nice_name;")
 	if err != nil {
 		logger.Error(err)
-		return nil, nil, nil
+		return nil, nil
 	}
 	defer rows.Close()
 
 	envs := []util.Environment{}
-	envHasSSHMap := make(map[string]bool)
-	envNiceNameMap := make(map[string]string)
+	envMap := make(map[string]util.Environment)
 	for rows.Next() {
 		e := util.Environment{}
 		description := sql.NullString{}
@@ -81,10 +78,9 @@ func GetEnvironments() ([]util.Environment, map[string]bool, map[string]string) 
 		}
 
 		envs = append(envs, e)
-		envHasSSHMap[e.PlainName] = e.HasSSH
-		envNiceNameMap[e.PlainName] = e.NiceName
+		envMap[e.PlainName] = e
 	}
-	return envs, envHasSSHMap, envNiceNameMap
+	return envs, envMap
 }
 
 // GetEnvReservations returns all reservations stored in database for a specific environment.

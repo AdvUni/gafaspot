@@ -35,10 +35,9 @@ import (
 
 // envCreds is a struct used for passing data to creds view
 type envCreds struct {
-	EnvName     string
-	EnvNiceName string
-	EnvCreds    interface{}
-	Failure     bool
+	Env      util.Environment
+	EnvCreds interface{}
+	Failure  bool
 }
 
 // envReservations is a struct used for passing data to main view
@@ -62,7 +61,7 @@ type reservationNiceName struct {
 
 func newReservationNiceName(r util.Reservation) reservationNiceName {
 	return reservationNiceName{
-		envNiceNameMap[r.EnvPlainName],
+		environmentsMap[r.EnvPlainName].NiceName,
 		r.ID,
 		r.Status,
 		r.User,
@@ -143,25 +142,23 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	environments := database.GetUserActiveReservationEnv(username)
-	sort.Strings(environments)
+	envPlainNames := database.GetUserActiveReservationEnv(username)
+	sort.Strings(envPlainNames)
 
 	var credsData []envCreds
 
-	for _, env := range environments {
+	for _, plainName := range envPlainNames {
 
-		var envNiceName string
-		if val, ok := envNiceNameMap[env]; ok {
-			envNiceName = val
-		} else {
-			envNiceName = env
+		env, ok := environmentsMap[plainName]
+		if !ok {
+			env = util.Environment{NiceName: plainName, PlainName: plainName, HasSSH: false, Description: ""}
 		}
 
-		creds, ok := vault.ReadCredentials(env)
+		creds, ok := vault.ReadCredentials(plainName)
 		if ok {
-			credsData = append(credsData, envCreds{env, envNiceName, creds, false})
+			credsData = append(credsData, envCreds{env, creds, false})
 		} else {
-			credsData = append(credsData, envCreds{env, envNiceName, nil, true})
+			credsData = append(credsData, envCreds{env, nil, true})
 		}
 	}
 
@@ -178,12 +175,12 @@ func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
 	errormessage := readErrorCookie(w, r)
 
 	selectedEnvPlainName := mux.Vars(r)["env"]
-	envHasSSH, ok := envHasSSHMap[selectedEnvPlainName]
+	env, ok := environmentsMap[selectedEnvPlainName]
 	if !ok {
 		fmt.Fprint(w, "environment in url does not exist")
 		return
 	}
-	sshMissing := envHasSSH && !database.UserHasSSH(username)
+	sshMissing := env.HasSSH && !database.UserHasSSH(username)
 
 	err := reservationformTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": environments, "Selected": selectedEnvPlainName, "SSHmissing": sshMissing, "Error": errormessage})
 	if err != nil {
