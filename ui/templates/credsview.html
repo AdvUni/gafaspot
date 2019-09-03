@@ -37,9 +37,9 @@
         {{ range index .CredsData}}
         <div class="card">
         <div class="card-header">
-        <h3 id="{{ .Env.PlainName }}"><span class="mr-3">{{ .Env.NiceName }}</span>
+        <h3 id="{{ .Env.PlainName }}"><span>{{ .Env.NiceName }}</span>
         {{ if .Env.Description }}
-        <a class="btn btn-outline-secondary btn-sm" data-toggle="collapse" href="#description_{{ .Env.PlainName }}" role="button" aria-expanded="false"
+        <a class="btn btn-outline-secondary btn-sm float-right" data-toggle="collapse" href="#description_{{ .Env.PlainName }}" role="button" aria-expanded="false"
             aria-controls="description_{{ .Env.PlainName }}">description</a></h3>
         <div class="collapse" id="description_{{ .Env.PlainName }}">
             <br>
