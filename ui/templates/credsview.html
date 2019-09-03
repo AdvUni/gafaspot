@@ -37,7 +37,13 @@
         {{ range index .CredsData}}
         <h3 id="{{ .Env.PlainName }}">{{ .Env.NiceName }}</h3>
         {{ if .Env.Description }}
-        <p>{{ .Env.Description }}</p>
+        <a class="btn btn-secondary" data-toggle="collapse" href="#description_{{ .Env.PlainName }}" role="button" aria-expanded="false"
+            aria-controls="description_{{ .Env.PlainName }}">
+            show description
+        </a>
+        <div class="collapse" id="description_{{ .Env.PlainName }}">
+            <div class="card card-body">{{ .Env.Description }}</div>
+        </div>
         {{ end }}
         {{ if .Failure }}
         <div class="alert alert-danger" role="alert">
@@ -53,7 +59,8 @@
         {{ end }}
         {{ range $key, $value := $creds }}
         {{ if ne $key "username" }}
-        <p class="breakall"><span class="font-weight-bold">{{ $key }}: </span><span class="text-monospace">{{ $value }}</span>
+        <p class="breakall"><span class="font-weight-bold">{{ $key }}: </span><span
+                class="text-monospace">{{ $value }}</span>
         </p>
         {{ end }}
         {{ end }}
