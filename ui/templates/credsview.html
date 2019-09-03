@@ -35,14 +35,13 @@
         </div>
         {{ else }}
         {{ range index .CredsData}}
-        <h3 id="{{ .Env.PlainName }}">{{ .Env.NiceName }}</h3>
+        <h3 id="{{ .Env.PlainName }}"><span class="mr-3">{{ .Env.NiceName }}</span>
         {{ if .Env.Description }}
-        <a class="btn btn-secondary" data-toggle="collapse" href="#description_{{ .Env.PlainName }}" role="button" aria-expanded="false"
-            aria-controls="description_{{ .Env.PlainName }}">
-            show description
-        </a>
+        <a class="btn btn-outline-secondary btn-sm" data-toggle="collapse" href="#description_{{ .Env.PlainName }}" role="button" aria-expanded="false"
+            aria-controls="description_{{ .Env.PlainName }}">description</a></h3>
         <div class="collapse" id="description_{{ .Env.PlainName }}">
-            <div class="card card-body">{{ .Env.Description }}</div>
+            <div class="card card-body bg-light">{{ .Env.Description }}</div>
+        <br>
         </div>
         {{ end }}
         {{ if .Failure }}
@@ -51,6 +50,7 @@
         </div>
         {{ else }}
         {{ range $secEngName, $creds := .EnvCreds }}
+        <div class="card card-body">
         <h5>{{ $secEngName }}:</h5>
 
         {{ if index $creds "username" }}
@@ -64,9 +64,10 @@
         </p>
         {{ end }}
         {{ end }}
+        <br></div>
 
         {{ end }}
-        {{ end}}
+        {{ end }}
         <a class="btn btn-primary" href="/personal" role="button">back to personal view</a>
         <hr>
         {{ end }}
