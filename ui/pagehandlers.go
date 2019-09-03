@@ -38,6 +38,7 @@ type envCreds struct {
 	EnvName     string
 	EnvNiceName string
 	EnvCreds    interface{}
+	Failure     bool
 }
 
 // envReservations is a struct used for passing data to main view
@@ -156,9 +157,11 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 			envNiceName = env
 		}
 
-		creds := vault.ReadCredentials(env)
-		if creds != nil {
-			credsData = append(credsData, envCreds{env, envNiceName, creds})
+		creds, ok := vault.ReadCredentials(env)
+		if ok {
+			credsData = append(credsData, envCreds{env, envNiceName, creds, false})
+		} else {
+			credsData = append(credsData, envCreds{env, envNiceName, nil, true})
 		}
 	}
 

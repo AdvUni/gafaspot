@@ -21,8 +21,8 @@ package vault
 import (
 	"time"
 
-	logging "github.com/alexcesaro/log"
 	"github.com/AdvUni/gafaspot/util"
+	logging "github.com/alexcesaro/log"
 )
 
 var (
@@ -75,10 +75,11 @@ func EndBooking(envPlainName string) {
 
 // ReadCredentials reads the credentials from all KV Secrets Engine related to the environment
 // envPlainName and returns them as map. Map keys are the Secrets Engine's names.
-func ReadCredentials(envPlainName string) map[string]interface{} {
+func ReadCredentials(envPlainName string) (map[string]interface{}, bool) {
 	environment, ok := environments[envPlainName]
 	if !ok {
 		logger.Warningf("tried to read creds for environment '%v' which does not exist", envPlainName)
+		return nil, false
 	}
 
 	vaultToken := createVaultToken()
@@ -93,5 +94,5 @@ func ReadCredentials(envPlainName string) map[string]interface{} {
 			credentials[secEng.getName()] = c
 		}
 	}
-	return credentials
+	return credentials, true
 }

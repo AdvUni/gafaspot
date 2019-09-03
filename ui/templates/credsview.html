@@ -36,6 +36,11 @@
         {{ else }}
         {{ range index .CredsData}}
         <h3 id="{{ .EnvName }}">{{ .EnvNiceName }}</h3>
+        {{ if .Failure }}
+        <div class="alert alert-warning" role="alert">
+            <strong>Error:</strong> not possible to provide credentials for this environment
+        </div>
+        {{ else }}
         {{ range $secEngName, $creds := .EnvCreds }}
         <h5>{{ $secEngName }}:</h5>
 
@@ -47,6 +52,7 @@
         {{ if ne $key "username" }}
         <p class="breakall"><span class="font-weight-bold">{{ $key }}: </span><span class="text-monospace">{{ $value }}</span>
         </p>
+        {{ end }}
         {{ end }}
 
         {{ end }}
