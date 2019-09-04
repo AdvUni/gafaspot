@@ -120,7 +120,9 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	credsviewTmpl, err = template.ParseFiles(credsviewTmplFile, topTmplFile, bottomTmplFile, navTmplFile, wordbreakTmplFile)
+	credsviewTmpl, err = template.New(path.Base(credsviewTmplFile)).Funcs(template.FuncMap{
+		"formatDatetime": func(t time.Time) string { return t.Format(util.TimeLayout) },
+	}).ParseFiles(credsviewTmplFile, topTmplFile, bottomTmplFile, navTmplFile, wordbreakTmplFile)
 	if err != nil {
 		log.Fatal(err)
 	}
