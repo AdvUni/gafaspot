@@ -135,20 +135,22 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	envPlainNames := database.GetUserActiveReservationEnv(username)
-	sort.Strings(envPlainNames)
+	reservations := database.GetUserActiveReservationEnv(username)
+	sort.Slice(reservations, func(i, j int) bool {
+		return reservations[i].EnvPlainName < reservations[j].EnvPlainName
+	})
 
 	var credsData []util.ReservationCreds
 
-	for _, plainName := range envPlainNames {
+	for _, r := range reservations {
 
-		env, ok := environmentsMap[plainName]
+		env, ok := environmentsMap[r.EnvPlainName]
 		if !ok {
-			env = util.Environment{NiceName: plainName, PlainName: plainName, HasSSH: false, Description: ""}
+			env = util.Environment{NiceName: r.EnvPlainName, PlainName: r.EnvPlainName, HasSSH: false, Description: ""}
 		}
-		creds := vault.ReadCredentials(plainName)
+		creds := vault.ReadCredentials(r.EnvPlainName)
 
-		credsData = append(credsData, util.ReservationCreds{Res: util.Reservation{}, Env: env, Creds: creds})
+		credsData = append(credsData, util.ReservationCreds{Res: r, Env: env, Creds: creds})
 	}
 
 	credsviewTmpl.Execute(w, map[string]interface{}{"Username": username, "CredsData": credsData})

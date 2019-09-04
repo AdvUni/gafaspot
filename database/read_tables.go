@@ -111,7 +111,31 @@ func getReservations(conditionKey, conditionVal string) []util.Reservation {
 		return nil
 	}
 	defer rows.Close()
+	return assembleReservations(rows)
+}
 
+// GetUserActiveReservationEnv returns all environment's PlainNames, which are stored for a
+// specific username and have status 'active'.
+func GetUserActiveReservationEnv(username string) []util.Reservation {
+	stmt, err := db.Prepare("SELECT id, status, username, env_plain_name, start, end, subject, labels FROM reservations WHERE (status='active') AND (username=?);")
+	if err != nil {
+		logger.Emergency(err)
+		os.Exit(1)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(username)
+	if err != nil {
+		logger.Error(err)
+	}
+	defer rows.Close()
+
+	return assembleReservations(rows)
+}
+
+// assembleReservations turns a *Rows element retrieved from the reservations table
+// into a list of Reservation elements.
+func assembleReservations(rows *sql.Rows) []util.Reservation {
 	reservations := []util.Reservation{}
 	for rows.Next() {
 		r := util.Reservation{}
@@ -131,33 +155,4 @@ func getReservations(conditionKey, conditionVal string) []util.Reservation {
 		reservations = append(reservations, r)
 	}
 	return reservations
-}
-
-// GetUserActiveReservationEnv returns all environment's PlainNames, which are stored for a
-// specific username and have status 'active'.
-func GetUserActiveReservationEnv(username string) []string {
-	stmt, err := db.Prepare("SELECT env_plain_name FROM reservations WHERE (status='active') AND (username=?);")
-	if err != nil {
-		logger.Emergency(err)
-		os.Exit(1)
-	}
-	defer stmt.Close()
-
-	rows, err := stmt.Query(username)
-	if err != nil {
-		logger.Error(err)
-	}
-	defer rows.Close()
-
-	var envNames []string
-	for rows.Next() {
-		env := ""
-		err := rows.Scan(&env)
-		if err != nil {
-			logger.Emergency(err)
-			os.Exit(1)
-		}
-		envNames = append(envNames, env)
-	}
-	return envNames
 }

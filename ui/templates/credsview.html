@@ -43,8 +43,12 @@
             aria-controls="description_{{ .Env.PlainName }}">description</a></h3>
         <div class="collapse" id="description_{{ .Env.PlainName }}">
             <br>
-            {{ .Env.Description }}</div>
+            {{ .Env.Description }}
+            <hr>
+        </div>
         {{ end }}
+        <small class="font-weight-bold text-black-50">Reservation: <span class="ml-2 mr-1">{{ formatDatetime .Res.Start }}</span>
+            &ndash;<span class="ml-1 mr-2">{{ formatDatetime .Res.End }}</span>({{ .Res.Subject }})</small>
         </div>
         <div class="card-body">
         {{ if not .Creds }}
@@ -54,7 +58,7 @@
         {{ else }}
         {{ range $secEngName, $creds := .Creds }}
         <div class="card card-body">
-        <h5>{{ $secEngName }}:</h5>
+        <h5 class="mb-4">{{ $secEngName }}</h5>
 
         {{ if index $creds "username" }}
         <p class="breakall"><span class="font-weight-bold">username: </span><span
