@@ -47,12 +47,12 @@
         {{ end }}
         </div>
         <div class="card-body">
-        {{ if .Failure }}
+        {{ if not .Creds }}
         <div class="alert alert-danger" role="alert">
-            <strong>Error:</strong> not possible to provide credentials for this environment
+            <strong>Error:</strong> not possible to provide credentials for this environment.
         </div>
         {{ else }}
-        {{ range $secEngName, $creds := .EnvCreds }}
+        {{ range $secEngName, $creds := .Creds }}
         <div class="card card-body">
         <h5>{{ $secEngName }}:</h5>
 

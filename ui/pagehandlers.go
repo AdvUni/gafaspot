@@ -33,13 +33,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// envCreds is a struct used for passing data to creds view
-type envCreds struct {
-	Env      util.Environment
-	EnvCreds interface{}
-	Failure  bool
-}
-
 // envReservations is a struct used for passing data to main view
 type envReservations struct {
 	Env          util.Environment
@@ -145,7 +138,7 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 	envPlainNames := database.GetUserActiveReservationEnv(username)
 	sort.Strings(envPlainNames)
 
-	var credsData []envCreds
+	var credsData []util.ReservationCreds
 
 	for _, plainName := range envPlainNames {
 
@@ -153,13 +146,9 @@ func credsPageHandler(w http.ResponseWriter, r *http.Request) {
 		if !ok {
 			env = util.Environment{NiceName: plainName, PlainName: plainName, HasSSH: false, Description: ""}
 		}
+		creds := vault.ReadCredentials(plainName)
 
-		creds, ok := vault.ReadCredentials(plainName)
-		if ok {
-			credsData = append(credsData, envCreds{env, creds, false})
-		} else {
-			credsData = append(credsData, envCreds{env, nil, true})
-		}
+		credsData = append(credsData, util.ReservationCreds{Res: util.Reservation{}, Env: env, Creds: creds})
 	}
 
 	credsviewTmpl.Execute(w, map[string]interface{}{"Username": username, "CredsData": credsData})

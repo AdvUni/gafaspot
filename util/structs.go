@@ -74,3 +74,14 @@ type Reservation struct {
 	Subject      string
 	Labels       string
 }
+
+// ReservationCreds is a struct to bundle up credentials for a reservation. ReservationCreds
+// can hold the credentials itself, the Environment, they belong to, and the associated Reservation,
+// for which the credentials were created.
+// The Creds attribute is a map to store one map for each Secrets Engine, which contains some
+// key-value pairs as they are retrieved by a KV Secrets Engines.
+type ReservationCreds struct {
+	Res   Reservation
+	Env   Environment
+	Creds map[string]map[string]interface{}
+}
