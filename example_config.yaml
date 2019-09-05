@@ -33,6 +33,10 @@
 
 webservice-address: 127.0.0.1:8080
 
+# specification to enable e-mails
+mailserver: mail.example.com:25
+gafaspot-mailaddress: gafaspot@example.com
+
 # maximum values for new reservations
 max-reservation-duration-days: 30
 max-queuing-time-months: 2

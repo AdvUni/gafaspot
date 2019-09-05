@@ -25,16 +25,18 @@ import (
 
 // GafaspotConfig is a struct to load every information from config file.
 type GafaspotConfig struct {
-	WebserviceAddress string                       `mapstructure:"webservice-address"`
-	MaxBookingDays    int                          `mapstructure:"max-reservation-duration-days"`
-	MaxQueuingMonths  int                          `mapstructure:"max-queuing-time-months"`
-	Database          string                       `mapstructure:"db-path"`
-	DBTTLmonths       int                          `mapstructure:"database-ttl-months"`
-	VaultAddress      string                       `mapstructure:"vault-address"`
-	ApproleID         string                       `mapstructure:"approle-roleID"`
-	ApproleSecret     string                       `mapstructure:"approle-secretID"`
-	UserPolicy        string                       `mapstructure:"ldap-group-policy"`
-	Environments      map[string]EnvironmentConfig //`yaml:"environments"`
+	WebserviceAddress   string                       `mapstructure:"webservice-address"`
+	Mailserver          string                       `mapstructure:"mailserver"`
+	GafaspotMailAddress string                       `mapstructure:"gafaspot-mailaddress"`
+	MaxBookingDays      int                          `mapstructure:"max-reservation-duration-days"`
+	MaxQueuingMonths    int                          `mapstructure:"max-queuing-time-months"`
+	Database            string                       `mapstructure:"db-path"`
+	DBTTLmonths         int                          `mapstructure:"database-ttl-months"`
+	VaultAddress        string                       `mapstructure:"vault-address"`
+	ApproleID           string                       `mapstructure:"approle-roleID"`
+	ApproleSecret       string                       `mapstructure:"approle-secretID"`
+	UserPolicy          string                       `mapstructure:"ldap-group-policy"`
+	Environments        map[string]EnvironmentConfig //`yaml:"environments"`
 }
 
 // EnvironmentConfig is a struct to load information about one environment from config file.

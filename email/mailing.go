@@ -52,11 +52,15 @@ var (
 	senderAddress string
 )
 
-func initMailing(l logging.Logger, config util.GafaspotConfig) {
+// InitMailing reads the email paramters from config and stores them as package variables.
+func InitMailing(l logging.Logger, config util.GafaspotConfig) {
 	logger = l
 
-	mailserver = "mail.au.de"
-	senderAddress = "gafaspot@au.de"
+	mailserver = config.Mailserver
+	if mailserver == "" {
+		logger.Debug("No mailserver specified")
+	}
+	senderAddress = config.GafaspotMailAddress
 }
 
 func sendMail(recipient string, subject string, content string) error {

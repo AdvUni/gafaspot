@@ -21,9 +21,9 @@ package main
 import (
 	"os"
 
+	"github.com/AdvUni/gafaspot/util"
 	logging "github.com/alexcesaro/log"
 	"github.com/spf13/viper"
-	"github.com/AdvUni/gafaspot/util"
 )
 
 // readConfig unmarshals the config file into a GafaspotConfig struct.

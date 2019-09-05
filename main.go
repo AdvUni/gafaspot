@@ -22,6 +22,7 @@ import (
 	"github.com/alexcesaro/log/stdlog"
 
 	"github.com/AdvUni/gafaspot/database"
+	"github.com/AdvUni/gafaspot/email"
 	"github.com/AdvUni/gafaspot/ui"
 	"github.com/AdvUni/gafaspot/vault"
 )
@@ -39,6 +40,7 @@ func main() {
 	logger.Info("Initialization...")
 	vault.InitVaultParams(logger, config)
 	database.InitDB(logger, config)
+	email.InitMailing(logger, config)
 
 	// start webserver and routine for processing reservations
 	logger.Info("Starting reservation scanning routine...")
