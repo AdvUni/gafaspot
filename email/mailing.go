@@ -79,20 +79,22 @@ func sendMail(recipient string, subject string, content string) error {
 	return err
 }
 
-func sendBeginReservationMail(recipient string, creds util.ReservationCreds) {
-	content := fmt.Sprintf(contentBeginReservation, creds.Env.NiceName)
+func SendBeginReservationMail(recipient string, reservation util.Reservation) {
+	// TODO: improve content
+	content := fmt.Sprintf(contentBeginReservation, reservation.EnvPlainName)
 
 	err := sendMail(recipient, subjectBeginReservation, content)
 	if err != nil {
-		logger.Errorf("failed to send mail to user %s at begin of reservation of env %s: %v", creds.Res.User, creds.Env.NiceName, err)
+		logger.Errorf("failed to send mail to user %s at begin of reservation of env %s: %v", reservation.User, reservation.EnvPlainName, err)
 	}
 }
 
-func sendEndReservationMail(recipient string, reservation util.Reservation, envNiceName string) {
-	content := fmt.Sprintf(contentEndReservation, envNiceName)
+func SendEndReservationMail(recipient string, reservation util.Reservation) {
+	// TODO: improve content
+	content := fmt.Sprintf(contentEndReservation, reservation.EnvPlainName)
 
 	err := sendMail(recipient, subjectEndReservation, content)
 	if err != nil {
-		logger.Errorf("failed to send mail to user %s at end of reservation of env %s: %v", reservation.User, envNiceName, err)
+		logger.Errorf("failed to send mail to user %s at end of reservation of env %s: %v", reservation.User, reservation.EnvPlainName, err)
 	}
 }

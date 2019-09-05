@@ -20,6 +20,7 @@ package database
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"time"
 )
@@ -32,34 +33,44 @@ func SaveUserSSH(username string, ssh []byte) {
 	ssh = bytes.Replace(ssh, []byte("\n"), nil, -1)
 	ssh = bytes.Replace(ssh, []byte("\r"), nil, -1)
 
+	saveUserAttribute(username, "ssh_pub_key", ssh)
+}
+
+func saveUserEmail(username, email string) {
+	saveUserAttribute(username, "email", email)
+}
+
+func saveUserAttribute(username, attribute string, value interface{}) {
 	deleteOn := addTTL(time.Now())
 
 	tx := beginTransaction()
 	defer commitTransaction(tx)
 
-	// if user already exists, he gets updated, whereupon a previous mail address gets not overwritten
+	// if user already exists, he gets updated, whereupon other attributes get not overwritten
 	// if user does not exist, this statement does nothing
-	stmt, err := tx.Prepare("UPDATE users SET ssh_pub_key=?, delete_on=? WHERE username=?;")
+	stmtstring := fmt.Sprintf("UPDATE users SET %s=?, delete_on=? WHERE username=?;", attribute)
+	stmt, err := tx.Prepare(stmtstring)
 	if err != nil {
 		logger.Emergency(err)
 		os.Exit(1)
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(ssh, deleteOn, username)
+	_, err = stmt.Exec(value, deleteOn, username)
 	if err != nil {
 		logger.Error(err)
 	}
 
-	// if user didn't exist, this statement creates a new user with a blank mail address
+	// if user didn't exist, this statement creates a new user
 	// if user already exist, this statement does nothing
-	stmt, err = tx.Prepare("INSERT OR IGNORE INTO users (username, ssh_pub_key, email, delete_on) VALUES(?,?,NULL,?);")
+	stmtstring = fmt.Sprintf("INSERT OR IGNORE INTO users (username, %s, delete_on) VALUES(?,?,?);", attribute)
+	stmt, err = tx.Prepare(stmtstring)
 	if err != nil {
 		logger.Emergency(err)
 		os.Exit(1)
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(username, ssh, deleteOn)
+	_, err = stmt.Exec(username, value, deleteOn)
 	if err != nil {
 		logger.Error(err)
 	}
@@ -102,12 +113,19 @@ func deleteUser(username string) {
 }
 
 func DeleteUserSSH(username string) {
-	// TODO
-	deleteUser(username)
+	if userHasEmail(username) {
+		SaveUserSSH(username, []byte(""))
+	} else {
+		deleteUser(username)
+	}
 }
 
 func DeleteUserEmail(username string) {
-	// TODO
+	if UserHasSSH(username) {
+		saveUserEmail(username, "")
+	} else {
+		deleteUser(username)
+	}
 }
 
 // DeleteOldUserEntries deletes all users from database table "users", who haven't logged in for a

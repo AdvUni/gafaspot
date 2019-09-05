@@ -23,6 +23,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/AdvUni/gafaspot/email"
 	"github.com/AdvUni/gafaspot/util"
 )
 
@@ -136,7 +137,15 @@ func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 		// change booking status in database
 		changeStatus(tx, r.ID, "active")
 
-		// TODO: email user
+		// send email to user, if wished and if mailing is enabled in gafaspot config
+		if r.SendStartMail && email.MailingEnabled {
+			mailAddress, ok := getUserEmail(r.User)
+			if ok {
+				email.SendBeginReservationMail(mailAddress, r)
+			} else {
+				logger.Warningf("tried to send an e-mail to user '%s', but there is not mail address stored for him in database (anymore)", r.User)
+			}
+		}
 
 	}
 }
@@ -167,7 +176,16 @@ func ExpireActiveReservations(now time.Time, endBooking endBookingFunc) {
 		}
 		// change booking status in database
 		changeStatus(tx, r.ID, "expired")
-		// TODO: email user
+
+		// send email to user, if wished and if mailing is enabled in gafaspot config
+		if r.SendEndMail && email.MailingEnabled {
+			mailAddress, ok := getUserEmail(r.User)
+			if ok {
+				email.SendEndReservationMail(mailAddress, r)
+			} else {
+				logger.Warningf("tried to send an e-mail to user '%s', but there is not mail address stored for him in database (anymore)", r.User)
+			}
+		}
 	}
 }
 

@@ -90,7 +90,12 @@ func CreateReservation(r util.Reservation) error {
 		}
 	}
 
-	// TODO: check mail address availability
+	// check mail address availability
+	if r.SendEndMail || r.SendStartMail {
+		if !getUserEmail(r.User) {
+			return ReservationError(fmt.Sprintf("there is no e-mail address stored for user %v, so Gafaspot can't mail him", r.User))
+		}
+	}
 
 	// check the environment's availability within the requested time range:
 	// a conflict occurs iff ((start1 <= end2) && (end1 >= start2))

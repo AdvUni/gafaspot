@@ -36,26 +36,35 @@ func UserHasSSH(username string) bool {
 // GetUserSSH returns the SSH public key for a given user from database if present. If not, an
 // empty string will be returned, together with the second return value saying false.
 func GetUserSSH(username string) (string, bool) {
-	var sshKey sql.NullString
-	stmt, err := db.Prepare("SELECT ssh_pub_key FROM users WHERE (username=?);")
+	return getUserAttribute(username, "ssh_pub_key")
+}
+
+func userHasEmail(username string) bool {
+	_, ok := getUserEmail(username)
+	return ok
+}
+
+func getUserEmail(username string) (string, bool) {
+	return getUserAttribute(username, "email")
+}
+
+func getUserAttribute(username, attribute string) (string, bool) {
+	var value sql.NullString
+	stmtstring := fmt.Sprintf("SELECT %s FROM users WHERE (username=?);", attribute)
+	stmt, err := db.Prepare(stmtstring)
 	if err != nil {
 		logger.Emergency(err)
 		os.Exit(1)
 	}
 	defer stmt.Close()
-	err = stmt.QueryRow(username).Scan(&sshKey)
-	if err == sql.ErrNoRows || !sshKey.Valid {
+	err = stmt.QueryRow(username).Scan(&value)
+	if err == sql.ErrNoRows || !value.Valid {
 		return "", false
 	} else if err != nil {
 		logger.Error(err)
 		return "", false
 	}
-	return sshKey.String, true
-}
-
-func GetUserEmail(username string) (string, bool) {
-	// TODO
-	return "", false
+	return value.String, true
 }
 
 // GetEnvironments reads all environments from database and returns them in a slice, ordered by
@@ -136,9 +145,4 @@ func GetUserActiveReservationEnv(username string) []util.Reservation {
 	defer rows.Close()
 
 	return assembleReservations(rows)
-}
-
-func getMailAddress(user string) (string, bool) {
-	// TODO
-	return "", false
 }
