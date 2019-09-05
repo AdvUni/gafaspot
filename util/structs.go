@@ -67,14 +67,16 @@ type Environment struct {
 // Reservation is a struct to store the information of one row from database table reservations.
 // (only database column delete_on is not included).
 type Reservation struct {
-	ID           int
-	Status       string
-	User         string
-	EnvPlainName string
-	Start        time.Time
-	End          time.Time
-	Subject      string
-	Labels       string
+	ID            int
+	Status        string
+	User          string
+	EnvPlainName  string
+	Start         time.Time
+	End           time.Time
+	SendStartMail bool
+	SendEndMail   bool
+	Subject       string
+	Labels        string
 }
 
 // ReservationCreds is a struct to bundle up credentials for a reservation. ReservationCreds

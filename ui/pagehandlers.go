@@ -218,6 +218,8 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: retrieve mail booleans
+
 	reservation.Subject = template.HTMLEscapeString(r.Form.Get("sub"))
 
 	err = database.CreateReservation(reservation)

@@ -48,7 +48,7 @@ func deleteReservation(tx *sql.Tx, reservationID int) {
 // reference time "now" has to be explicitly passed. tx is the transaction, in which the database
 // request should be executed.
 func getApplicableReservations(tx *sql.Tx, now time.Time, status, timeCol string) []util.Reservation {
-	stmt, err := tx.Prepare("SELECT id, username, env_plain_name, end FROM reservations WHERE (status=?) AND (" + timeCol + "<=?);")
+	stmt, err := tx.Prepare("SELECT id, status, username, env_plain_name, start, end, subject, labels, start_mail, end_mail FROM reservations WHERE (status=?) AND (" + timeCol + "<=?);")
 	if err != nil {
 		logger.Emergency(err)
 		os.Exit(1)
@@ -61,19 +61,7 @@ func getApplicableReservations(tx *sql.Tx, now time.Time, status, timeCol string
 	}
 	defer rows.Close()
 
-	var reservations []util.Reservation
-
-	for rows.Next() {
-		r := util.Reservation{}
-
-		err := rows.Scan(&r.ID, &r.User, &r.EnvPlainName, &r.End)
-		if err != nil {
-			logger.Error(err)
-		}
-		reservations = append(reservations, r)
-		logger.Debugf("Values from matching query: id - %v, username - %v, env_plain_name %v\n", r.ID, r.User, r.EnvPlainName)
-	}
-	return reservations
+	return assembleReservations(rows)
 }
 
 // When triggering a booking start or end, the environments table should be checked to be sure the
@@ -115,6 +103,7 @@ func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 		if r.End.Before(now) {
 			// in case the end time of the upcoming booking which never was active is already reached for some reason, don't start the booking, just expire it in database
 			changeStatus(tx, r.ID, "expired")
+			// TODO: Possibly write an email?
 			return
 		}
 
@@ -124,6 +113,7 @@ func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 		if !ok {
 			logger.Warningf("environment %v does not exist; mark reservation with id=%v for user=%v as error", r.EnvPlainName, r.ID, r.User)
 			changeStatus(tx, r.ID, "error")
+			// TODO: Possibly write an email?
 			return
 		}
 
@@ -145,6 +135,8 @@ func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 
 		// change booking status in database
 		changeStatus(tx, r.ID, "active")
+
+		// TODO: email user
 
 	}
 }
@@ -175,6 +167,7 @@ func ExpireActiveReservations(now time.Time, endBooking endBookingFunc) {
 		}
 		// change booking status in database
 		changeStatus(tx, r.ID, "expired")
+		// TODO: email user
 	}
 }
 

@@ -25,10 +25,10 @@ import (
 
 	logging "github.com/alexcesaro/log"
 
+	"github.com/AdvUni/gafaspot/util"
 	// Gafaspot uses a SQLite database. Therefore, the go-sqlite3 package is used, as it is a
 	// database driver for SQLite for Go's database/sql package
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/AdvUni/gafaspot/util"
 )
 
 var (
@@ -64,14 +64,14 @@ func InitDB(l logging.Logger, config util.GafaspotConfig) {
 	}
 
 	// Create table reservations. If it already exists, don't overwrite
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS reservations (id INTEGER PRIMARY KEY, status TEXT NOT NULL, username TEXT NOT NULL, env_plain_name TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME NOT NULL, subject TEXT, labels TEXT, delete_on DATE NOT NULL);")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS reservations (id INTEGER PRIMARY KEY, status TEXT NOT NULL, username TEXT NOT NULL, env_plain_name TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME NOT NULL, subject TEXT, labels TEXT, start_mail BOOLEAN NOT NULL, end_mail BOOlEAN NOT NULL, delete_on DATE NOT NULL);")
 	if err != nil {
 		logger.Emergency(err)
 		os.Exit(1)
 	}
 
 	// Create table users. If it already exists, don't overwrite
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE NOT NULL, ssh_pub_key BLOB, delete_on DATE NOT NULL);")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE NOT NULL, ssh_pub_key BLOB, email TEXT, delete_on DATE NOT NULL);")
 	if err != nil {
 		logger.Emergency(err)
 		os.Exit(1)
@@ -129,4 +129,28 @@ func commitTransaction(tx *sql.Tx) {
 
 func addTTL(t time.Time) time.Time {
 	return t.AddDate(0, ttlMonths, 0)
+}
+
+// assembleReservations turns a *Rows element retrieved from the reservations table
+// into a list of Reservation elements.
+func assembleReservations(rows *sql.Rows) []util.Reservation {
+	reservations := []util.Reservation{}
+	for rows.Next() {
+		r := util.Reservation{}
+		var subject, labels sql.NullString
+		err := rows.Scan(&r.ID, &r.Status, &r.User, &r.EnvPlainName, &r.Start, &r.End, &subject, &labels, &r.SendStartMail, &r.SendEndMail)
+		if err != nil {
+			logger.Emergency(err)
+			os.Exit(1)
+		}
+		if subject.Valid {
+			r.Subject = subject.String
+		}
+		if labels.Valid {
+			r.Labels = labels.String
+		}
+
+		reservations = append(reservations, r)
+	}
+	return reservations
 }

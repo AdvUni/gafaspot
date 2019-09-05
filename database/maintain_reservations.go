@@ -90,6 +90,8 @@ func CreateReservation(r util.Reservation) error {
 		}
 	}
 
+	// TODO: check mail address availability
+
 	// check the environment's availability within the requested time range:
 	// a conflict occurs iff ((start1 <= end2) && (end1 >= start2))
 	stmt, err = tx.Prepare("SELECT start, end FROM reservations WHERE (env_plain_name=?) AND (start<=?) AND (end>=?);")
@@ -113,13 +115,13 @@ func CreateReservation(r util.Reservation) error {
 	reservationDeleteDate := addTTL(r.End)
 
 	// finally write reservation into database
-	stmt, err = tx.Prepare("INSERT INTO reservations (status, username, env_plain_name, start, end, subject, labels, delete_on) VALUES(?,?,?,?,?,?,?,?);")
+	stmt, err = tx.Prepare("INSERT INTO reservations (status, username, env_plain_name, start, end, subject, labels, start_mail, end_mail, delete_on) VALUES(?,?,?,?,?,?,?,?,?,?);")
 	if err != nil {
 		logger.Emergency(err)
 		os.Exit(1)
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec("upcoming", r.User, r.EnvPlainName, r.Start, r.End, r.Subject, r.Labels, reservationDeleteDate)
+	_, err = stmt.Exec("upcoming", r.User, r.EnvPlainName, r.Start, r.End, r.Subject, r.Labels, r.SendStartMail, r.SendEndMail, reservationDeleteDate)
 	if err != nil {
 		logger.Error(err)
 	} else {

@@ -53,6 +53,11 @@ func GetUserSSH(username string) (string, bool) {
 	return sshKey.String, true
 }
 
+func GetUserEmail(username string) (string, bool) {
+	// TODO
+	return "", false
+}
+
 // GetEnvironments reads all environments from database and returns them in a slice, ordered by
 // NiceName. Further, it returns a map to access the environments by PlainName.
 func GetEnvironments() ([]util.Environment, map[string]util.Environment) {
@@ -97,7 +102,7 @@ func GetUserReservations(username string) []util.Reservation {
 // condition is: 'WHERE conditionKey=conditionVal', where conditionKey and conditionVal are
 // function parameters.
 func getReservations(conditionKey, conditionVal string) []util.Reservation {
-	stmtstring := fmt.Sprintf("SELECT id, status, username, env_plain_name, start, end, subject, labels FROM reservations WHERE %v=?", conditionKey)
+	stmtstring := fmt.Sprintf("SELECT id, status, username, env_plain_name, start, end, subject, labels, start_mail, end_mail FROM reservations WHERE %v=?", conditionKey)
 	stmt, err := db.Prepare(stmtstring)
 	if err != nil {
 		logger.Emergency(err)
@@ -117,7 +122,7 @@ func getReservations(conditionKey, conditionVal string) []util.Reservation {
 // GetUserActiveReservationEnv returns all environment's PlainNames, which are stored for a
 // specific username and have status 'active'.
 func GetUserActiveReservationEnv(username string) []util.Reservation {
-	stmt, err := db.Prepare("SELECT id, status, username, env_plain_name, start, end, subject, labels FROM reservations WHERE (status='active') AND (username=?);")
+	stmt, err := db.Prepare("SELECT id, status, username, env_plain_name, start, end, subject, labels, start_mail, end_mail FROM reservations WHERE (status='active') AND (username=?);")
 	if err != nil {
 		logger.Emergency(err)
 		os.Exit(1)
@@ -133,26 +138,7 @@ func GetUserActiveReservationEnv(username string) []util.Reservation {
 	return assembleReservations(rows)
 }
 
-// assembleReservations turns a *Rows element retrieved from the reservations table
-// into a list of Reservation elements.
-func assembleReservations(rows *sql.Rows) []util.Reservation {
-	reservations := []util.Reservation{}
-	for rows.Next() {
-		r := util.Reservation{}
-		var subject, labels sql.NullString
-		err := rows.Scan(&r.ID, &r.Status, &r.User, &r.EnvPlainName, &r.Start, &r.End, &subject, &labels)
-		if err != nil {
-			logger.Emergency(err)
-			os.Exit(1)
-		}
-		if subject.Valid {
-			r.Subject = subject.String
-		}
-		if labels.Valid {
-			r.Labels = labels.String
-		}
-
-		reservations = append(reservations, r)
-	}
-	return reservations
+func getMailAddress(user string) (string, bool) {
+	// TODO
+	return "", false
 }

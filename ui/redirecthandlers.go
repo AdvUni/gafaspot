@@ -105,6 +105,6 @@ func deletekeyHandler(w http.ResponseWriter, r *http.Request) {
 		redirectNotAuthenticated(w, r)
 		return
 	}
-	database.DeleteUser(username)
+	database.DeleteUserSSH(username)
 	http.Redirect(w, r, personalview, http.StatusSeeOther)
 }
