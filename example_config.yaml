@@ -31,7 +31,7 @@
 # general config for gafaspot
 #######################################
 
-webservice-address: 127.0.0.1:8080
+webservice-address: 0.0.0.0:80
 
 # specification to enable e-mails
 mailserver: mail.example.com:25

@@ -47,6 +47,10 @@ const (
 )
 
 var (
+	// MailingEnabled is only true, if a mailserver is given in config. If not,
+	// Gafaspot is not able to send mails anyway.
+	MailingEnabled bool
+
 	logger        logging.Logger
 	mailserver    string
 	senderAddress string
@@ -57,9 +61,11 @@ func InitMailing(l logging.Logger, config util.GafaspotConfig) {
 	logger = l
 
 	mailserver = config.Mailserver
-	if mailserver == "" {
-		logger.Debug("No mailserver specified")
+	if mailserver != "" {
+		MailingEnabled = true
 	}
+	logger.Debugf("Mail server is specified: %v", MailingEnabled)
+
 	senderAddress = config.GafaspotMailAddress
 }
 

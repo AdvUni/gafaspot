@@ -26,8 +26,27 @@ import (
 	"github.com/spf13/viper"
 )
 
+var (
+	configDefaults = map[string]interface{}{
+		"webservice-address":            "0.0.0.0:80",
+		"gafaspot-mailaddress":          "gafaspot@gafaspot.com",
+		"max-reservation-duration-days": 30,
+		"max-queuing-time-months":       2,
+		"db-path":                       "./gafaspot.db",
+		"database-ttl-months":           12,
+		"vault-address":                 "http://127.0.0.1:8200/v1",
+		"ldap-group-policy":             "gafaspot-user-ldap",
+	}
+)
+
 // readConfig unmarshals the config file into a GafaspotConfig struct.
 func readConfig(logger logging.Logger) util.GafaspotConfig {
+
+	// set config defaults
+	for key, value := range configDefaults {
+		viper.SetDefault(key, value)
+	}
+
 	viper.SetConfigName("gafaspot_config")
 	viper.AddConfigPath(".")
 	viper.SetConfigType("yaml")
@@ -44,5 +63,12 @@ func readConfig(logger logging.Logger) util.GafaspotConfig {
 		logger.Emergencyf("unable to decode config into GafaspotConfig struct: %v", err)
 		os.Exit(1)
 	}
+
+	// check completeness
+	if config.ApproleID == "" || config.ApproleSecret == "" {
+		logger.Emergency("parameters approle-roleID and approle-secretID must be specified in config")
+		os.Exit(1)
+	}
+
 	return config
 }

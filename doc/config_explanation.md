@@ -5,6 +5,8 @@ All configuration for Gafaspot is read from one single config file: `gafapot_con
 This file must be located in the same directory from which you run Gafaspot.
 Create such a file by copying `example_config.yaml` which you find with the Gafaspot source code. Then adapt the file to reflect your desired settings.
 
+Some config parameters have default values. This parameters are marked in the descriptions below. If present, this document uses the default as example value.
+
 ## Strutcure of config file
 `gafapot_config.yaml` consists of three parts:
 
@@ -13,36 +15,44 @@ Create such a file by copying `example_config.yaml` which you find with the Gafa
 * config concerning Vault
 
 ## General Config for Gafaspot
-`webservice-address: 127.0.0.1:8080`  
+`webservice-address: 0.0.0.0:80` *(default value)*  
 defines where the web server listens
 ___
-`max-reservation-duration-days: 30`  
+`mailserver: mail.example.com:25`  
+specifies the mail server (address and port) gafaspot can use to send e-mails to users. This feature is optional, so omit this configuration to disable emailing.
+___
+
+`gafaspot-mailaddress: gafaspot@gafaspot.com` *(default value)*  
+defines a mail address under which gafaspot sends e-mails to its users. Gafaspot will not authenticate in any way, so the address does not have to exist. However, the mail server must allow sending unauthenticated mails.
+___
+
+`max-reservation-duration-days: 30` *(default value)*  
 defines, how long one reservation for an environment is allowed to be (in days)
 ___
-`max-queuing-time-months: 2`  
+`max-queuing-time-months: 2`   *(default value)*  
 defines, how far a reservation's start date can be in the future (in months)
 
 ## Config Concerning Database
-`db-path: ./gafaspot.db`  
+`db-path: ./gafaspot.db`   *(default value)*  
 specifies the file path of the SQLite database file Gafaspot will use. If database file does not yet exist, it will be created when starting Gafaspot.
 ___
-`database-ttl-months: 12`  
+`database-ttl-months: 12`   *(default value)*  
 defines, how long a database entry is usually kept in the database after it is not used anymore. Currently, this ttl applies to the database tables 'users' and 'reservations'.  
 For 'users', this means a user's table entry gets deleted if he has not logged in for this duration. Therefore, the deleted user will have to upload a new SSH public key if he wants to make reservations again.  
 For the 'reservations' table the TTL specifies how long a reservation is kept after its expiry date before it will be deleted.
 The value is given in months.  
 
 ## Config Concerning Vault
-`vault-address: http://127.0.0.1:8200/v1`  
+`vault-address: http://127.0.0.1:8200/v1`   *(default value)*  
 network address of vault server. Beginning of each request path.  
-Make sure to include the 'v1' ending which is currently the prefix for each route in vault. (reference: https://www.vaultproject.io/api/overview)
+Make sure to include the 'v1' ending which is currently the prefix for each route in vault. (reference: https://www.vaultproject.io/api/overview#http-api)
 ___
 `approle-roleID: someID`  
 `approle-secretID: someSecret`  
 the credentials Gafaspot uses to authenticate against Vault. They are similar to a pair of username and password. You have to enable the approle auth method and create such credentials within Vault.
 For more information, see the instructions about [Approle Auth Method](doc/auth_approle.md)  
 ___
-`ldap-group-policy: gafaspot-user-ldap`  
+`ldap-group-policy: gafaspot-user-ldap`   *(default value)*  
 ldap-group-policy is the name of a Vault policy attached to tokens created with the LDAP Auth Method. When Gafaspot uses the LDAP Auth Method to verify its users, Vault requests over LDAP
 * if the user credentials are valid at all and
 * in case they are, to which groups the user belongs to.
