@@ -64,7 +64,7 @@ func InitDB(l logging.Logger, config util.GafaspotConfig) {
 	}
 
 	// Create table reservations. If it already exists, don't overwrite
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS reservations (id INTEGER PRIMARY KEY, status TEXT NOT NULL, username TEXT NOT NULL, env_plain_name TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME NOT NULL, subject TEXT, labels TEXT, start_mail BOOLEAN NOT NULL, end_mail BOOlEAN NOT NULL, delete_on DATE NOT NULL);")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS reservations (id INTEGER PRIMARY KEY, status TEXT NOT NULL, username TEXT NOT NULL, env_plain_name TEXT NOT NULL, start DATETIME NOT NULL, end DATETIME NOT NULL, subject TEXT, labels TEXT, start_mail BOOLEAN NOT NULL DEFAULT 0, end_mail BOOlEAN NOT NULL DEFAULT 0, delete_on DATE NOT NULL);")
 	if err != nil {
 		logger.Emergency(err)
 		os.Exit(1)
@@ -83,7 +83,7 @@ func InitDB(l logging.Logger, config util.GafaspotConfig) {
 		logger.Emergency(err)
 		os.Exit(1)
 	}
-	_, err = db.Exec("CREATE TABLE environments (env_plain_name TEXT UNIQUE NOT NULL, env_nice_name TEXT NOT NULL, has_ssh BOOLEAN NOT NULL, description TEXT);")
+	_, err = db.Exec("CREATE TABLE environments (env_plain_name TEXT UNIQUE NOT NULL, env_nice_name TEXT NOT NULL, has_ssh BOOLEAN NOT NULL DEFAULT 0, description TEXT);")
 	if err != nil {
 		logger.Emergency(err)
 		os.Exit(1)
