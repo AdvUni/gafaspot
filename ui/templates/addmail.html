@@ -1,0 +1,52 @@
+{{/* 
+    Copyright 2019, Advanced UniByte GmbH.
+    Author Marie Lohbeck.
+    
+    This file is part of Gafaspot.
+    
+    Gafaspot is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    
+    Gafaspot is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with Gafaspot.  If not, see <https://www.gnu.org/licenses/>.
+*/}}
+
+{{ template "top" }}
+{{ template "nav" index .Username }}
+<main>
+    <div class="container">
+        <br>
+        <h2>Add E-Mail Address</h2>
+        <br>
+        {{ if ne (index .Error) ""}}
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">Error</h4>
+            <p>{{ .Error }}</p>
+        </div>
+        {{ end }}
+        <div class="alert alert-info" role="alert">
+            <h4 class="alert-heading">Info</h4>
+            <p>If you save an e-mail address here, Gafaspot is able to send you information about your reservations.
+                Whether you want to receive such mails can be decided at reservation creation.</p>
+        </div>
+        <br>
+        <form method="POST" action="/personal/uploadkey">
+            <div class="form-group row">
+                <div><label for="email-field" class="col-form-label col">E-mail address:</label></div>
+                <div class="col"><input id="email-field" name="email-field" type="email" class="form-control"></div>
+            </div>
+            <div class="d-flex justify-content-end">
+                <a href="/personal"><input type=button class="btn btn-secondary m-2" value="cancel"></a>
+                <button type="submit" class="btn btn-primary m-2">submit</button>
+            </div>
+        </form>
+    </div>
+</main>
+{{ template "bottom" }}

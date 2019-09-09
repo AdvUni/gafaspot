@@ -108,3 +108,13 @@ func deletekeyHandler(w http.ResponseWriter, r *http.Request) {
 	database.DeleteUserSSH(username)
 	http.Redirect(w, r, personalview, http.StatusSeeOther)
 }
+
+func deletemailHandler(w http.ResponseWriter, r *http.Request) {
+	username, ok := verifyUser(w, r)
+	if !ok {
+		redirectNotAuthenticated(w, r)
+		return
+	}
+	database.DeleteUserEmail(username)
+	http.Redirect(w, r, personalview, http.StatusSeeOther)
+}

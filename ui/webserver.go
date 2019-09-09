@@ -46,6 +46,9 @@ const (
 	addkeyform       = "/personal/addkey"
 	uploadkey        = "/personal/uploadkey"
 	deletekey        = "/personal/deletekey"
+	addmailform      = "/personal/addmail"
+	uploadmail       = "personal/uploadmail"
+	deletemail       = "/personal/deletemail"
 )
 
 var (
@@ -66,6 +69,8 @@ var (
 	credsviewTmpl       *template.Template
 	addkeyformTmpl      *template.Template
 	addkeysuccessTmpl   *template.Template
+	addmailformTmpl     *template.Template
+	addmailsuccessTmpl  *template.Template
 )
 
 // all initialization which does not need parameters from main routine.
@@ -91,6 +96,8 @@ func init() {
 		credsviewTmplFile       = "ui/templates/credsview.html"
 		addkeyformTmplFile      = "ui/templates/addkey.html"
 		addkeysuccessTmplFile   = "ui/templates/addkeysuccess.html"
+		addmailformTmplFile     = "ui/templates/addmail.html"
+		addmailsuccessTmplFile  = "ui/templates/addmailsuccess.html"
 	)
 	loginformTmpl, err = template.ParseFiles(loginformTmplFile, topTmplFile, bottomTmplFile)
 	if err != nil {
@@ -134,6 +141,14 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	addmailformTmpl, err = template.ParseFiles(addmailformTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	addmailsuccessTmpl, err = template.ParseFiles(addmailsuccessTmplFile, topTmplFile, bottomTmplFile, navTmplFile)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // RunWebserver registers all page handlers to a router and then starts the web server.
@@ -158,6 +173,9 @@ func RunWebserver(l logging.Logger, addr string) {
 	router.HandleFunc(addkeyform, addkeyPageHandler)
 	router.HandleFunc(uploadkey, uploadkeyHandler)
 	router.HandleFunc(deletekey, deletekeyHandler)
+	router.HandleFunc(addmailform, addmailPageHandler)
+	router.HandleFunc(uploadmail, uploadmailHandler)
+	router.HandleFunc(deletemail, deletemailHandler)
 
 	// start web server
 	http.Handle(loginpage, router)

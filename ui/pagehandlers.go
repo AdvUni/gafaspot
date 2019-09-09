@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/mail"
 	"sort"
 	"time"
 
@@ -266,13 +267,57 @@ func uploadkeyHandler(w http.ResponseWriter, r *http.Request) {
 	sshPubkey := []byte(sshString)
 	_, _, _, _, err = ssh.ParseAuthorizedKey(sshPubkey)
 	if err != nil {
-		redirectInvalidSubmission(w, r, fmt.Sprintf("You did not enter a valid key (%v)", err))
+		redirectInvalidSubmission(w, r, "You did not enter a valid key")
 		return
 	}
 
 	database.SaveUserSSH(username, sshPubkey)
 
 	err = addkeysuccessTmpl.Execute(w, map[string]interface{}{"Username": username, "SSHkey": sshString})
+	if err != nil {
+		logger.Error(err)
+	}
+}
+
+func addmailPageHandler(w http.ResponseWriter, r *http.Request) {
+	username, ok := verifyUser(w, r)
+	if !ok {
+		redirectNotAuthenticated(w, r)
+		return
+	}
+
+	errormessage := readErrorCookie(w, r)
+
+	err := addmailformTmpl.Execute(w, map[string]interface{}{"Username": username, "Error": errormessage})
+	if err != nil {
+		logger.Error(err)
+	}
+}
+
+func uploadmailHandler(w http.ResponseWriter, r *http.Request) {
+	username, ok := verifyUser(w, r)
+	if !ok {
+		redirectNotAuthenticated(w, r)
+		return
+	}
+
+	err := r.ParseForm()
+	if err != nil {
+		logger.Warning(err)
+		return
+	}
+
+	email := template.HTMLEscapeString(r.Form.Get("email-field"))
+
+	_, err = mail.ParseAddress(email)
+	if err != nil {
+		redirectInvalidSubmission(w, r, "You did not enter a valid e-mail address")
+		return
+	}
+
+	database.SaveUserEmail(username, email)
+
+	err = addmailsuccessTmpl.Execute(w, map[string]interface{}{"Username": username, "Email": email})
 	if err != nil {
 		logger.Error(err)
 	}

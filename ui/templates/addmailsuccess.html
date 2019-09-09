@@ -1,0 +1,36 @@
+{{/* 
+    Copyright 2019, Advanced UniByte GmbH.
+    Author Marie Lohbeck.
+    
+    This file is part of Gafaspot.
+    
+    Gafaspot is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    
+    Gafaspot is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with Gafaspot.  If not, see <https://www.gnu.org/licenses/>.
+*/}}
+
+{{ template "top" }}
+{{ template "nav" index .Username }}
+<main>
+        <div class="container">
+                <br>
+                <div class="alert alert-success" role="alert">
+                        <h4 class="alert-heading">Success!</h4>
+                        <p>Added following e-mail address to your account:</p>
+                        <hr>
+                        <p class="text-monospace breakall">{{ index .Email }}</p>
+                        <hr>
+                        <a class="btn btn-primary" href="/personal" role="button">back to personal view</a>
+                </div>
+        </div>
+</main>
+{{ template "bottom" }}

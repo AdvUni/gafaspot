@@ -79,6 +79,8 @@ func sendMail(recipient string, subject string, content string) error {
 	return err
 }
 
+// SendBeginReservationMail sends an e-mail to inform a user about the beginning of his reservation.
+// recipient has to be the user's e-mail address.
 func SendBeginReservationMail(recipient string, reservation util.Reservation) {
 	// TODO: improve content
 	content := fmt.Sprintf(contentBeginReservation, reservation.EnvPlainName)
@@ -89,6 +91,8 @@ func SendBeginReservationMail(recipient string, reservation util.Reservation) {
 	}
 }
 
+// SendEndReservationMail sends an e-mail to inform a user about the end of his reservation.
+// recipient has to be the user's e-mail address.
 func SendEndReservationMail(recipient string, reservation util.Reservation) {
 	// TODO: improve content
 	content := fmt.Sprintf(contentEndReservation, reservation.EnvPlainName)

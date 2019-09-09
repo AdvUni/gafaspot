@@ -36,7 +36,9 @@ func SaveUserSSH(username string, ssh []byte) {
 	saveUserAttribute(username, "ssh_pub_key", ssh)
 }
 
-func saveUserEmail(username, email string) {
+// SaveUserEmail takes an mail address and stores it with the username to database table users.
+// Function does not perform any checks, so make sure you validate the address format earlier.
+func SaveUserEmail(username, email string) {
 	saveUserAttribute(username, "email", email)
 }
 
@@ -95,7 +97,7 @@ func RefreshDeletionDate(username string) {
 	}
 }
 
-// DeleteUser deletes a database entry in table users for a specific username.
+// deleteUser deletes a database entry in table users for a specific username.
 // Note: There must not be any database entry for a user to use gafaspot. The users table is
 // only necessary for associating ssh keys and email addresses with users.
 func deleteUser(username string) {
@@ -112,6 +114,8 @@ func deleteUser(username string) {
 	}
 }
 
+// DeleteUserSSH deletes a user's ssh public key from database. The rest of the user's
+// database entry remains.
 func DeleteUserSSH(username string) {
 	if userHasEmail(username) {
 		SaveUserSSH(username, []byte(""))
@@ -120,9 +124,11 @@ func DeleteUserSSH(username string) {
 	}
 }
 
+// DeleteUserEmail deletes a user's e-mail address from database. The rest of the user's
+// database entry remains.
 func DeleteUserEmail(username string) {
 	if UserHasSSH(username) {
-		saveUserEmail(username, "")
+		SaveUserEmail(username, "")
 	} else {
 		deleteUser(username)
 	}

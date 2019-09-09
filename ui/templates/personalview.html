@@ -79,6 +79,36 @@
         </div>
     </div>
 
+    <!-- confirm modal for deleting mail addresses -->
+    <div class="modal fade" id="confirmEmailDeletion" tabindex="-1" role="dialog"
+        aria-labelledby="confirmEmailDeletionTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmEmailDeletionTitle">Want to delete e-mail address?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info" role="alert">
+                        <h4 class="alert-heading">Info</h4>
+                        <p>
+                            If you remove this mail address, Gafaspot will not longer be possible to send you mails, 
+                            not even for reservations which you have created in the past.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">no</button>
+                    <form method="post" action="/personal/deletemail">
+                        <button type="submit" class="btn btn-primary">yes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <br>
         <h2>Personal View</h2>
@@ -93,6 +123,16 @@
             <a class="btn btn-primary m-2" href="personal/addkey" role="button">add/change key</a>
             <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#confirmSSHDeletion"
                 {{ if $noSSH }}disabled{{ end }}>remove key</button>
+        </div>
+        <hr>
+        <p><b>E-Mail Address:</b>
+            {{ $noEmail := eq (index .Email) "" }}
+            <p class="text-monospace">{{ if $noEmail }}no mail address yet{{ else }}{{ index .Email }}{{ end }}</p>
+        </p>
+        <div class="d-flex justify-content-end">
+            <a class="btn btn-primary m-2" href="personal/addmail" role="button">add/change e-mail</a>
+            <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#confirmEmailDeletion"
+                {{ if $noEmail }}disabled{{ end }}>remove e-mail</button>
         </div>
         <hr>
         <br>
