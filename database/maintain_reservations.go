@@ -92,7 +92,7 @@ func CreateReservation(r util.Reservation) error {
 
 	// check mail address availability
 	if r.SendEndMail || r.SendStartMail {
-		if !getUserEmail(r.User) {
+		if !userHasEmail(r.User) {
 			return ReservationError(fmt.Sprintf("there is no e-mail address stored for user %v, so Gafaspot can't mail him", r.User))
 		}
 	}
