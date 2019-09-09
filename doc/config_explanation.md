@@ -7,7 +7,7 @@ Create such a file by copying `example_config.yaml` which you find with the Gafa
 
 Some config parameters have default values. This parameters are marked in the descriptions below. If present, this document uses the default as example value.
 
-## Strutcure of config file
+## Structure of config file
 `gafapot_config.yaml` consists of three parts:
 
 * general config for Gafaspot

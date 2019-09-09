@@ -7,6 +7,15 @@ In this context, an environment is something like a group of several devices, ap
 As soon as a reservation expires, all credentials will become invalid and you have no longer access to the environment, unless you make a new reservation.
 
 ## How to Run 
+Download Gafaspot's code and dependencies with
+```
+    go get -u github.com/AdvUni/gafaspot
+```
+Move into `~/github.com/AdvUni/gafaspot` and compile Gafaspot with
+```
+    go build
+```
+
 To use Gafaspot, you need to install and run a Vault server and define environments in a way Gafaspot can understand. Under `/doc`, you can find several instructions on how to [set up Vault](doc/vault_setup.md) correctly.
 
 When Vault is ready you need to configure Gafaspot itself. This is done in a single configuration file called `gafaspot_config.yaml`. Detailed reference of the [configuration file](doc/config_explanation.md) is also part of the documentation.
