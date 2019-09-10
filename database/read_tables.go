@@ -67,6 +67,9 @@ func getUserAttribute(username, attribute string) (string, bool) {
 		logger.Error(err)
 		return "", false
 	}
+	if value.String == "" {
+		return "", false
+	}
 	return value.String, true
 }
 
