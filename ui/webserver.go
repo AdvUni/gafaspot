@@ -47,7 +47,7 @@ const (
 	uploadkey        = "/personal/uploadkey"
 	deletekey        = "/personal/deletekey"
 	addmailform      = "/personal/addmail"
-	uploadmail       = "personal/uploadmail"
+	uploadmail       = "/personal/uploadmail"
 	deletemail       = "/personal/deletemail"
 )
 
