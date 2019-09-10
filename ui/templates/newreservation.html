@@ -76,7 +76,7 @@
                 <input type="text" class="form-control" id="sub" name="sub">
             </div>
             <div class="form-group">
-                {{ $emailMissing := index .EmailMissing }}{{ $emailDisabled := index EmailDisabled }}
+                {{ $emailMissing := index .EmailMissing }}{{ $emailDisabled := index .EmailDisabled }}
                 <label for="mailchecks"{{ if or $emailDisabled $emailMissing }} class="text-muted"{{ end }}>E-mail</label>
                 {{ if $emailDisabled }}<small class="text-danger">&nbsp;&nbsp;(gafaspot is not configured to send mails)</small>
                 {{ else if $emailMissing }}<small class="text-danger">&nbsp;&nbsp;(no mail address yet)</small>
