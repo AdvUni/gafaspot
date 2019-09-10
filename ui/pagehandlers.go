@@ -114,6 +114,11 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 		sshEntry = ""
 	}
 
+	email, ok := database.GetUserEmail(username)
+	if !ok {
+		email = ""
+	}
+
 	reservations := database.GetUserReservations(username)
 	// sort reservations
 	sort.Slice(reservations, func(i, j int) bool {
@@ -123,7 +128,8 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 	for _, r := range reservations {
 		resNice = append(resNice, newReservationNiceName(r))
 	}
-	err := personalviewTmpl.Execute(w, map[string]interface{}{"Username": username, "SSHkey": sshEntry, "Reservations": resNice})
+
+	err := personalviewTmpl.Execute(w, map[string]interface{}{"Username": username, "SSHkey": sshEntry, "Email": email, "Reservations": resNice})
 	if err != nil {
 		logger.Error(err)
 	}

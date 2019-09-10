@@ -139,7 +139,7 @@ func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 
 		// send email to user, if wished and if mailing is enabled in gafaspot config
 		if r.SendStartMail && email.MailingEnabled {
-			mailAddress, ok := getUserEmail(r.User)
+			mailAddress, ok := GetUserEmail(r.User)
 			if ok {
 				email.SendBeginReservationMail(mailAddress, r)
 			} else {
@@ -179,7 +179,7 @@ func ExpireActiveReservations(now time.Time, endBooking endBookingFunc) {
 
 		// send email to user, if wished and if mailing is enabled in gafaspot config
 		if r.SendEndMail && email.MailingEnabled {
-			mailAddress, ok := getUserEmail(r.User)
+			mailAddress, ok := GetUserEmail(r.User)
 			if ok {
 				email.SendEndReservationMail(mailAddress, r)
 			} else {

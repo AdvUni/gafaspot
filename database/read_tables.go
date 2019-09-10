@@ -40,11 +40,11 @@ func GetUserSSH(username string) (string, bool) {
 }
 
 func userHasEmail(username string) bool {
-	_, ok := getUserEmail(username)
+	_, ok := GetUserEmail(username)
 	return ok
 }
 
-func getUserEmail(username string) (string, bool) {
+func GetUserEmail(username string) (string, bool) {
 	return getUserAttribute(username, "email")
 }
 
