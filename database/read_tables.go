@@ -39,11 +39,14 @@ func GetUserSSH(username string) (string, bool) {
 	return getUserAttribute(username, "ssh_pub_key")
 }
 
-func userHasEmail(username string) bool {
+// UserHasEmail determines, whether an e-mail address is stored in database for a given username
+func UserHasEmail(username string) bool {
 	_, ok := GetUserEmail(username)
 	return ok
 }
 
+// GetUserEmail returns the mail address for a given user from database if present. If not, an
+// empty string will be returned, together with the second return value saying false.
 func GetUserEmail(username string) (string, bool) {
 	return getUserAttribute(username, "email")
 }

@@ -24,6 +24,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/AdvUni/gafaspot/email"
+
 	"github.com/AdvUni/gafaspot/util"
 )
 
@@ -90,9 +92,12 @@ func CreateReservation(r util.Reservation) error {
 		}
 	}
 
-	// check mail address availability
+	// check possibility of sending e-mails
 	if r.SendEndMail || r.SendStartMail {
-		if !userHasEmail(r.User) {
+		if !email.MailingEnabled {
+			return ReservationError("gafaspot is not configured to send e-mails")
+		}
+		if !UserHasEmail(r.User) {
 			return ReservationError(fmt.Sprintf("there is no e-mail address stored for user %v, so Gafaspot can't mail him", r.User))
 		}
 	}

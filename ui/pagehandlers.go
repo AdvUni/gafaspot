@@ -26,6 +26,8 @@ import (
 	"sort"
 	"time"
 
+	"github.com/AdvUni/gafaspot/email"
+
 	"golang.org/x/crypto/ssh"
 
 	"github.com/AdvUni/gafaspot/database"
@@ -179,8 +181,17 @@ func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sshMissing := env.HasSSH && !database.UserHasSSH(username)
+	emailMissing := !database.UserHasEmail(username)
 
-	err := reservationformTmpl.Execute(w, map[string]interface{}{"Username": username, "Envs": environments, "Selected": selectedEnvPlainName, "SSHmissing": sshMissing, "Error": errormessage})
+	err := reservationformTmpl.Execute(w, map[string]interface{}{
+		"Username":      username,
+		"Envs":          environments,
+		"Selected":      selectedEnvPlainName,
+		"SSHmissing":    sshMissing,
+		"EmailDisabled": !email.MailingEnabled,
+		"EmailMissing":  emailMissing,
+		"Error":         errormessage,
+	})
 	if err != nil {
 		logger.Error(err)
 	}

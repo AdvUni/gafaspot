@@ -117,7 +117,7 @@ func deleteUser(username string) {
 // DeleteUserSSH deletes a user's ssh public key from database. The rest of the user's
 // database entry remains.
 func DeleteUserSSH(username string) {
-	if userHasEmail(username) {
+	if UserHasEmail(username) {
 		SaveUserSSH(username, []byte(""))
 	} else {
 		deleteUser(username)
