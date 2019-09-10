@@ -202,6 +202,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 
 	reservation.User = username
 
+	// get environment from form
 	reservation.EnvPlainName = template.HTMLEscapeString(r.Form.Get("env"))
 	if reservation.EnvPlainName == "" {
 		logger.Debugf("reserve handler received reservation with invalid environment: %v", err)
@@ -209,6 +210,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get start from form
 	startstring := template.HTMLEscapeString(r.Form.Get("startdate")) + " " + template.HTMLEscapeString(r.Form.Get("starttime"))
 	reservation.Start, err = time.ParseInLocation(util.TimeLayout, startstring, time.Local)
 	if err != nil {
@@ -217,6 +219,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get end from form
 	endstring := template.HTMLEscapeString(r.Form.Get("enddate")) + " " + template.HTMLEscapeString(r.Form.Get("endtime"))
 	reservation.End, err = time.ParseInLocation(util.TimeLayout, endstring, time.Local)
 	if err != nil {
@@ -225,9 +228,16 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: retrieve mail booleans
-
+	// get subject from form
 	reservation.Subject = template.HTMLEscapeString(r.Form.Get("sub"))
+
+	// get email checkboxes from form
+	if r.Form.Get("startmail") != "" {
+		reservation.SendStartMail = true
+	}
+	if r.Form.Get("endmail") != "" {
+		reservation.SendEndMail = true
+	}
 
 	err = database.CreateReservation(reservation)
 	if err != nil {
