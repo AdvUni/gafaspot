@@ -67,11 +67,12 @@ func readConfig(logger logging.Logger) util.GafaspotConfig {
 	}
 
 	// check validity of time string ScanningInterval
-	_, err = time.ParseDuration(config.ScanningInterval)
+	scanningInterval, err = time.ParseDuration(config.ScanningInterval)
 	if err != nil {
 		logger.Emergencyf("invalid time string in config for scanning-interval: %v", err)
 		os.Exit(1)
 	}
+	logger.Debugf("scanning interval is: %v", ScanningInterval)
 
 	// check completeness
 	if config.ApproleID == "" || config.ApproleSecret == "" {
