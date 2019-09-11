@@ -26,11 +26,10 @@ import (
 	"sort"
 	"time"
 
-	"github.com/AdvUni/gafaspot/email"
-
 	"golang.org/x/crypto/ssh"
 
 	"github.com/AdvUni/gafaspot/database"
+	"github.com/AdvUni/gafaspot/email"
 	"github.com/AdvUni/gafaspot/util"
 	"github.com/AdvUni/gafaspot/vault"
 	"github.com/gorilla/mux"
@@ -116,9 +115,9 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 		sshEntry = ""
 	}
 
-	email, ok := database.GetUserEmail(username)
+	mail, ok := database.GetUserEmail(username)
 	if !ok {
-		email = ""
+		mail = ""
 	}
 
 	reservations := database.GetUserReservations(username)
@@ -131,7 +130,13 @@ func personalPageHandler(w http.ResponseWriter, r *http.Request) {
 		resNice = append(resNice, newReservationNiceName(r))
 	}
 
-	err := personalviewTmpl.Execute(w, map[string]interface{}{"Username": username, "SSHkey": sshEntry, "Email": email, "Reservations": resNice})
+	err := personalviewTmpl.Execute(w, map[string]interface{}{
+		"Username":      username,
+		"SSHkey":        sshEntry,
+		"EmailDisabled": !email.MailingEnabled,
+		"Email":         mail,
+		"Reservations":  resNice,
+	})
 	if err != nil {
 		logger.Error(err)
 	}

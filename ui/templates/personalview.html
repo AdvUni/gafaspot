@@ -94,7 +94,7 @@
                     <div class="alert alert-info" role="alert">
                         <h4 class="alert-heading">Info</h4>
                         <p>
-                            If you remove your mail address, Gafaspot will not longer be able to send you mails, 
+                            If you remove your mail address, Gafaspot will not longer be able to send you mails,
                             not even for reservations which you have created in the past.
                         </p>
                     </div>
@@ -115,25 +115,26 @@
         <br>
         <a class="btn btn-success" href="/personal/creds" role="button">show all your valid credentials</a>
         <hr>
-        <p><b>SSH Public Key:</b>
-            {{ $noSSH := eq (index .SSHkey) "" }}
-            <p class="text-monospace breakall">{{ if $noSSH }}no key yet{{ else }}{{ index .SSHkey }}{{ end }}</p>
-        </p>
+        <p><b>SSH Public Key:</b></p> {{ $noSSH := eq (index .SSHkey) "" }}
+        <p class="text-monospace breakall">{{ if $noSSH }}no key yet{{ else }}{{ index .SSHkey }}{{ end }}</p>
         <div class="d-flex justify-content-end">
-            <a class="btn btn-primary m-2" href="personal/addkey" role="button">add/change key</a>
-            <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#confirmSSHDeletion"
-                {{ if $noSSH }}disabled{{ end }}>remove key</button>
+            <a class="btn btn-sm btn-primary m-2" href="personal/addkey" role="button">add/change key</a>
+            <button type="button" class="btn btn-sm btn-secondary m-2" data-toggle="modal"
+                data-target="#confirmSSHDeletion" {{ if $noSSH }}disabled{{ end }}>remove key</button>
         </div>
         <hr>
-        <p><b>E-Mail Address:</b>
-            {{ $noEmail := eq (index .Email) "" }}
-            <p class="text-monospace">{{ if $noEmail }}no mail address yet{{ else }}{{ index .Email }}{{ end }}</p>
-        </p>
+        {{ if index .EmailDisabled }}
+        <p class="text-muted"><b>E-Mail Address:</b></p>
+        <p class="text-danger">Gafaspot is not configured to send mails</p>
+        {{ else }}
+        <p><b>E-Mail Address:</b></p> {{ $noEmail := eq (index .Email) "" }}
+        <p class="text-monospace">{{ if $noEmail }}no mail address yet{{ else }}{{ index .Email }}{{ end }}</p>
         <div class="d-flex justify-content-end">
-            <a class="btn btn-primary m-2" href="personal/addmail" role="button">add/change e-mail</a>
-            <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#confirmEmailDeletion"
-                {{ if $noEmail }}disabled{{ end }}>remove e-mail</button>
+            <a class="btn btn-sm btn-primary m-2" href="personal/addmail" role="button">add/change e-mail</a>
+            <button type="button" class="btn btn-sm btn-secondary m-2" data-toggle="modal"
+                data-target="#confirmEmailDeletion" {{ if $noEmail }}disabled{{ end }}>remove e-mail</button>
         </div>
+        {{ end }}
         <hr>
         <br>
         <h3>Your Reservations:</h3>

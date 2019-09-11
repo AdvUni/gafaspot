@@ -78,7 +78,7 @@
             <div class="form-group">
                 {{ $emailMissing := index .EmailMissing }}{{ $emailDisabled := index .EmailDisabled }}
                 <label for="mailchecks"{{ if or $emailDisabled $emailMissing }} class="text-muted"{{ end }}>E-mail</label>
-                {{ if $emailDisabled }}<small class="text-danger">&nbsp;&nbsp;(gafaspot is not configured to send mails)</small>
+                {{ if $emailDisabled }}<small class="text-danger">&nbsp;&nbsp;(Gafaspot is not configured to send mails)</small>
                 {{ else if $emailMissing }}<small class="text-danger">&nbsp;&nbsp;(no mail address yet)</small>
                 {{ end }}
                 <fieldset id="mailchecks" class="form-check"{{ if or $emailDisabled $emailMissing }} disabled{{ end }}>
