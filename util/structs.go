@@ -28,6 +28,7 @@ type GafaspotConfig struct {
 	WebserviceAddress   string                       `mapstructure:"webservice-address"`
 	Mailserver          string                       `mapstructure:"mailserver"`
 	GafaspotMailAddress string                       `mapstructure:"gafaspot-mailaddress"`
+	ScanningInterval    string                       `mapstructure:"scanning-interval"`
 	MaxBookingDays      int                          `mapstructure:"max-reservation-duration-days"`
 	MaxQueuingMonths    int                          `mapstructure:"max-queuing-time-months"`
 	Database            string                       `mapstructure:"db-path"`

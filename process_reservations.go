@@ -19,15 +19,12 @@
 package main
 
 import (
+	"os"
 	"time"
 
-	logging "github.com/alexcesaro/log"
 	"github.com/AdvUni/gafaspot/database"
 	"github.com/AdvUni/gafaspot/vault"
-)
-
-const (
-	scanningInterval = 5 * time.Minute
+	logging "github.com/alexcesaro/log"
 )
 
 var (
@@ -36,8 +33,14 @@ var (
 
 // handleReservationScanning is an endless loop which repetitively calls reservationScan. This is
 // keeping the reservations table in database up-to-date.
-func handleReservationScanning(l logging.Logger) {
+func handleReservationScanning(l logging.Logger, intervalString string) {
 	logger = l
+
+	scanningInterval, err := time.ParseDuration(intervalString)
+	if err != nil {
+		logger.Emergencyf("invalid time string in config for scanning-interval: %v", err)
+		os.Exit(1)
+	}
 
 	// endless loop, triggered each 5 minutes
 	tick := time.NewTicker(scanningInterval).C

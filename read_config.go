@@ -20,6 +20,7 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"github.com/AdvUni/gafaspot/util"
 	logging "github.com/alexcesaro/log"
@@ -30,6 +31,7 @@ var (
 	configDefaults = map[string]interface{}{
 		"webservice-address":            "0.0.0.0:80",
 		"gafaspot-mailaddress":          "gafaspot@gafaspot.com",
+		"scanning-interval":             "5m",
 		"max-reservation-duration-days": 30,
 		"max-queuing-time-months":       2,
 		"db-path":                       "./gafaspot.db",
@@ -61,6 +63,13 @@ func readConfig(logger logging.Logger) util.GafaspotConfig {
 	err = viper.Unmarshal(&config)
 	if err != nil {
 		logger.Emergencyf("unable to decode config into GafaspotConfig struct: %v", err)
+		os.Exit(1)
+	}
+
+	// check validity of time string ScanningInterval
+	_, err = time.ParseDuration(config.ScanningInterval)
+	if err != nil {
+		logger.Emergencyf("invalid time string in config for scanning-interval: %v", err)
 		os.Exit(1)
 	}
 

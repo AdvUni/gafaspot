@@ -44,7 +44,7 @@ func main() {
 
 	// start webserver and routine for processing reservations
 	logger.Info("Starting reservation scanning routine...")
-	go handleReservationScanning(logger)
+	go handleReservationScanning(logger, config.ScanningInterval)
 	logger.Info("Starting web server...")
 	ui.RunWebserver(logger, config.WebserviceAddress)
 }
