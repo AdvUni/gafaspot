@@ -19,6 +19,7 @@
 package main
 
 import (
+	"net/mail"
 	"os"
 	"time"
 
@@ -66,19 +67,24 @@ func readConfig(logger logging.Logger) util.GafaspotConfig {
 		os.Exit(1)
 	}
 
-	// check validity of time string ScanningInterval
+	// check completeness
+	if config.ApproleID == "" || config.ApproleSecret == "" {
+		logger.Emergency("parameters approle-roleID and approle-secretID must be specified in config")
+		os.Exit(1)
+	}
+
+	// validate some config values
+	_, err = mail.ParseAddress(config.GafaspotMailAddress)
+	if err != nil {
+		logger.Emergencyf("invalid address in config for gafaspot-mailaddress: %s", config.GafaspotMailAddress)
+		os.Exit(1)
+	}
 	scanningInterval, err := time.ParseDuration(config.ScanningInterval)
 	if err != nil {
 		logger.Emergencyf("invalid time string in config for scanning-interval: %v", err)
 		os.Exit(1)
 	}
 	logger.Debugf("scanning interval is: %v", scanningInterval)
-
-	// check completeness
-	if config.ApproleID == "" || config.ApproleSecret == "" {
-		logger.Emergency("parameters approle-roleID and approle-secretID must be specified in config")
-		os.Exit(1)
-	}
 
 	return config
 }
