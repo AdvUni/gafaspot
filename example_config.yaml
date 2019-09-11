@@ -28,7 +28,7 @@
 
 #######################################
 #
-# general config for gafaspot
+# general config for Gafaspot
 #######################################
 
 webservice-address: 0.0.0.0:80
@@ -36,6 +36,9 @@ webservice-address: 0.0.0.0:80
 # specification to enable e-mails
 mailserver: mail.example.com:25
 gafaspot-mailaddress: gafaspot@example.com
+
+# interval for Gafaspot to check reservation table
+scanning-interval: 5m
 
 # maximum values for new reservations
 max-reservation-duration-days: 30

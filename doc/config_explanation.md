@@ -26,6 +26,10 @@ ___
 defines a mail address under which gafaspot sends e-mails to its users. Gafaspot will not authenticate in any way, so the address does not have to exist. However, the mail server must allow sending unauthenticated mails.
 ___
 
+`scanning-interval: 5m` *(default value)*  
+specifies, how often Gafaspot reads through all reservations in database to check whether any actions like starting and ending reservations have to be performed. The value must be a duration string like it is understood by the go function time.ParseDuration(). This is for example "30s" or "1h20m". Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
+___
+
 `max-reservation-duration-days: 30` *(default value)*  
 defines, how long one reservation for an environment is allowed to be (in days)
 ___
