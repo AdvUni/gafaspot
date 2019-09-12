@@ -1,4 +1,9 @@
 {
     "key_type": "ca",
-    "allow_user_certificates": true
+    "allow_user_certificates": true,
+    "default_extension": [
+        {
+            "permit_pty": ""
+        }
+    ]
 }

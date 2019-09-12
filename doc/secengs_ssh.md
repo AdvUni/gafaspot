@@ -9,30 +9,30 @@ The signing process works like this: When reserving a environment with an SSH Se
 You can enable the Secrets Engine like this:
 
 ```
-    curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @ssh_enable.json http://127.0.0.1:8200/v1/sys/mounts/operate/<environment_name>/SSH
+curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @ssh_enable.json http://127.0.0.1:8200/v1/sys/mounts/operate/<environment_name>/SSH
 ```
 
 with this payload:
 
 ```
-    {
-        "type": "ssh"
-    }
+{
+    "type": "ssh"
+}
 ```
 
 Also enable a respective KV storage Secrets Engine:
 
 ```
-    curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @kv_enable.json http://127.0.0.1:8200/v1/sys/mounts/store/<environment_name>/SSH
+curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @kv_enable.json http://127.0.0.1:8200/v1/sys/mounts/store/<environment_name>/SSH
 ```
 
 which has the adapted payload:
 
 ```
-    {
-        "type": "kv",
-        "version": 1
-    }
+{
+    "type": "kv",
+    "version": 1
+}
 ```
 
 
@@ -40,38 +40,43 @@ which has the adapted payload:
 You can upload a configuration with the following command:
 
 ```
-    curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @ssh_config.json http://127.0.0.1:8200/v1/operate/<environment_name>/SSH/config/ca
+curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @ssh_config.json http://127.0.0.1:8200/v1/operate/<environment_name>/SSH/config/ca
 ```
 
 As you can see, the last part of the request path is `ca`. This defines that the SSH Secrets Engine will be used with the Signed Certificates Mode. Furthermoe, use the following config:
 
 ```
-    {
-        "generate_signing_key": true
-    }
+{
+    "generate_signing_key": true
+}
 ```
 
 The Secrets Engine will generate a new ssh key pair and return the public key to you. It is your job to register it in all your environment's devices as Certificate Authority. Later, you can retrieve the key again with:
 
 ```
-    curl http://127.0.0.1:8200/v1/operate/<environment_name>/SSH/public_key
+curl http://127.0.0.1:8200/v1/operate/<environment_name>/SSH/public_key
 ```
 
 ## Create Role
 The concept of roles is a bit strange with the signed certificates mode, but you need one just the same. The command is:
 
 ```
-    curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @ssh_role.json http://127.0.0.1:8200/v1/operate/<environment_name>/SSH/roles/gafaspot
+curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @ssh_role.json http://127.0.0.1:8200/v1/operate/<environment_name>/SSH/roles/gafaspot
 ```
 
 The last part of the url is the role name which you also need to specify in the config file gafaspot_config.yaml.
 The following payload should work:
 
 ```
-    {
-        "key_type": "ca",
-        "allow_user_certificates": true
-    }
+{
+    "key_type": "ca",
+    "allow_user_certificates": true,
+    "default_extension": [
+        {
+            "permit_pty": ""
+        }
+    ]
+}
 ```
 
 ## Register SSH Secrets Engine as Certificate Authority
@@ -82,13 +87,13 @@ On unix-like operating systems, there is usually a file called `authorized_keys`
 As already stated, you can read the Secrets Engine's public key like this:
 
 ```
-    curl http://127.0.0.1:8200/v1/operate/<environment_name>/SSH/public_key
+curl http://127.0.0.1:8200/v1/operate/<environment_name>/SSH/public_key
 ```
 
 Find the `authorized_keys` file, start a new line and write following statements, separated by blanks:
 
 ```
-    cert-authority ssh-rsa AAAAB3NzaC...
+cert-authority ssh-rsa AAAAB3NzaC...
 ```
 
 where the third part is the Secrets Engine's key of course.
@@ -96,7 +101,7 @@ where the third part is the Secrets Engine's key of course.
 If this configuration won't allow you to log in with signed keys out of the box, you may need to adapt the file `/etc/ssh/sshd_config`, which contains general settings about ssh login. Reload the file with
 
 ```
-    sudo service sshd restart
+sudo service sshd restart
 ```
 
 after you made changes.
