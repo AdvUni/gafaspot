@@ -93,12 +93,14 @@ func SendBeginReservationMail(recipient string, credsInfo util.ReservationCreds)
 
 // SendEndReservationMail sends an e-mail to inform a user about the end of his reservation.
 // recipient has to be the user's e-mail address.
-func SendEndReservationMail(recipient string, credsInfo util.ReservationCreds) {
+// As at a reservation's end there is no point in showing credentials, the credsInfo.Creds
+// attribute is ignored and can be nill.
+func SendEndReservationMail(recipient string, reservationInfo util.ReservationCreds) {
 	// TODO: improve content
-	content := fmt.Sprintf(contentEndReservation, credsInfo.Env.NiceName)
+	content := fmt.Sprintf(contentEndReservation, reservationInfo.Env.NiceName)
 
 	err := sendMail(recipient, subjectEndReservation, content)
 	if err != nil {
-		logger.Errorf("failed to send mail to user %s at end of reservation of env %s: %v", credsInfo.Res.User, credsInfo.Env.PlainName, err)
+		logger.Errorf("failed to send mail to user %s at end of reservation of env %s: %v", reservationInfo.Res.User, reservationInfo.Env.PlainName, err)
 	}
 }
