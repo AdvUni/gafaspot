@@ -25,7 +25,6 @@ import (
 	"time"
 
 	"github.com/AdvUni/gafaspot/email"
-
 	"github.com/AdvUni/gafaspot/util"
 )
 

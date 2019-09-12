@@ -91,7 +91,7 @@ type startBookingFunc func(envPlainName, sshKey string, until time.Time)
 // time smaller than now. It applies the startBooking function to all environments which are
 // affected by those reservations. After, it changes the reservation's status in database.
 // The reason, why the startBooking function is passed as parameter
-// here is the ambition to preserve the separation of database and vault package. The time now is
+// here is the ambition to preserve the separation of database and vault package. The time 'now' is
 // passed because an unchanging reference is needed over several function calls to avoid
 // inconsistencies.
 func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {

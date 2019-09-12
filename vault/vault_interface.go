@@ -76,7 +76,7 @@ func EndBooking(envPlainName string) {
 // ReadCredentials reads the credentials from all KV Secrets Engine related to the environment
 // envPlainName and returns them as map. Map keys are the Secrets Engine's names. If it is not
 // possible to retrieve any credentials because the environment does not exist, an error message
-// gets logged and the result is nill. If retrieving of credentials fails for a specific
+// gets logged and the result is nil. If retrieving of credentials fails for a specific
 // Secrets Engine, a small error message gets written into the map instead of the credentials, so
 // that it will be automatically displayed in the creds view.
 func ReadCredentials(envPlainName string) map[string]map[string]interface{} {

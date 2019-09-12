@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"sort"
 
 	"github.com/AdvUni/gafaspot/util"
 )
@@ -73,17 +74,15 @@ func getUserAttribute(username, attribute string) (string, bool) {
 	return value.String, true
 }
 
-// GetEnvironments reads all environments from database and returns them in a slice, ordered by
-// NiceName. Further, it returns a map to access the environments by PlainName.
-func GetEnvironments() ([]util.Environment, map[string]util.Environment) {
+// GetEnvironments reads all environments from database and returns them as a map with the PlainNames as keys.
+func GetEnvironments() map[string]util.Environment {
 	rows, err := db.Query("SELECT env_plain_name, env_nice_name, has_ssh, description FROM environments ORDER BY env_nice_name;")
 	if err != nil {
 		logger.Error(err)
-		return nil, nil
+		return nil
 	}
 	defer rows.Close()
 
-	envs := []util.Environment{}
 	envMap := make(map[string]util.Environment)
 	for rows.Next() {
 		e := util.Environment{}
@@ -97,10 +96,9 @@ func GetEnvironments() ([]util.Environment, map[string]util.Environment) {
 			e.Description = template.HTML(description.String)
 		}
 
-		envs = append(envs, e)
 		envMap[e.PlainName] = e
 	}
-	return envs, envMap
+	return envMap
 }
 
 // GetEnvReservations returns all reservations stored in database for a specific environment.
@@ -134,9 +132,35 @@ func getReservations(conditionKey, conditionVal string) []util.Reservation {
 	return assembleReservations(rows)
 }
 
-// GetUserActiveReservationEnv returns all environment's PlainNames, which are stored for a
-// specific username and have status 'active'.
-func GetUserActiveReservationEnv(username string) []util.Reservation {
+type readCredsFunc func(envPlainName string) map[string]map[string]interface{}
+
+// CollectUserCreds bundles all valid credentials for a user. It searches for the user's
+// reservations with status 'active', adds the Environment information and looks up the
+// corresponding credentials.
+// As reading credentials from vault is a matter of the vault package, and it is tried to
+// keep the packages database and vault separately, the readCreds function is passed as
+// parameter.
+// If a reservation is found for which no environment exists in database, the function
+// creates kind of a dummy Environment struct using the EnvPlainName given in the Reservation.
+// No error or similar will arise.
+func CollectUserCreds(username string, readCreds readCredsFunc) []util.ReservationCreds {
+	userActiveReservationsCreds := getUserActiveReservationsInfo(username)
+
+	for _, resEnvCreds := range userActiveReservationsCreds {
+		resEnvCreds.Creds = readCreds(resEnvCreds.Env.PlainName)
+	}
+	return userActiveReservationsCreds
+}
+
+// getUserActiveReservationsInfo selects all reservations for a specific user from database,
+// which have status 'active'. Further, the function fetches the information of environments
+// belonging to this reservations. The function returns both packed together in
+// util.ReservationCreds structs, in which the Creds attribute is not set.
+// If a reservation is found for which no environment exists in database, the function
+// creates kind of a dummy Environment struct using the EnvPlainName given in the Reservation.
+// No error or similar will arise.
+func getUserActiveReservationsInfo(username string) []util.ReservationCreds {
+	// get all active reservations of user
 	stmt, err := db.Prepare("SELECT id, status, username, env_plain_name, start, end, subject, labels, start_mail, end_mail FROM reservations WHERE (status='active') AND (username=?);")
 	if err != nil {
 		logger.Emergency(err)
@@ -149,6 +173,27 @@ func GetUserActiveReservationEnv(username string) []util.Reservation {
 		logger.Error(err)
 	}
 	defer rows.Close()
+	reservations := assembleReservations(rows)
 
-	return assembleReservations(rows)
+	// sort reservations
+	sort.Slice(reservations, func(i, j int) bool {
+		return reservations[i].EnvPlainName < reservations[j].EnvPlainName
+	})
+
+	// get all environments
+	environments := GetEnvironments()
+
+	// associate environments and reservations to each other
+	// if environment does not exist, create a dummy Environment object which contains the PlainName
+	activeReservationsInfo := []util.ReservationCreds{}
+	for _, r := range reservations {
+		env, ok := environments[r.EnvPlainName]
+		if !ok {
+			logger.Debugf("environment from reservation does not exist. Reservation: %v", r)
+			env = util.Environment{NiceName: r.EnvPlainName, PlainName: r.EnvPlainName}
+		}
+		//creds := vault.ReadCredentials(r.EnvPlainName)
+		activeReservationsInfo = append(activeReservationsInfo, util.ReservationCreds{Res: r, Env: env})
+	}
+	return activeReservationsInfo
 }

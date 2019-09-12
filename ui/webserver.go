@@ -156,7 +156,10 @@ func RunWebserver(l logging.Logger, addr string) {
 	logger = l
 
 	// fetch static information about environments from database
-	environments, environmentsMap = database.GetEnvironments()
+	environmentsMap = database.GetEnvironments()
+	for _, e := range environmentsMap {
+		environments = append(environments, e)
+	}
 
 	// create router and register all paths
 	router := mux.NewRouter()
