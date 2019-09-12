@@ -86,6 +86,7 @@ func check(tx *sql.Tx, r util.Reservation, hasSSH *bool) bool {
 }
 
 type startBookingFunc func(envPlainName, sshKey string, until time.Time)
+type readCredsFunc func(envPlainName string) map[string]map[string]interface{}
 
 // StartUpcomingReservations selects all upcoming reservations from database, wich have a start
 // time smaller than now. It applies the startBooking function to all environments which are
@@ -94,7 +95,7 @@ type startBookingFunc func(envPlainName, sshKey string, until time.Time)
 // here is the ambition to preserve the separation of database and vault package. The time 'now' is
 // passed because an unchanging reference is needed over several function calls to avoid
 // inconsistencies.
-func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
+func StartUpcomingReservations(now time.Time, startBooking startBookingFunc, readCreds readCredsFunc) {
 	tx := beginTransaction()
 	defer commitTransaction(tx)
 
@@ -141,7 +142,8 @@ func StartUpcomingReservations(now time.Time, startBooking startBookingFunc) {
 		if r.SendStartMail && email.MailingEnabled {
 			mailAddress, ok := GetUserEmail(r.User)
 			if ok {
-				email.SendBeginReservationMail(mailAddress, r)
+				credsInfo := collectReservationCreds(r, readCreds)
+				email.SendBeginReservationMail(mailAddress, credsInfo)
 			} else {
 				logger.Warningf("tried to send an e-mail to user '%s', but there is not mail address stored for him in database (anymore)", r.User)
 			}
@@ -181,7 +183,8 @@ func ExpireActiveReservations(now time.Time, endBooking endBookingFunc) {
 		if r.SendEndMail && email.MailingEnabled {
 			mailAddress, ok := GetUserEmail(r.User)
 			if ok {
-				email.SendEndReservationMail(mailAddress, r)
+				reservationInfo := collateReservationEnvironment([]util.Reservation{r})[0]
+				email.SendEndReservationMail(mailAddress, reservationInfo)
 			} else {
 				logger.Warningf("tried to send an e-mail to user '%s', but there is not mail address stored for him in database (anymore)", r.User)
 			}

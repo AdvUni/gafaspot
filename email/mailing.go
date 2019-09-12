@@ -81,24 +81,24 @@ func sendMail(recipient string, subject string, content string) error {
 
 // SendBeginReservationMail sends an e-mail to inform a user about the beginning of his reservation.
 // recipient has to be the user's e-mail address.
-func SendBeginReservationMail(recipient string, reservation util.Reservation) {
+func SendBeginReservationMail(recipient string, credsInfo util.ReservationCreds) {
 	// TODO: improve content
-	content := fmt.Sprintf(contentBeginReservation, reservation.EnvPlainName)
+	content := fmt.Sprintf(contentBeginReservation, credsInfo.Env.NiceName)
 
 	err := sendMail(recipient, subjectBeginReservation, content)
 	if err != nil {
-		logger.Errorf("failed to send mail to user %s at begin of reservation of env %s: %v", reservation.User, reservation.EnvPlainName, err)
+		logger.Errorf("failed to send mail to user %s at begin of reservation of env %s: %v", credsInfo.Res.User, credsInfo.Env.PlainName, err)
 	}
 }
 
 // SendEndReservationMail sends an e-mail to inform a user about the end of his reservation.
 // recipient has to be the user's e-mail address.
-func SendEndReservationMail(recipient string, reservation util.Reservation) {
+func SendEndReservationMail(recipient string, credsInfo util.ReservationCreds) {
 	// TODO: improve content
-	content := fmt.Sprintf(contentEndReservation, reservation.EnvPlainName)
+	content := fmt.Sprintf(contentEndReservation, credsInfo.Env.NiceName)
 
 	err := sendMail(recipient, subjectEndReservation, content)
 	if err != nil {
-		logger.Errorf("failed to send mail to user %s at end of reservation of env %s: %v", reservation.User, reservation.EnvPlainName, err)
+		logger.Errorf("failed to send mail to user %s at end of reservation of env %s: %v", credsInfo.Res.User, credsInfo.Env.PlainName, err)
 	}
 }

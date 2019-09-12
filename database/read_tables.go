@@ -132,8 +132,6 @@ func getReservations(conditionKey, conditionVal string) []util.Reservation {
 	return assembleReservations(rows)
 }
 
-type readCredsFunc func(envPlainName string) map[string]map[string]interface{}
-
 // CollectUserCreds bundles all valid credentials for a user. It searches for the user's
 // reservations with status 'active', adds the Environment information and looks up the
 // corresponding credentials.
@@ -144,22 +142,6 @@ type readCredsFunc func(envPlainName string) map[string]map[string]interface{}
 // creates kind of a dummy Environment struct using the EnvPlainName given in the Reservation.
 // No error or similar will arise.
 func CollectUserCreds(username string, readCreds readCredsFunc) []util.ReservationCreds {
-	userActiveReservationsCreds := getUserActiveReservationsInfo(username)
-
-	for _, resEnvCreds := range userActiveReservationsCreds {
-		resEnvCreds.Creds = readCreds(resEnvCreds.Env.PlainName)
-	}
-	return userActiveReservationsCreds
-}
-
-// getUserActiveReservationsInfo selects all reservations for a specific user from database,
-// which have status 'active'. Further, the function fetches the information of environments
-// belonging to this reservations. The function returns both packed together in
-// util.ReservationCreds structs, in which the Creds attribute is not set.
-// If a reservation is found for which no environment exists in database, the function
-// creates kind of a dummy Environment struct using the EnvPlainName given in the Reservation.
-// No error or similar will arise.
-func getUserActiveReservationsInfo(username string) []util.ReservationCreds {
 	// get all active reservations of user
 	stmt, err := db.Prepare("SELECT id, status, username, env_plain_name, start, end, subject, labels, start_mail, end_mail FROM reservations WHERE (status='active') AND (username=?);")
 	if err != nil {
@@ -179,7 +161,42 @@ func getUserActiveReservationsInfo(username string) []util.ReservationCreds {
 	sort.Slice(reservations, func(i, j int) bool {
 		return reservations[i].EnvPlainName < reservations[j].EnvPlainName
 	})
+	// add environment info
+	userActiveReservationsCreds := collateReservationEnvironment(reservations)
 
+	// add creds info
+	for _, resEnvCreds := range userActiveReservationsCreds {
+		resEnvCreds.Creds = readCreds(resEnvCreds.Env.PlainName)
+	}
+
+	return userActiveReservationsCreds
+}
+
+// collectReservationCreds bundles the credentials for an active reservation.
+// The function adds the Environment information to the reservation and looks up the
+// corresponding credentials.
+// As reading credentials from vault is a matter of the vault package, and it is tried to
+// keep the packages database and vault separately, the readCreds function is passed as
+// parameter.
+// If the reservation's environment does not exist in database, the function creates
+// kind of a dummy Environment struct using the EnvPlainName given in the Reservation.
+// No error or similar will arise.
+// Pass only active reservations, otherwise the readCreds function will not be able to
+// return proper values.
+func collectReservationCreds(reservation util.Reservation, readCreds readCredsFunc) util.ReservationCreds {
+	reservationCreds := collateReservationEnvironment([]util.Reservation{reservation})[0]
+	reservationCreds.Creds = readCreds(reservation.EnvPlainName)
+	return reservationCreds
+}
+
+// collateReservationEnvironment takes a list of Reservations and looks up the Environment
+// for each Reservation. The function returns both packed together in a list of
+// util.ReservationCreds structs, in which the Creds attribute is not set.
+// If a reservation is found for which no environment exists in database, the function
+// creates kind of a dummy Environment struct using the EnvPlainName given in the Reservation.
+// No error or similar will arise.
+// The size of the result list is the same es the size of reservations
+func collateReservationEnvironment(reservations []util.Reservation) []util.ReservationCreds {
 	// get all environments
 	environments := GetEnvironments()
 

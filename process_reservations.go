@@ -61,7 +61,7 @@ func reservationScan() {
 	database.ExpireActiveReservations(now, vault.EndBooking)
 
 	// any upcoming bookings which should start?
-	database.StartUpcomingReservations(now, vault.StartBooking)
+	database.StartUpcomingReservations(now, vault.StartBooking, vault.ReadCredentials)
 
 	// any expired bookings which should get deleted?
 	database.DeleteOldReservations(now)
