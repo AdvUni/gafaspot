@@ -33,9 +33,21 @@ const (
 	subjectBeginReservation = "Gafaspot notification: Reservation is active"
 	subjectEndReservation   = "Gafaspot notification: Reservation expired"
 
-	contentBeginReservation = "Your reservation in Gafaspot for environment '%s' became active. You can login to retrieve your credentials."
-	contentEndReservation   = "Your reservation in Gafaspot for environment '%s' expired. The credentials you received are not longer valid."
+	contentBeginReservation = `Your reservation in Gafaspot became active. You can login to retrieve your credentials.
+Username: %s
+Environment: %s
+Reservation period: %s - %s
+Reservation subject: %s
 
+Environment Description ...
+Creds ...`
+	contentEndReservation = `Your reservation in Gafaspot expired. The credentials you received are not longer valid.
+Username: %s
+Environment: %s
+Reservation period: %s - %s
+Reservation subject: %s
+
+`
 	// msgTemplate is for creating RFC 822-style emails.
 	// Following strings must be passed in the correct order:
 	//   * the sender's mail address
@@ -81,26 +93,26 @@ func sendMail(recipient string, subject string, content string) error {
 
 // SendBeginReservationMail sends an e-mail to inform a user about the beginning of his reservation.
 // recipient has to be the user's e-mail address.
-func SendBeginReservationMail(recipient string, credsInfo util.ReservationCreds) {
+func SendBeginReservationMail(recipient string, info util.ReservationCreds) {
 	// TODO: improve content
-	content := fmt.Sprintf(contentBeginReservation, credsInfo.Env.NiceName)
+	content := fmt.Sprintf(contentBeginReservation, info.Res.User, info.Env.NiceName, info.Res.Start.Format(util.TimeLayout), info.Res.End.Format(util.TimeLayout), info.Res.Subject)
 
 	err := sendMail(recipient, subjectBeginReservation, content)
 	if err != nil {
-		logger.Errorf("failed to send mail to user %s at begin of reservation of env %s: %v", credsInfo.Res.User, credsInfo.Env.PlainName, err)
+		logger.Errorf("failed to send mail to user %s at begin of reservation of env %s: %v", info.Res.User, info.Env.PlainName, err)
 	}
 }
 
 // SendEndReservationMail sends an e-mail to inform a user about the end of his reservation.
 // recipient has to be the user's e-mail address.
-// As at a reservation's end there is no point in showing credentials, the credsInfo.Creds
-// attribute is ignored and can be nill.
-func SendEndReservationMail(recipient string, reservationInfo util.ReservationCreds) {
+// As at a reservation's end there is no point in showing credentials, the info.Creds
+// attribute is ignored and can be nil.
+func SendEndReservationMail(recipient string, info util.ReservationCreds) {
 	// TODO: improve content
-	content := fmt.Sprintf(contentEndReservation, reservationInfo.Env.NiceName)
+	content := fmt.Sprintf(contentEndReservation, info.Res.User, info.Env.NiceName, info.Res.Start.Format(util.TimeLayout), info.Res.End.Format(util.TimeLayout), info.Res.Subject)
 
 	err := sendMail(recipient, subjectEndReservation, content)
 	if err != nil {
-		logger.Errorf("failed to send mail to user %s at end of reservation of env %s: %v", reservationInfo.Res.User, reservationInfo.Env.PlainName, err)
+		logger.Errorf("failed to send mail to user %s at end of reservation of env %s: %v", info.Res.User, info.Env.PlainName, err)
 	}
 }
