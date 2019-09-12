@@ -162,14 +162,14 @@ func CollectUserCreds(username string, readCreds readCredsFunc) []util.Reservati
 		return reservations[i].EnvPlainName < reservations[j].EnvPlainName
 	})
 	// add environment info
-	userActiveReservationsCreds := collateReservationEnvironment(reservations)
+	resEnvCreds := collateReservationEnvironment(reservations)
 
 	// add creds info
-	for _, resEnvCreds := range userActiveReservationsCreds {
-		resEnvCreds.Creds = readCreds(resEnvCreds.Env.PlainName)
+	for i := range resEnvCreds {
+		resEnvCreds[i].Creds = readCreds(resEnvCreds[i].Env.PlainName)
 	}
 
-	return userActiveReservationsCreds
+	return resEnvCreds
 }
 
 // collectReservationCreds bundles the credentials for an active reservation.
