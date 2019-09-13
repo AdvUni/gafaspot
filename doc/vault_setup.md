@@ -4,40 +4,40 @@ Read through Vault's [Getting Started Guide](https://learn.hashicorp.com/vault/)
 
 After starting the server, initialize it with the following command:
 
-```
-    curl --request PUT --data @vault_init.json http://127.0.0.1:8200/v1/sys/init
+```sh
+curl --request PUT --data @vault_init.json http://127.0.0.1:8200/v1/sys/init
 ```
 
 The file `vault_init.json` can be found together with many other JSON payload snippets in the sub directory [`json_payload/`](json_payload).
 The contents of `vault_init.json` are:
 
-```
-    {
-        "secret_shares": 1,
-        "secret_threshold": 1
-    }
+```json
+{
+    "secret_shares": 1,
+    "secret_threshold": 1
+}
 ```
 
 This will return you a single unseal key together with a root token. Gafaspot is not meant to manage super sensible secrets, so there is probably no need to split the responsibility for the unsealing process to several persons. You will need the unseal key to unlock Vault each time you restart it. The root token is necessary to supply yourself with access rights to Vault, which are needed to perform any configuration. So note both values down and keep them somewhere.
 
 You can save the root token to the environment variable `$VAULT_TOKEN` to simplify the copying of further commands from this guide:
 
-```
-    export VAULT_TOKEN='s.3eX...'
+```sh
+export VAULT_TOKEN='s.3eX...'
 ```
 
 Unseal Vault with:
 
-```
-    curl --request PUT --data @vault_unseal.json http://127.0.0.1:8200/v1/sys/unseal
+```sh
+curl --request PUT --data @vault_unseal.json http://127.0.0.1:8200/v1/sys/unseal
 ```
 
 `vault_unseal.json` is not included in the collection of JSON payload snippets in this repository as it contains your unseal key which is not known by this guide. It looks like:
 
-```
-    {
-        "key": "abcd1234..."
-    }
+```json
+{
+    "key": "abcd1234..."
+}
 ```
 
 From now on, Vault is up and ready for interaction. To be used with Gafaspot, you need to enable and configure some Auth Methods and many Secrets Engines. See the respective pages for more details:

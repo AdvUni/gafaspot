@@ -20,7 +20,7 @@ Many of the credential-changing Secrets Engines are able to serve exactly one de
 So a credential-changing Secrets Engine for Gafaspot has to be enabled at the following path:
 
 ```
-    operate/<environment_name>/<secrets_engine_name>
+operate/<environment_name>/<secrets_engine_name>
 ```
 
 For the variables environment_name and secrets_engine_name following conventions must be met:
@@ -61,7 +61,7 @@ So a fictive Vault setup may have a Secrets Engines path structure like this:
 
 The respective config file for Gafaspot (gafaspot_config.yaml), which must follow the same structure, would look like this:
 
-```
+```yaml
     [...]
 
     environments:

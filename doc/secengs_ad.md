@@ -10,52 +10,52 @@ This behavior does not really fit to the needs of Gafaspot. Either, the password
 ## Enable
 You enable the Secrets Engine like this:
 
-```
-    curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @ad_enable.json http://127.0.0.1:8200/v1/sys/mounts/operate/<environment_name>/ActiveDirectory
+```sh
+curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @ad_enable.json http://127.0.0.1:8200/v1/sys/mounts/operate/<environment_name>/ActiveDirectory
 ```
 
 with payload:
 
-```
-    {
-        "type": "ad"
-    }
+```json
+{
+    "type": "ad"
+}
 ```
 
 Also, enable a respective KV storage Secrets Engine:
 
-```
-    curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @kv_enable.json http://127.0.0.1:8200/v1/sys/mounts/store/<environment_name>/ActiveDirectory
+```sh
+curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @kv_enable.json http://127.0.0.1:8200/v1/sys/mounts/store/<environment_name>/ActiveDirectory
 ```
 
 which has the adapted payload:
 
-```
-    {
-        "type": "kv",
-        "version": 1
-    }
+```json
+{
+    "type": "kv",
+    "version": 1
+}
 ```
 
 
 ## Configure
 You can upload a configuration with following command:
 
-```
-    curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @ad_config.json http://127.0.0.1:8200/v1/operate/<environment_name>/ActiveDirectory/config
+```sh
+curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @ad_config.json http://127.0.0.1:8200/v1/operate/<environment_name>/ActiveDirectory/config
 ```
 
 An appropriate config would be something like:
 
-```
-    {
-        "url": "ldaps://127.0.0.11:636",
-        "binddn": "cn=Administrator,cn=Users,dc=example,dc=com",
-        "bindpass": "Password123",
-        "userdn": "ou=Users,dc=example,dc=com",
-        "ttl": "1",
-        "max_ttl": "1"
-    }
+```json
+{
+    "url": "ldaps://127.0.0.11:636",
+    "binddn": "cn=Administrator,cn=Users,dc=example,dc=com",
+    "bindpass": "Password123",
+    "userdn": "ou=Users,dc=example,dc=com",
+    "ttl": "1",
+    "max_ttl": "1"
+}
 ```
 
 "url" should be your Active Directory's network address. You will have to use the `ldaps` protocol instead of `ldap` since the Active Directory denies credential changing over insecure connections. Make sure to upload the Active Directories certificate to the machine running Vault. Otherwise, you can use the `insecure_tls` flag within the configuration. See the [API documentation](https://www.vaultproject.io/api/secret/ad/index.html) for more information.
@@ -66,17 +66,17 @@ Be aware, that the AD Secrets Engine will not give you any feedback about whethe
 ## Create Role
 With a role you tell the Secrets Engine *for which* account it should change passwords. Create a role with the following command:
 
-```
-    curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @ad_role.json http://127.0.0.1:8200/v1/operate/<environment_name>/ActiveDirectory/roles/gafaspot
+```sh
+curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @ad_role.json http://127.0.0.1:8200/v1/operate/<environment_name>/ActiveDirectory/roles/gafaspot
 ```
 
 The last part of the url is the role name. This is the name used by the Secrets Engine to identify the AD account. You can choose it freely, but you have to specifiy it in the gafaspot_config.yaml file as well.
 The command's payload looks like this:
 
-```
-    {
-        "service_account_name": "gafaspot_on_ad@example.com"
-    }
+```json
+{
+    "service_account_name": "gafaspot_on_ad@example.com"
+}
 ```
 
 Change the service_account_name to the name of an AD user which you want to manage with Gafaspot. It does not have to be something like a service account. Normal user accounts work as well.
@@ -84,8 +84,8 @@ Change the service_account_name to the name of an AD user which you want to mana
 ## Test Setup
 As Vault might not have told you if some of the configuration is invalid, you should perform a `creds` request to test whether your setup works as expected:
 
-```
-    curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' http://127.0.0.1:8200/v1/operate/<environment_name>/ActiveDirectory/creds/gafaspot
+```sh
+curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' http://127.0.0.1:8200/v1/operate/<environment_name>/ActiveDirectory/creds/gafaspot
 ```
 
 ---

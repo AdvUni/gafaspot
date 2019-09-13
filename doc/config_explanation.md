@@ -66,7 +66,7 @@ ___
 `environments:`  
 The end of the Gafaspot config describes the composition of the different environments which you intend to manage with Gafaspot. Therefore, give a list of all environments at the first level like this:
 
-```
+```yaml
     environments:
 
         demo0:
@@ -84,7 +84,7 @@ The end of the Gafaspot config describes the composition of the different enviro
 The environment's names are only allowed to contain **lowercase** ASCII letters, numbers and underscores. Don't use uppercase letters and blanks!  
 Each environment has the following attributes: 
 
-```
+```yaml
         demo0:
             show-name: DEMO 0
             description: "Some description for DEMO 0;
@@ -104,7 +104,7 @@ In this example, environment_names would be `demo0`, `demo1` and so on. For enab
 
 Defining the Secrets Engines looks like this:
 
-```
+```yaml
             ...
             secrets-engines:
                 - name: NetApp

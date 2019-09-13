@@ -9,23 +9,23 @@ At least, better security could be accomplished by slightly extending Gafaspot. 
 ## Enable
 You can enable an Auth Method like this:
 
-```
-    curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @auth_approle_enable.json http://127.0.0.1:8200/v1/sys/auth/approle
+```sh
+curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @auth_approle_enable.json http://127.0.0.1:8200/v1/sys/auth/approle
 ```
 
 Gafaspot expects the AppRole Auth Method to be enabled at path `auth/approle`, so don't change the request path's end. To make the enabled Auth Method to be of type AppRole, the following payload is needed:
 
-```
-    {
-        "type": "approle"
-    }
+```json
+{
+    "type": "approle"
+}
 ```
 
 ## Create Policy
 To give Gafaspot the proper permissions inside Vault, a policy is needed. An appropriate policy can be found in file [policy_gafaspot_approle.hcl](policy_gafaspot_approle.hcl). Upload it with the following command:
 
-```
-    curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @policy_approle_create.json http://127.0.0.1:8200/v1/sys/policy/gafaspot-approle
+```sh
+curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @policy_approle_create.json http://127.0.0.1:8200/v1/sys/policy/gafaspot-approle
 ```
 
 The last part of the request path is the policy's name. The payload policy_approle_create.json is not copied to this page because of its length, but it is included in the json_payload directory.
@@ -33,20 +33,20 @@ The last part of the request path is the policy's name. The payload policy_appro
 ## Create Role
 There is no write to path `/config` for this Auth Method. Instead you have to create a role:
 
-```
-    curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @auth_approle_role.json http://127.0.0.1:8200/v1/auth/approle/role/gafaspot
+```sh
+curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @auth_approle_role.json http://127.0.0.1:8200/v1/auth/approle/role/gafaspot
 ```
 
 The last part of the request path is the role name. Use the following payload:
 
-```
-    {
-        "policies": ["gafaspot-approle"],
-        "secret_id_num_uses": 0,
-        "secret_id_ttl": "",
-        "token_num_uses": 0,
-        "token_ttl": "1m"
-    }
+```json
+{
+    "policies": ["gafaspot-approle"],
+    "secret_id_num_uses": 0,
+    "secret_id_ttl": "",
+    "token_num_uses": 0,
+    "token_ttl": "1m"
+}
 ```
 
 With the parameter `policies` you map the just created policy to tokens retrieved with this role. `secrets_id_num_uses` and `secret_id_ttl` restrict how often and how long the same credentials can be used. The value `0`, respective `""`, means the use is unlimited, which is what we want for Gafaspot. `token_num_uses` and `token_ttl` determine the same for each token retrieved by applying the Auth Method one time. Gafaspot will fetch a token before each series of actions in Vault, so restrict the ttl to a small amount of time. One minute should fit well.
@@ -56,14 +56,14 @@ Credentials for the AppRole Auth Method are pairs of two strings called `role-id
 
 Read the role's `role-id` like this:
 
-```
-    curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' http://127.0.0.1:8200/v1/auth/approle/role/gafaspot/role-id
+```sh
+curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' http://127.0.0.1:8200/v1/auth/approle/role/gafaspot/role-id
 ```
 
 Then, generate a `secret-id`:
 
-```
-    curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST http://127.0.0.1:8200/v1/auth/approle/role/gafaspot/secret-id
+```sh
+curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST http://127.0.0.1:8200/v1/auth/approle/role/gafaspot/secret-id
 ```
 
 It has to be a POST request, but its payload can be empty.
