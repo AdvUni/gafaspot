@@ -78,6 +78,7 @@ The following payload should work:
     ]
 }
 ```
+The content of the `default_extension` field is necessary to show a prompt after logging in with the signed ssh certificates (See [Vault Documentation](https://www.vaultproject.io/docs/secrets/ssh/signed-ssh-certificates.html#no-prompt-after-login)).
 
 ## Register SSH Secrets Engine as Certificate Authority
 This step depends on the target operating system for which you want to manage accounts with Gafaspot.
