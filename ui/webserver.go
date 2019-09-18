@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"sort"
 	"time"
 
 	"github.com/AdvUni/gafaspot/database"
@@ -160,6 +161,9 @@ func RunWebserver(l logging.Logger, addr string) {
 	for _, e := range environmentsMap {
 		environments = append(environments, e)
 	}
+	sort.Slice(environments, func(i, j int) bool {
+		return environments[i].NiceName < environments[j].NiceName
+	})
 
 	// create router and register all paths
 	router := mux.NewRouter()
