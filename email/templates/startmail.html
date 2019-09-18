@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!--[if mso]>
+<style type="text/css">
+body, table, td {font-family: sans-serif !important;}
+</style>
+<![endif]-->
+</head>
+
+<body>
+    <p>Your reservation in Gafaspot became active.</p>
+    <br>
+    <h3>Reservation</h3>
+    <p>username:&nbsp;{{ .Info.Res.User }}</p>
+    <p>Environment:&nbsp;{{ .Info.Env.NiceName }}<br>
+        Subject:&nbsp;{{ .Info.Res.Subject }}</p>
+    <p>Start:&nbsp;{{ formatDatetime .Info.Res.Start }}<br>
+        End:&nbsp;{{ formatDatetime .Info.Res.End }}</p>
+    <br>
+    <h3>Credentials</h3>
+    {{ if not .Info.Creds }} <p><strong>Error: not possible to provide credentials for this environment.</strong></p>
+    {{ else }}{{ range $secEngName, $creds := .Info.Creds }}
+    <div>
+        <h5>{{ $secEngName }}</h5>
+        {{ if index $creds "username" }}<p class="breakall"><span>username: </span>
+            <samp>{{ index $creds "username" }}</samp></p>{{ end }}
+        {{ range $key, $value := $creds }}
+        {{ if ne $key "username" }}<p class="breakall"><span>{{ $key }}: </span><samp>{{ $value }}</samp></p>{{ end }}
+        {{ end }}
+    </div>
+    <br>
+    {{ end }}{{ end }}
+    {{ if .Info.Env.Description }}
+    <h3>Environment Description</h3>
+    {{ .Info.Env.Description }}
+    <br>
+    {{ end }}
+
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+
+        .breakall {
+            word-break: break-all;
+        }
+    </style>
+</body>
+
+</html>

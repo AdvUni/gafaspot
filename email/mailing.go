@@ -19,8 +19,12 @@
 package email
 
 import (
+	"bytes"
 	"fmt"
 	"net/smtp"
+	"path"
+	"text/template"
+	"time"
 
 	"github.com/AdvUni/gafaspot/util"
 	logging "github.com/alexcesaro/log"
@@ -33,21 +37,6 @@ const (
 	subjectBeginReservation = "Gafaspot notification: Reservation is active"
 	subjectEndReservation   = "Gafaspot notification: Reservation expired"
 
-	contentBeginReservation = `Your reservation in Gafaspot became active. You can login to retrieve your credentials.
-Username: %s
-Environment: %s
-Reservation period: %s - %s
-Reservation subject: %s
-
-Environment Description ...
-Creds ...`
-	contentEndReservation = `Your reservation in Gafaspot expired. The credentials you received are not longer valid.
-Username: %s
-Environment: %s
-Reservation period: %s - %s
-Reservation subject: %s
-
-`
 	// msgTemplate is for creating RFC 822-style emails.
 	// Following strings must be passed in the correct order:
 	//   * the sender's mail address
@@ -66,9 +55,13 @@ var (
 	logger        logging.Logger
 	mailserver    string
 	senderAddress string
+
+	startmailTmpl *template.Template
+	endmailTmpl   *template.Template
 )
 
 // InitMailing reads the email paramters from config and stores them as package variables.
+// Further it prepares the mail templates.
 func InitMailing(l logging.Logger, config util.GafaspotConfig) {
 	logger = l
 
@@ -79,6 +72,26 @@ func InitMailing(l logging.Logger, config util.GafaspotConfig) {
 	logger.Debugf("Mail server is specified: %v", MailingEnabled)
 
 	senderAddress = config.GafaspotMailAddress
+
+	if MailingEnabled {
+		const (
+			startmailTmplFile = "email/templates/startmail.html"
+			endmailTmplFile   = "email/templates/endmail.html"
+		)
+		var err error
+		startmailTmpl, err = template.New(path.Base(startmailTmplFile)).Funcs(template.FuncMap{
+			"formatDatetime": func(t time.Time) string { return t.Format(util.TimeLayout) },
+		}).ParseFiles(startmailTmplFile)
+		if err != nil {
+			logger.Error(err)
+		}
+		endmailTmpl, err = template.New(path.Base(endmailTmplFile)).Funcs(template.FuncMap{
+			"formatDatetime": func(t time.Time) string { return t.Format(util.TimeLayout) },
+		}).ParseFiles(endmailTmplFile)
+		if err != nil {
+			logger.Error(err)
+		}
+	}
 }
 
 func sendMail(recipient string, subject string, content string) error {
@@ -94,10 +107,12 @@ func sendMail(recipient string, subject string, content string) error {
 // SendBeginReservationMail sends an e-mail to inform a user about the beginning of his reservation.
 // recipient has to be the user's e-mail address.
 func SendBeginReservationMail(recipient string, info util.ReservationCreds) {
-	// TODO: improve content
-	content := fmt.Sprintf(contentBeginReservation, info.Res.User, info.Env.NiceName, info.Res.Start.Format(util.TimeLayout), info.Res.End.Format(util.TimeLayout), info.Res.Subject)
-
-	err := sendMail(recipient, subjectBeginReservation, content)
+	var content bytes.Buffer
+	err := startmailTmpl.Execute(&content, info)
+	if err != nil {
+		logger.Error(err)
+	}
+	err = sendMail(recipient, subjectBeginReservation, content.String())
 	if err != nil {
 		logger.Errorf("failed to send mail to user %s at begin of reservation of env %s: %v", info.Res.User, info.Env.PlainName, err)
 	}
@@ -108,10 +123,12 @@ func SendBeginReservationMail(recipient string, info util.ReservationCreds) {
 // As at a reservation's end there is no point in showing credentials, the info.Creds
 // attribute is ignored and can be nil.
 func SendEndReservationMail(recipient string, info util.ReservationCreds) {
-	// TODO: improve content
-	content := fmt.Sprintf(contentEndReservation, info.Res.User, info.Env.NiceName, info.Res.Start.Format(util.TimeLayout), info.Res.End.Format(util.TimeLayout), info.Res.Subject)
-
-	err := sendMail(recipient, subjectEndReservation, content)
+	var content bytes.Buffer
+	err := endmailTmpl.Execute(&content, info)
+	if err != nil {
+		logger.Error(err)
+	}
+	err = sendMail(recipient, subjectEndReservation, content.String())
 	if err != nil {
 		logger.Errorf("failed to send mail to user %s at end of reservation of env %s: %v", info.Res.User, info.Env.PlainName, err)
 	}
