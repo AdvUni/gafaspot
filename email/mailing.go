@@ -43,8 +43,8 @@ const (
 	//   * the recipient's mail address
 	//   * the subject
 	//   * the content
-	// The resulting message contains the e-mail headers From, To, and Subject
-	msgTemplate = "From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s\r\n"
+	// The resulting message contains the e-mail headers From, To, Subject and Content-Type (text/html)
+	msgTemplate = "From: %s\r\nTo: %s\r\nSubject: %s\r\nContent-Type: text/html\r\n\r\n%s\r\n"
 )
 
 var (

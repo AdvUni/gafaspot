@@ -15,15 +15,15 @@ body, table, td {font-family: sans-serif !important;}
     <p>Your reservation in Gafaspot became active.</p>
     <br>
     <h3>Reservation</h3>
-    <p>username:&nbsp;{{ .Info.Res.User }}</p>
-    <p>Environment:&nbsp;{{ .Info.Env.NiceName }}<br>
-        Subject:&nbsp;{{ .Info.Res.Subject }}</p>
-    <p>Start:&nbsp;{{ formatDatetime .Info.Res.Start }}<br>
-        End:&nbsp;{{ formatDatetime .Info.Res.End }}</p>
+    <p>username:&nbsp;{{ .Res.User }}</p>
+    <p>Environment:&nbsp;{{ .Env.NiceName }}<br>
+        Subject:&nbsp;{{ .Res.Subject }}</p>
+    <p>Start:&nbsp;{{ formatDatetime .Res.Start }}<br>
+        End:&nbsp;{{ formatDatetime .Res.End }}</p>
     <br>
     <h3>Credentials</h3>
-    {{ if not .Info.Creds }} <p><strong>Error: not possible to provide credentials for this environment.</strong></p>
-    {{ else }}{{ range $secEngName, $creds := .Info.Creds }}
+    {{ if not .Creds }} <p><strong>Error: not possible to provide credentials for this environment.</strong></p>
+    {{ else }}{{ range $secEngName, $creds := .Creds }}
     <div>
         <h5>{{ $secEngName }}</h5>
         {{ if index $creds "username" }}<p class="breakall"><span>username: </span>
@@ -34,9 +34,9 @@ body, table, td {font-family: sans-serif !important;}
     </div>
     <br>
     {{ end }}{{ end }}
-    {{ if .Info.Env.Description }}
+    {{ if .Env.Description }}
     <h3>Environment Description</h3>
-    {{ .Info.Env.Description }}
+    {{ .Env.Description }}
     <br>
     {{ end }}
 
