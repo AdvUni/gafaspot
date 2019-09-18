@@ -47,7 +47,7 @@ func handleReservationScanning(l logging.Logger, intervalString string) {
 	for {
 		<-tick
 		reservationScan()
-		logger.Info("executed reservation scan")
+		logger.Debug("executed reservation scan")
 	}
 }
 
