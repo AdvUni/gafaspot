@@ -49,11 +49,11 @@ For MYSQL, the config would be something like:
 
 ```json
 {
-    "plugin_name": 		"mysql-database-plugin",
-    "allowed_roles": 	"*",
-    "connection_url": 	"{{username}}:{{password}}@tcp(127.0.0.1:3306)/",
-    "username": 		"admin_vault",
-    "password": 		"Password123"
+    "plugin_name": "mysql-database-plugin",
+    "allowed_roles": "*",
+    "connection_url": "{{username}}:{{password}}@tcp(127.0.0.1:3306)/",
+    "username": "admin_vault",
+    "password": "Password123"
 }
 ```
 
