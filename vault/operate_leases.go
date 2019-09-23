@@ -28,7 +28,8 @@ import (
 // producing leases. As well as the changepassSecEng, it communicates with endpoint creds/rolename
 // to receive creds. But calling /creds again won't invalidate the existing creds if they were
 // supplied as a lease. So, the leaseSecEng implementation does an explicit revocation request at
-// the end of a booking. The secrets engines type "database" matches to this implementation.
+// the end of a booking. The secrets engines types "database" and "ssh-pubkey" matches this
+// implementation.
 type leaseSecEng struct {
 	name                 string
 	createLeaseURL       string

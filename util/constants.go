@@ -24,4 +24,17 @@ const (
 	// As they don't contain any time zone information, it should be always parsed with time.Local.
 	// So, each time value inside gafaspot are interpreted in the local time zone of the running server.
 	TimeLayout = "2006-01-02 15:04"
+
+	// SecEngTypes are constant strings to define the Secrets Engines Types supported by Gafaspot.
+
+	// SecEngTypeAD is the type for Active Directory Secrets Engine.
+	SecEngTypeAD = "ad"
+	// SecEngTypeDB is the type for Database Secrets Engine.
+	SecEngTypeDB = "database"
+	// SecEngTypeOntap is the type for Ontap Secrets Engine.
+	SecEngTypeOntap = "ontap"
+	// SecEngTypeSSHPubkey is the type for SSH-Pubkey Secrets Engine.
+	SecEngTypeSSHPubkey = "ssh-pubkey"
+	// SecEngTypeSSH is the type for SSH Secrets Engine.
+	SecEngTypeSSH = "ssh"
 )

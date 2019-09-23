@@ -49,14 +49,14 @@ type SecEng interface {
 // URLs, to which the vault secrets engines listen to.
 func newSecEng(engineType, vaultAddress, env, name, role string, maxBookingDays int) SecEng {
 	switch engineType {
-	case "ad", "ontap":
+	case util.SecEngTypeAD, util.SecEngTypeOntap:
 		secEng := changepassSecEng{}
 		secEng.name = name
 		secEng.changeCredsURL = joinRequestPath(vaultAddress, wordOperate, env, name, wordCreds, role)
 		secEng.storeDataURL = joinRequestPath(vaultAddress, wordStore, env, name, role, "data")
 		return secEng
 
-	case "database":
+	case util.SecEngTypeDB, util.SecEngTypeSSHPubkey:
 		secEng := leaseSecEng{}
 		secEng.name = name
 		secEng.createLeaseURL = joinRequestPath(vaultAddress, wordOperate, env, name, wordCreds, role)
@@ -67,7 +67,7 @@ func newSecEng(engineType, vaultAddress, env, name, role string, maxBookingDays 
 		tuneLeaseDuration(tuneLeaseDurationURL, maxBookingDays)
 		return secEng
 
-	case "ssh":
+	case util.SecEngTypeSSH:
 		secEng := signedkeySecEng{}
 		secEng.name = name
 		secEng.signURL = joinRequestPath(vaultAddress, wordOperate, env, name, wordSign, role)

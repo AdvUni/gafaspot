@@ -99,7 +99,7 @@ func InitDB(l logging.Logger, config util.GafaspotConfig) {
 		envDescription := envConf.Description
 		envHasSSH := false
 		for _, secEng := range envConf.SecretsEngines {
-			if secEng.EngineType == "ssh" {
+			if secEng.EngineType == util.SecEngTypeSSH || secEng.EngineType == util.SecEngTypeSSHPubkey {
 				envHasSSH = true
 			}
 		}
