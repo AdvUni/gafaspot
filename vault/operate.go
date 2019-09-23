@@ -59,6 +59,7 @@ func newSecEng(engineType, vaultAddress, env, name, role string, maxBookingDays 
 	case util.SecEngTypeDB, util.SecEngTypeSSHPubkey:
 		secEng := leaseSecEng{}
 		secEng.name = name
+		secEng.engineType = engineType
 		secEng.createLeaseURL = joinRequestPath(vaultAddress, wordOperate, env, name, wordCreds, role)
 		secEng.revokeLeaseURL = joinRequestPath(vaultAddress, "sys", "leases", "revoke-prefix", wordOperate, env, name, wordCreds, role)
 		secEng.storeDataURL = joinRequestPath(vaultAddress, wordStore, env, name, role, "data")

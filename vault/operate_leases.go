@@ -22,6 +22,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/AdvUni/gafaspot/util"
 )
 
 // leaseSecEng is a SecEng implementation which is meant to work for Vault secrets engines
@@ -32,6 +34,7 @@ import (
 // implementation.
 type leaseSecEng struct {
 	name                 string
+	engineType           string
 	createLeaseURL       string
 	revokeLeaseURL       string
 	storeDataURL         string
@@ -42,10 +45,20 @@ func (secEng leaseSecEng) getName() string {
 	return secEng.name
 }
 
-// startBooking for a leaseSecEng means to create a lease in Vault and stores the returned
-// credentialschange the credentials inside the respective kv secret engine.
-func (secEng leaseSecEng) startBooking(vaultToken, _ string, _ int) {
-	data, err := json.Marshal(secEng.createLease(vaultToken))
+// startBooking for a leaseSecEng means to create a lease in Vault and store the returned
+// credentials inside the respective kv secret engine. The ssh-pubkey secrets engine
+// uses the sshKey parameter, the database secrets engine not.
+func (secEng leaseSecEng) startBooking(vaultToken, sshKey string, _ int) {
+	var data []byte
+	var err error
+
+	// perform different kinds of requests for database and ssh-pubkey secrets engines
+	if secEng.engineType == util.SecEngTypeSSHPubkey {
+		data, err = json.Marshal(secEng.createLeaseSSH(vaultToken, sshKey))
+	} else {
+		data, err = json.Marshal(secEng.createLeaseDB(vaultToken))
+	}
+
 	if err != nil {
 		logger.Errorf("not able to marshal new lease: %v", err)
 	}
@@ -63,8 +76,18 @@ func (secEng leaseSecEng) readCreds(vaultToken string) (map[string]interface{}, 
 	return vaultStorageRead(vaultToken, secEng.storeDataURL)
 }
 
-func (secEng leaseSecEng) createLease(vaultToken string) map[string]interface{} {
+func (secEng leaseSecEng) createLeaseDB(vaultToken string) map[string]interface{} {
 	data, err := sendVaultDataRequest("GET", secEng.createLeaseURL, vaultToken, nil)
+	if err != nil {
+		logger.Errorf("not able to create new lease: %v", err)
+	}
+	return data
+}
+
+func (secEng leaseSecEng) createLeaseSSH(vaultToken, sshKey string) map[string]interface{} {
+	payload := fmt.Sprintf("{\"public_key\": \"%v\"}", sshKey)
+
+	data, err := sendVaultDataRequest("POST", secEng.createLeaseURL, vaultToken, strings.NewReader(payload))
 	if err != nil {
 		logger.Errorf("not able to create new lease: %v", err)
 	}
