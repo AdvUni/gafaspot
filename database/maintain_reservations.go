@@ -45,7 +45,12 @@ func CreateReservation(r util.Reservation) error {
 
 	// check, whether reservation is in future
 	if !r.Start.After(time.Now()) {
-		return ReservationError("cannot do reservation for the past")
+		// leave small tolerance
+		if time.Now().Sub(r.Start) < 3*time.Minute {
+			r.Start = time.Now()
+		} else {
+			return ReservationError("cannot do reservation for the past")
+		}
 	}
 
 	// check whether start < end
