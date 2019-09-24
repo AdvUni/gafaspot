@@ -51,7 +51,7 @@ func sendVaultDataRequest(requestType, url, vaultToken string, body io.Reader) (
 }
 
 func sendVaultTokenRequest(url, vaultToken string, body io.Reader) (string, error) {
-	res, err := sendVaultRequest("POST", url, "", body)
+	res, err := sendVaultRequest("POST", url, vaultToken, body)
 	if err != nil {
 		return "", err
 	}
