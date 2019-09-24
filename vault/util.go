@@ -27,6 +27,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"strings"
 )
 
 // ErrAuth is thrown if an authentication against LDAP over Vault fails for any reason.
@@ -49,7 +50,7 @@ func sendVaultDataRequest(requestType, url, vaultToken string, body io.Reader) (
 	return data.(map[string]interface{}), nil
 }
 
-func sendVaultTokenRequest(url string, body io.Reader) (string, error) {
+func sendVaultTokenRequest(url, vaultToken string, body io.Reader) (string, error) {
 	res, err := sendVaultRequest("POST", url, "", body)
 	if err != nil {
 		return "", err
@@ -177,4 +178,14 @@ func joinRequestPath(addressStart string, subpaths ...string) string {
 		url.Path = path.Join(url.Path, item)
 	}
 	return url.String()
+}
+
+func tuneLeaseDuration(tuneLeaseDurationURL string, maxBookingDays int) {
+	hours := maxBookingDays * 24
+	payload := fmt.Sprintf("{\"default_lease_ttl\": \"%vh\", \"max_lease_ttl\": \"%vh\"}", hours, hours)
+	vaultToken := createEphemeralVaultToken()
+	err := sendVaultRequestEmptyResponse("POST", tuneLeaseDurationURL, vaultToken, strings.NewReader(payload))
+	if err != nil {
+		logger.Errorf("not able to tune lease duration: %v", err)
+	}
 }

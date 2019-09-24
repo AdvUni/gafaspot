@@ -38,7 +38,7 @@ type signedkeySecEng struct {
 // startBooking means for an ssh secret engine used with signed certificates to create an ssh signature for a given
 // public key. The signature is valid for a specified duration. As it should expire exactly with the booking's
 // expiration, the ttl in seconds is needed already at the booking's begin.
-func (secEng signedkeySecEng) startBooking(vaultToken, sshKey string, ttl int) {
+func (secEng signedkeySecEng) startBooking(vaultToken, sshKey, ttl string) {
 	data, err := json.Marshal(secEng.signKey(vaultToken, sshKey, ttl))
 	if err != nil {
 		logger.Errorf("not able to marshal new signature: %v", err)
@@ -62,9 +62,9 @@ func (secEng signedkeySecEng) readCreds(vaultToken string) (map[string]interface
 	return vaultStorageRead(vaultToken, secEng.storeDataURL)
 }
 
-func (secEng signedkeySecEng) signKey(vaultToken, sshKey string, ttl int) map[string]interface{} {
+func (secEng signedkeySecEng) signKey(vaultToken, sshKey, ttl string) map[string]interface{} {
 
-	payload := fmt.Sprintf("{\"public_key\": \"%v\", \"ttl\": \"%vs\"}", sshKey, ttl)
+	payload := fmt.Sprintf("{\"public_key\": \"%s\", \"ttl\": \"%s\"}", sshKey, ttl)
 
 	data, err := sendVaultDataRequest("POST", secEng.signURL, vaultToken, strings.NewReader(payload))
 	if err != nil {

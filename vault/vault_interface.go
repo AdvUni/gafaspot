@@ -38,8 +38,7 @@ func InitVaultParams(l logging.Logger, config util.GafaspotConfig) {
 
 	logger = l
 
-	initApprole(config.ApproleID, config.ApproleSecret, config.VaultAddress)
-	initLDAP(config.UserPolicy, config.VaultAddress)
+	initAuth(config)
 	environments = initSecEngs(config.Environments, config.VaultAddress, config.MaxBookingDays)
 }
 
@@ -48,13 +47,13 @@ func InitVaultParams(l logging.Logger, config util.GafaspotConfig) {
 // a possible ssh signature. If there is no ssh secret engine inside
 // the environment, the ssKey parameter will be ignored everywhere.
 func StartBooking(envPlainName, sshKey string, until time.Time) {
-	vaultToken := createVaultToken()
-	ttl := int(until.Sub(time.Now()).Seconds())
+	ttl := until.Sub(time.Now()).String()
 	environment, ok := environments[envPlainName]
 	if !ok {
 		logger.Errorf("tried to start booking for environment '%v' but it does not exist", envPlainName)
 		return
 	}
+	vaultToken := createOrphanVaultToken(ttl)
 	for _, secEng := range environment {
 		secEng.startBooking(vaultToken, sshKey, ttl)
 	}
@@ -62,7 +61,7 @@ func StartBooking(envPlainName, sshKey string, until time.Time) {
 
 // EndBooking ends a booking for a whole environment.
 func EndBooking(envPlainName string) {
-	vaultToken := createVaultToken()
+	vaultToken := createEphemeralVaultToken()
 	environment, ok := environments[envPlainName]
 	if !ok {
 		logger.Errorf("tried to end booking for environment '%v' but it does not exist", envPlainName)
@@ -86,7 +85,7 @@ func ReadCredentials(envPlainName string) map[string]map[string]interface{} {
 		return nil
 	}
 
-	vaultToken := createVaultToken()
+	vaultToken := createEphemeralVaultToken()
 
 	credentials := make(map[string]map[string]interface{})
 	for _, secEng := range environment {

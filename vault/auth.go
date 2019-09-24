@@ -21,15 +21,22 @@ package vault
 import (
 	"fmt"
 	"strings"
+
+	"github.com/AdvUni/gafaspot/util"
 )
 
 const (
-	createTokenPath   = "auth/approle/login"
-	ldapAuthBasicPath = "auth/ldap/login"
+	createEphemeralTokenPath = "auth/approle/login"
+	createOrphanTokenPath    = "auth/token/create-orphan"
+	ldapAuthBasicPath        = "auth/ldap/login"
 )
 
-var ldapAuthBasicURL, ldapAuthPolicy string
-var apprl approle
+var (
+	ldapAuthBasicURL  string
+	ldapAuthPolicy    string
+	getOrphanTokenURL string
+	apprl             approle
+)
 
 type approle struct {
 	roleID      string
@@ -37,27 +44,40 @@ type approle struct {
 	getTokenURL string
 }
 
-func initApprole(approleID, approleSecret, vaultAddress string) {
-	getTokenURL := joinRequestPath(vaultAddress, createTokenPath)
+func initAuth(c util.GafaspotConfig) {
+	// init approle
+	getTokenURL := joinRequestPath(c.VaultAddress, createEphemeralTokenPath)
 	apprl = approle{
-		approleID,
-		approleSecret,
+		c.ApproleID,
+		c.ApproleSecret,
 		getTokenURL,
 	}
+
+	// init orphan token
+	getOrphanTokenURL = joinRequestPath(c.VaultAddress, createOrphanTokenPath)
+	tuneLeaseDuration(joinRequestPath("sys", "auth", "token", "tune"), c.MaxBookingDays)
+
+	// init LDAP
+	ldapAuthBasicURL = joinRequestPath(c.VaultAddress, ldapAuthBasicPath)
+	ldapAuthPolicy = c.UserPolicy
 }
 
-func createVaultToken() string {
-	payload := fmt.Sprintf("{\"role_id\": \"%v\", \"secret_id\": \"%v\"}", apprl.roleID, apprl.secretID)
-	token, err := sendVaultTokenRequest(apprl.getTokenURL, strings.NewReader(payload))
+func createOrphanVaultToken(ttl string) string {
+	payload := fmt.Sprintf("{\"ttl\": \"%s\"}", ttl)
+	token, err := sendVaultTokenRequest(getOrphanTokenURL, createEphemeralVaultToken(), strings.NewReader(payload))
 	if err != nil {
 		logger.Error(err)
 	}
 	return token
 }
 
-func initLDAP(authPolicy, vaultAddress string) {
-	ldapAuthBasicURL = joinRequestPath(vaultAddress, ldapAuthBasicPath)
-	ldapAuthPolicy = authPolicy
+func createEphemeralVaultToken() string {
+	payload := fmt.Sprintf("{\"role_id\": \"%v\", \"secret_id\": \"%v\"}", apprl.roleID, apprl.secretID)
+	token, err := sendVaultTokenRequest(apprl.getTokenURL, "", strings.NewReader(payload))
+	if err != nil {
+		logger.Error(err)
+	}
+	return token
 }
 
 // DoLdapAuthentication performs an LDAP authentication against a Vault LDAP Auth Method.

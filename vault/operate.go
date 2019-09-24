@@ -39,7 +39,7 @@ const (
 // is needed to start and end bookings, as changing credentials and storing or deleting them.
 type SecEng interface {
 	getName() string
-	startBooking(vaultToken, sshKey string, ttl int)
+	startBooking(vaultToken, sshKey string, ttl string)
 	endBooking(vaultToken string)
 	readCreds(vaultToken string) (map[string]interface{}, error)
 }

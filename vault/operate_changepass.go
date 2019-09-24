@@ -38,7 +38,7 @@ func (secEng changepassSecEng) getName() string {
 
 // startBooking for a changepassSecEng means to change the credentials and store it inside the respective
 // kv secret engine inside Vault.
-func (secEng changepassSecEng) startBooking(vaultToken, _ string, _ int) {
+func (secEng changepassSecEng) startBooking(vaultToken, _, _ string) {
 	data, err := json.Marshal(secEng.changeCreds(vaultToken))
 	if err != nil {
 		logger.Errorf("not able to marshal new creds: %v", err)

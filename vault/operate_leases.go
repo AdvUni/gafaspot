@@ -48,7 +48,7 @@ func (secEng leaseSecEng) getName() string {
 // startBooking for a leaseSecEng means to create a lease in Vault and store the returned
 // credentials inside the respective kv secret engine. The ssh-pubkey secrets engine
 // uses the sshKey parameter, the database secrets engine not.
-func (secEng leaseSecEng) startBooking(vaultToken, sshKey string, _ int) {
+func (secEng leaseSecEng) startBooking(vaultToken, sshKey, _ string) {
 	var data []byte
 	var err error
 
@@ -69,6 +69,8 @@ func (secEng leaseSecEng) startBooking(vaultToken, sshKey string, _ int) {
 // revokes all leases associated with the secrets engine for the configured role.
 func (secEng leaseSecEng) endBooking(vaultToken string) {
 	vaultStorageDelete(vaultToken, secEng.storeDataURL)
+
+	// TODO: remove
 	secEng.revokeLease(vaultToken)
 }
 
@@ -94,19 +96,10 @@ func (secEng leaseSecEng) createLeaseSSH(vaultToken, sshKey string) map[string]i
 	return data
 }
 
+// TODO: remove
 func (secEng leaseSecEng) revokeLease(vaultToken string) {
 	err := sendVaultRequestEmptyResponse("POST", secEng.revokeLeaseURL, vaultToken, nil)
 	if err != nil {
 		logger.Errorf("not able to revoke lease: %v", err)
-	}
-}
-
-func tuneLeaseDuration(tuneLeaseDurationURL string, maxBookingDays int) {
-	hours := maxBookingDays * 24
-	payload := fmt.Sprintf("{\"default_lease_ttl\": \"%vh\", \"max_lease_ttl\": \"%vh\"}", hours, hours)
-	vaultToken := createVaultToken()
-	err := sendVaultRequestEmptyResponse("POST", tuneLeaseDurationURL, vaultToken, strings.NewReader(payload))
-	if err != nil {
-		logger.Errorf("not able to tune lease duration: %v", err)
 	}
 }
