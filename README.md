@@ -48,4 +48,4 @@ The web interface is styled with [Bootstrap](https://getbootstrap.com/). The fol
 Gafaspot uses an SQLite database for storing some information persistently. More information about the [database scheme](doc/database_scheme.md) can be found in `/doc`.
 
 ## Logging
-Gafaspot uses `stdlog` from [alexcesaro/log](https://github.com/alexcesaro/log) for logging, which logs to stdout. Gafaspot uses the log levels `DEBUG`, `INFO`, `WARNING`, `ERROR` and `EMERGENCY`. Run `gafaspot --help` to see the command line options provided by the logger.
+Gafaspot uses `stdlog` from [alexcesaro/log](https://github.com/alexcesaro/log) for logging, which logs to stdout. Gafaspot uses the log levels `DEBUG`, `INFO`, `WARNING`, `ERROR` and `EMERGENCY`. Run `gafaspot --help` to see the command line options provided by the logger. Attention: Log level `DEBUG` will print sensible information!
