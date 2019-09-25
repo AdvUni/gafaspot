@@ -1,3 +1,5 @@
+> Note: There is now an alternative SSH Secrets Engine implementation, which not needs the certificates anymore. The original SSH Secrets Engine is still supported, but the [SSH-Pubkey](secengs_sshpubkey.md) might fit your needs better.
+
 # SSH Secrets Engine
 The [SSH Secrets Engine](https://www.vaultproject.io/docs/secrets/ssh/index.html) is available in three different modes. Gafaspot only supports the [Signed Certificates Mode](https://www.vaultproject.io/docs/secrets/ssh/signed-ssh-certificates.html). In this mode, the Secrets Engine does not interact directly with any external device which makes configuration relatively easy. On the other hand, you will have to do some configuration on the target machines to make them accept the Secrets Engine's certificates. 
 
@@ -43,7 +45,7 @@ You can upload a configuration with the following command:
 curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @ssh_config.json http://127.0.0.1:8200/v1/operate/<environment_name>/SSH/config/ca
 ```
 
-As you can see, the last part of the request path is `ca`. This defines that the SSH Secrets Engine will be used with the Signed Certificates Mode. Furthermoe, use the following config:
+As you can see, the last part of the request path is `ca`. This defines that the SSH Secrets Engine will be used with the Signed Certificates Mode. Furthermore, use the following config:
 
 ```json
 {
@@ -109,5 +111,5 @@ after you made changes.
 
 
 ---
-*Go to [next page](secengs_database.md)...*  
+*Go to [next page](secengs_sshpubkey.md)...*  
 *Go to [table of contents](README.md)...*
