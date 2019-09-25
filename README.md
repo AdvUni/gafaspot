@@ -28,8 +28,9 @@ To perform reservations Gafaspot needs to change credentials on all environment'
 Gafaspot currently supports following Secrets Engines for changing credentials:
 * [Active Directory Secrets Engine](doc/secengs_ad.md)
 * [SSH Secrets Engine (Signed Certificates)](doc/secengs_ssh.md)
+* [SSH-Pubkey Secrets Engine](doc/secengs_sshpubkey.md) (not a builtin HashiCorp Secrets Engine, replacement for SSH Secrets Engine)
 * [Database Secrets Engine](doc/secengs_database.md)
-* [Ontap Secrets Engine](doc/secengs_ontap.md) (not an official Vault Secrets Engine)
+* [Ontap Secrets Engine](doc/secengs_ontap.md) (not a builtin HashiCorp Secrets Engine)
 
 This means, Gafaspot can perform reservations for accounts which can be managed by one of those Secrets Engines.
 
