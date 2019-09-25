@@ -43,9 +43,10 @@ func InitVaultParams(l logging.Logger, config util.GafaspotConfig) {
 }
 
 // StartBooking starts a booking for a whole environment. As the environment may include ssh secret
-// engines, this function needs an ssh key. It also needs the time 'until' to determine the ttl for
-// a possible ssh signature. If there is no ssh secret engine inside
+// engines, this function needs an ssh key. If there is no ssh secret engine inside
 // the environment, the ssKey parameter will be ignored everywhere.
+// The time 'until' is needed to calculate the ttl for an orphan vault token, which will be parent
+// of all the vault secrets in this reservation.
 func StartBooking(envPlainName, sshKey string, until time.Time) {
 	ttl := until.Sub(time.Now()).String()
 	environment, ok := environments[envPlainName]
@@ -53,6 +54,10 @@ func StartBooking(envPlainName, sshKey string, until time.Time) {
 		logger.Errorf("tried to start booking for environment '%v' but it does not exist", envPlainName)
 		return
 	}
+	// use an orphan token here, as some Secrets Engines create leases which
+	// get revoked as soon as the creating token expires. The orphan token
+	// lives as long as the reservation is valid, so, leases created by the
+	// token will be revoked automatically at reservation end.
 	vaultToken := createOrphanVaultToken(ttl)
 	for _, secEng := range environment {
 		secEng.startBooking(vaultToken, sshKey, ttl)

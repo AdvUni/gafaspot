@@ -65,13 +65,13 @@ func (secEng leaseSecEng) startBooking(vaultToken, sshKey, _ string) {
 	vaultStorageWrite(vaultToken, secEng.storeDataURL, data)
 }
 
-// endBooking for a leaseSecEng deletes the stored credentials from kv storage and then
-// revokes all leases associated with the secrets engine for the configured role.
+// endBooking for a leaseSecEng only needs to delete the data from Vault's kv
+// storage, as vault leases expire automatically as soon as the token which
+// created the lease gets revoked. Therefore, the leases were created with an
+// orphan token at reservation start, which TTL is set to the reservation
+// duration.
 func (secEng leaseSecEng) endBooking(vaultToken string) {
 	vaultStorageDelete(vaultToken, secEng.storeDataURL)
-
-	// TODO: remove
-	secEng.revokeLease(vaultToken)
 }
 
 func (secEng leaseSecEng) readCreds(vaultToken string) (map[string]interface{}, error) {
@@ -94,12 +94,4 @@ func (secEng leaseSecEng) createLeaseSSH(vaultToken, sshKey string) map[string]i
 		logger.Errorf("not able to create new lease: %v", err)
 	}
 	return data
-}
-
-// TODO: remove
-func (secEng leaseSecEng) revokeLease(vaultToken string) {
-	err := sendVaultRequestEmptyResponse("POST", secEng.revokeLeaseURL, vaultToken, nil)
-	if err != nil {
-		logger.Errorf("not able to revoke lease: %v", err)
-	}
 }

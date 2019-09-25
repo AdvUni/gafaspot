@@ -62,6 +62,12 @@ func initAuth(c util.GafaspotConfig) {
 	ldapAuthPolicy = c.UserPolicy
 }
 
+// createOrphanVaultToken is for generating a long-living vault token. The
+// function first performs an approle login and then uses the received
+// ephemeral token to create an orphan token (orphan tokens do not get revoked
+// as soon as their parents expire). The orphan token can be created with an
+// individual life span, so they can be used to generate secrets leases at the
+// start of a reservation.
 func createOrphanVaultToken(ttl string) string {
 	payload := fmt.Sprintf("{\"ttl\": \"%s\"}", ttl)
 	token, err := sendVaultTokenRequest(getOrphanTokenURL, createEphemeralVaultToken(), strings.NewReader(payload))
@@ -71,6 +77,10 @@ func createOrphanVaultToken(ttl string) string {
 	return token
 }
 
+// createEphemeralVaultToken performs an approle login to vault and returns the
+// received token. The token is only valid for a short time; this depends on
+// the approle role configuration in vault. Do not use this tokens for
+// generating secrets leases, as those leases would expire with the tokens.
 func createEphemeralVaultToken() string {
 	payload := fmt.Sprintf("{\"role_id\": \"%v\", \"secret_id\": \"%v\"}", apprl.roleID, apprl.secretID)
 	token, err := sendVaultTokenRequest(apprl.getTokenURL, "", strings.NewReader(payload))
