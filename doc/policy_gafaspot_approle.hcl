@@ -8,12 +8,18 @@ path "store/*" {
   capabilities = ["create", "read", "update", "delete"]
 }
 
-# Gafaspot uses this path to overwrite the default ttl for leases
+# Gafaspot uses this path to tune the default and max ttl for leases created by Secrets Engines
 path "sys/mounts/operate/*" {
-  capabilities = ["create", "read", "update", "delete"]
+  capabilities = ["update"]
 }
 
-# Access to this path is needed to revoke leases created from secrets engines at path operate/
-path "sys/leases/revoke-prefix/operate/*" {
-  capabilities = ["create", "read", "update", "delete"]
+# Gafaspot needs orphan tokens with individual life spans for starting
+# reservations to ensure that leases are not revoked to early
+path "auth/token/create-orphan" {
+  capabilities = ["update"]
+}
+
+# Gafaspot uses this path to tune the max ttl for orphan tokens
+path "sys/mounts/auth/token/tune" {
+  capabilities = ["update"]
 }
