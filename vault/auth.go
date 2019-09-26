@@ -55,7 +55,7 @@ func initAuth(c util.GafaspotConfig) {
 
 	// init orphan token
 	getOrphanTokenURL = joinRequestPath(c.VaultAddress, createOrphanTokenPath)
-	tuneLeaseDuration(joinRequestPath(c.VaultAddress, "sys", "auth", "token", "tune"), c.MaxBookingDays)
+	tuneLeaseDuration(joinRequestPath(c.VaultAddress, "sys", "mounts", "auth", "token", "tune"), c.MaxBookingDays)
 
 	// init LDAP
 	ldapAuthBasicURL = joinRequestPath(c.VaultAddress, ldapAuthBasicPath)
