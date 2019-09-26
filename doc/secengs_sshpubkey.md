@@ -58,7 +58,7 @@ An appropriate config would be something like:
 
 The configuration defines, how Vault should connect to the target machine.
 "url" should be your target machine's network address. It can either be an URL or an IP address.
-Additionally, you have to pass a key pair which has privileged access at the target machine, which means the private key is installed in the file `/root/.ssh/authorized_keys`. The Secrets Engine will authenticate with this key to add and remove keys in the `authorized_keys` files of other system users.
+Additionally, you have to pass a key pair which has root access at the target machine, which means the private key is installed in the file `/root/.ssh/authorized_keys`. The Secrets Engine will authenticate with this key to add and remove keys in the `authorized_keys` files of other system users. With the parameter `ssh_user`, you can indicate to use a different user than 'root' for this job, but then the user must be able to execute sudo commands without a password prompt.
 
 Note, that private keys usually contain line breaks which are not allowed in json strings. So, you first must encode them with \n.
 
