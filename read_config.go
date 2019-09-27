@@ -43,15 +43,18 @@ var (
 )
 
 // readConfig unmarshals the config file into a GafaspotConfig struct.
-func readConfig(logger logging.Logger) util.GafaspotConfig {
+func readConfig(logger logging.Logger, configFile string) util.GafaspotConfig {
 
 	// set config defaults
 	for key, value := range configDefaults {
 		viper.SetDefault(key, value)
 	}
 
-	viper.SetConfigName("gafaspot_config")
-	viper.AddConfigPath(".")
+	if configFile != "" {
+		viper.SetConfigFile(configFile)
+	} else {
+		viper.SetConfigFile("gafaspot_config.yaml")
+	}
 	viper.SetConfigType("yaml")
 
 	err := viper.ReadInConfig()

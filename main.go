@@ -19,6 +19,7 @@
 package main
 
 import (
+	"flag"
 	"os"
 
 	"github.com/alexcesaro/log/stdlog"
@@ -31,14 +32,15 @@ import (
 )
 
 func main() {
-	// init logger
+	// get config command line parameter and init logger
+	configFile := flag.String("config", "", "set config file explicitly. Per default, Gafaspot searches for config at './gafaspot_config.yaml'")
 	logger := stdlog.GetFromFlags()
 	logger.Debug("Warning: Log level DEBUG will print sensible information!")
 	logger.Info("Welcome to Gafaspot!")
 
 	// get all config
 	logger.Info("Reading config...")
-	config := readConfig(logger)
+	config := readConfig(logger, *configFile)
 
 	// mlock
 	if config.DisableMlock {
