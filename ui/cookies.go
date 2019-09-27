@@ -29,6 +29,14 @@ const (
 	infoCookieName  = "infomessage"
 )
 
+type reservationFormData struct {
+	startdateStr string
+	starttimeStr string
+	enddateStr   string
+	endtimeStr   string
+	subject      string
+}
+
 func setAuthCookie(w http.ResponseWriter, token string, timeout time.Time) {
 	cookie := &http.Cookie{
 		Name:     authCookieName,
@@ -59,6 +67,14 @@ func setInfoCookie(w http.ResponseWriter, message string) {
 	setMessageCookie(w, infoCookieName, message)
 }
 
+func setReservationFormCookies(w http.ResponseWriter, data reservationFormData) {
+	setMessageCookie(w, "startdate", data.startdateStr)
+	setMessageCookie(w, "starttime", data.starttimeStr)
+	setMessageCookie(w, "enddate", data.enddateStr)
+	setMessageCookie(w, "endtime", data.endtimeStr)
+	setMessageCookie(w, "subject", data.subject)
+}
+
 func readMessageCookie(w http.ResponseWriter, r *http.Request, cookieName string) string {
 	var message string
 	cookie, err := r.Cookie(cookieName)
@@ -75,6 +91,17 @@ func readErrorCookie(w http.ResponseWriter, r *http.Request) string {
 
 func readInfoCookie(w http.ResponseWriter, r *http.Request) string {
 	return readMessageCookie(w, r, infoCookieName)
+}
+
+func readReservationFormCookies(w http.ResponseWriter, r *http.Request) reservationFormData {
+	var data reservationFormData
+	data.startdateStr = readMessageCookie(w, r, "startdate")
+	data.starttimeStr = readMessageCookie(w, r, "starttime")
+	data.enddateStr = readMessageCookie(w, r, "enddate")
+	data.endtimeStr = readMessageCookie(w, r, "endtime")
+	data.subject = readMessageCookie(w, r, "subject")
+
+	return data
 }
 
 func invalidateCookie(w http.ResponseWriter, cookieName string) {

@@ -161,6 +161,7 @@ func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	errormessage := readErrorCookie(w, r)
+	cookieFormData := readReservationFormCookies(w, r)
 
 	selectedEnvPlainName := mux.Vars(r)["env"]
 	env, ok := environmentsMap[selectedEnvPlainName]
@@ -179,6 +180,13 @@ func newreservationPageHandler(w http.ResponseWriter, r *http.Request) {
 		"EmailDisabled": !email.MailingEnabled,
 		"EmailMissing":  emailMissing,
 		"Error":         errormessage,
+		// the following entries contain values from a previous reservation
+		// attempt, if user requested an invalid reservation
+		"Startdate": cookieFormData.startdateStr,
+		"Starttime": cookieFormData.starttimeStr,
+		"Enddate":   cookieFormData.enddateStr,
+		"Endtime":   cookieFormData.endtimeStr,
+		"Subject":   cookieFormData.subject,
 	})
 	if err != nil {
 		logger.Error(err)
@@ -210,8 +218,9 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get start from form
-	startstring := template.HTMLEscapeString(r.Form.Get("startdate")) + " " + template.HTMLEscapeString(r.Form.Get("starttime"))
-	reservation.Start, err = time.ParseInLocation(util.TimeLayout, startstring, time.Local)
+	startdateStr := template.HTMLEscapeString(r.Form.Get("startdate"))
+	starttimeStr := template.HTMLEscapeString(r.Form.Get("starttime"))
+	reservation.Start, err = time.ParseInLocation(util.TimeLayout, startdateStr+" "+starttimeStr, time.Local)
 	if err != nil {
 		logger.Debugf("reserve handler received reservation with malformed date/time submission: %v", err)
 		redirectInvalidSubmission(w, r, "start date/time malformed")
@@ -219,8 +228,9 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get end from form
-	endstring := template.HTMLEscapeString(r.Form.Get("enddate")) + " " + template.HTMLEscapeString(r.Form.Get("endtime"))
-	reservation.End, err = time.ParseInLocation(util.TimeLayout, endstring, time.Local)
+	enddateStr := template.HTMLEscapeString(r.Form.Get("enddate"))
+	endtimeStr := template.HTMLEscapeString(r.Form.Get("endtime"))
+	reservation.End, err = time.ParseInLocation(util.TimeLayout, enddateStr+" "+endtimeStr, time.Local)
 	if err != nil {
 		logger.Debugf("reserve handler received reservation with malformed date/time submission: %v", err)
 		redirectInvalidSubmission(w, r, "end date/time malformed")
@@ -244,6 +254,7 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 	err = database.CreateReservation(reservation)
 	if err != nil {
 		logger.Debugf("reserve handler received invalid reservation: %v", err)
+		setReservationFormCookies(w, reservationFormData{startdateStr, starttimeStr, enddateStr, endtimeStr, reservation.Subject})
 		redirectInvalidSubmission(w, r, err.Error())
 		return
 	}
