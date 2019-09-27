@@ -2,7 +2,7 @@
 Besides setting up a Vault server, Gafaspot itself has to be configured.
 
 All configuration for Gafaspot is read from one single config file: `gafapot_config.yaml`.
-This file must be located in the same directory from which you run Gafaspot.
+This file must be located in the same directory from which you run Gafaspot. Alternatively, you can set the config file explicitly at program start (see `./gafaspot -help`).
 Create such a file by copying `example_config.yaml` which you find with the Gafaspot source code. Then adapt the file to reflect your desired settings.
 
 Some config parameters have default values. This parameters are marked in the descriptions below. If present, this document uses the default as example value.
