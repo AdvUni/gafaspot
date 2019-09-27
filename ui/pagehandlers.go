@@ -229,6 +229,9 @@ func reserveHandler(w http.ResponseWriter, r *http.Request) {
 
 	// get subject from form
 	reservation.Subject = template.HTMLEscapeString(r.Form.Get("sub"))
+	if reservation.Subject == "" {
+		reservation.Subject = "no subject"
+	}
 
 	// get email checkboxes from form
 	if r.Form.Get("startmail") != "" {
