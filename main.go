@@ -19,22 +19,44 @@
 package main
 
 import (
+	"os"
+
 	"github.com/alexcesaro/log/stdlog"
 
 	"github.com/AdvUni/gafaspot/database"
 	"github.com/AdvUni/gafaspot/email"
 	"github.com/AdvUni/gafaspot/ui"
 	"github.com/AdvUni/gafaspot/vault"
+	"github.com/hashicorp/vault/sdk/helper/mlock"
 )
 
 func main() {
 	// init logger
 	logger := stdlog.GetFromFlags()
+	logger.Debug("Warning: Log level DEBUG will print sensible information!")
 	logger.Info("Welcome to Gafaspot!")
 
 	// get all config
 	logger.Info("Reading config...")
 	config := readConfig(logger)
+
+	// mlock
+	if config.DisableMlock {
+		logger.Debug("mlock is disabled by Gafaspot config")
+	} else {
+		// try to prevent Gafaspot's memory pages from swapping with mlock the same way as Vault does
+		if !mlock.Supported() {
+			logger.Emergency("Gafaspot uses mlock to prevent memory from being swapped to disk, but the mlock syscall is not supported by your system. Please disable Gafaspot from using it by setting the 'disable_mlock' option in Gafaspot's configuration file")
+			os.Exit(1)
+		} else {
+			err := mlock.LockMemory()
+			if err != nil {
+				logger.Emergency("Gafaspot uses mlock to prevent memory from being swapped to disk, but the mlock syscall fails. Please enable mlock on your system - maybe you must run Gafaspot as root - or disable Gafaspot from using it by setting the 'disable_mlock' option in Gafaspot's configuration file")
+				logger.Debugf("error with mlock: %v", err)
+				os.Exit(1)
+			}
+		}
+	}
 
 	// do initialization with config values
 	logger.Info("Initialization...")

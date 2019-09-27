@@ -26,6 +26,7 @@ import (
 // GafaspotConfig is a struct to load every information from config file.
 type GafaspotConfig struct {
 	WebserviceAddress   string                       `mapstructure:"webservice-address"`
+	DisableMlock        bool                         `mapstructure:"disable_mlock"`
 	Mailserver          string                       `mapstructure:"mailserver"`
 	GafaspotMailAddress string                       `mapstructure:"gafaspot-mailaddress"`
 	ScanningInterval    string                       `mapstructure:"scanning-interval"`

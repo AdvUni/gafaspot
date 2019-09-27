@@ -18,6 +18,9 @@ Some config parameters have default values. This parameters are marked in the de
 `webservice-address: 0.0.0.0:80` *(default value)*  
 defines where the web server listens
 ___
+`disable_mlock: false` *(default value)*  
+disables the server from executing the mlock syscall. mlock prevents memory from being swapped to disk which increases the security.
+___
 `mailserver: mail.example.com:25`  
 specifies the mail server (address and port) gafaspot can use to send e-mails to users. This feature is optional, so omit this configuration to disable emailing.
 ___

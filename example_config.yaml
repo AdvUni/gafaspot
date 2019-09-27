@@ -33,6 +33,9 @@
 
 webservice-address: 0.0.0.0:80
 
+# possibility to disable Gafaspot from executing the mlock syscall
+disable_mlock: false
+
 # specification to enable e-mails
 mailserver: mail.example.com:25
 gafaspot-mailaddress: gafaspot@example.com
