@@ -32,12 +32,12 @@
         {{ end }}
         <div class="alert alert-info" role="alert">
             <h4 class="alert-heading">Info</h4>
-            <p>You will need an ssh key pair to authenticate to some devices. You have to save the public key here.
-                Otherwise you will not be able to do reservations for some environments.</p>
+            <p>To authenticate with some devices you will need an SSH key pair. You can provide your public key here.
+                Otherwise you will not be able to create reservations for environments that use these devices.</p>
             <hr>
-            <p>Please note, that gafaspot will fetch your key at the moment your reservation starts. So if you change
+            <p>Please note that gafaspot will fetch your key the moment your reservation starts. If you change
                 your key while your reservation is active, this will have no effect to the reservation. Also make sure
-                to keep your private key somewhere, because gafaspot doesn't save it and will not be able to tell you.
+                to keep your private key somewhere, because gafaspot doesn't save it.
             </p>
         </div>
         <form method="POST" action="/personal/uploadkey">
