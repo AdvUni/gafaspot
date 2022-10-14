@@ -9,7 +9,7 @@ You can enable an Auth Method like this:
 curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @auth_ldap_enable.json http://127.0.0.1:8200/v1/sys/auth/ldap
 ```
 
-Gafaspot expects the LDAP Auth Method to be enabled at path `auth/ldap`, so don't change the request path's end. To make the enabled Auth Method to be of type LDAP, following payload is needed:
+Gafaspot expects the LDAP Auth Method to be enabled at path `auth/ldap`, so don't change the end of the request path. To configure the enabled Auth Method to be of type LDAP, following payload is needed:
 
 ```json
 {
@@ -36,10 +36,10 @@ An appropriate config would be something like:
 }
 ```
 
-"url" should be your Active Directory's network address. If you want to connect via `ldaps`, make sure to upload the right certificate to the machine running Vault. "userdn" is the base DN under which to perform user search. "groupdn" is the base to use for group membership search. With "userdn" and "groupdn" you locate the users which should be allowed to use Gafaspot. If you set "groupfilter" as in the example above, you enable LDAP to also resolute nested groups. "upndomain" defines a string which is appended to each user name in a login request. For example, a user's full login name as it is known by LDAP is usually something like userX@example.com, but the user will want to login only typing userX. So, put example.com into "upndomain".
+"url" should be your LDAP or Active Directory Domain Controller's network address. If you want to connect via `ldaps` (using TLS), make sure to upload the right server certificate to the machine running Vault. "userdn" is the base DN under which to perform user search. "groupdn" is the base DN to use for group membership search. With "userdn" and "groupdn" you locate the users which should be allowed to use Gafaspot. If you set a "groupfilter", as in the example above, you enable LDAP to also resolve nested groups. "upndomain" defines a string which is appended to each user name in a login request. For example, a user's full login name as it is known by LDAP is usually something like userX@example.com, but the user will want to login only typing userX. In this case you would put `example.com` into "upndomain".
 
 ## Map Policy
-You will probably create an LDAP group for all users which should be allowed to use Gafaspot. Gafaspot needs to determine whether authenticating users are members of this group. This is accomplished by configuring the LDAP Auth Method to assign a specific policy to members of this group. This policy's name is entered into Gafaspot's config file `gafaspot_config.yaml`. So, Gafaspot can check whether a authenticating user owns this policy.
+You will probably want to create an LDAP group for all users which should be allowed to use Gafaspot. Gafaspot needs to determine whether authenticated users are members of this group. This is accomplished by configuring Vault's LDAP Auth Method to assign a specific policy to members of this group. This policy's name is entered into Gafaspot's config file `gafaspot_config.yaml`. So, Gafaspot can check whether a authenticating user owns this policy.
 
 Therefore, a new policy must be created:
 
@@ -47,11 +47,11 @@ Therefore, a new policy must be created:
 curl --header 'X-Vault-Token: '"$VAULT_TOKEN"'' --request POST --data @policy_ldap_create.json http://127.0.0.1:8200/v1/sys/policy/gafaspot-user-ldap
 ```
 
-Here, the last part of the request path is the policy's name inside Vault. Also write this name into `gafaspot_config.yaml`. The policy's content does not really matter. You can upload the following payload to create an empty policy only containing a comment:
+Here, the last part of the request path (`gafaspot-user-ldap`) is the policy's name inside Vault. You will also need to write this name into `gafaspot_config.yaml`. The policy's content does not really matter. You can upload the following payload to create an empty policy only containing a comment:
 
 ```json
 {
-    "policy": "# This is an empty policy. Its i assigned to legitime Gafaspot users when authenticating with LDAP Auth Method. So, Gafaspot can recognize them by the policy name"
+    "policy": "# This is an empty policy. It is assigned to legitimate Gafaspot users when authenticating with the LDAP Auth Method so that Gafaspot can recognize them by the policy name"
 }
 ```
 
